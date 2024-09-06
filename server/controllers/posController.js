@@ -191,9 +191,6 @@ exports.receipt = async (req, res) => {
   }
 };
 
-exports.receiptSearch = async (req, res) => {
-
-}
 
 exports.confirmPayment = async (req, res) => {
   try {

@@ -13,7 +13,6 @@ router.get('/pos/order/order-count', isLoggedIn, posController.orderCount);
 router.get('/orders/search', isLoggedIn, posController.orderSearch);
 
 router.get('/pos/receipt', isLoggedIn, posController.receipt);
-router.get('/receipts/search', isLoggedIn, posController.receiptSearch);
 
 router.post('/pos/confirm-payment', isLoggedIn, posController.confirmPayment);
 

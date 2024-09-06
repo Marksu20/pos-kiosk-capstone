@@ -19,8 +19,6 @@
 
 		<!-- Bootstrap core JS-->
 		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
-		<!-- Core theme JS-->
-		<script src="js/scripts.js"></script>
 		<script>
 			let orderItems = [];
 
@@ -256,8 +254,14 @@
 				function clearOrderSummary() {
 					orderItems = []; // Clear the array holding the order items
 
+					localStorage.removeItem('orderItems'); // Clear the items from localStorage
+
 					const orderSummaryContainer = document.querySelector('.order-summary');
 					orderSummaryContainer.innerHTML = ''; // Clear the container
+
+					document.querySelector('input.customer-name').value = '';
+					document.querySelector('.form-select').selectedIndex = 0;
+					document.querySelector('.total-amount').textContent = '₱0.00';
 
 					updateOrderSummary(); // Re-render the summary with the cleared items
 					updateCartBadge(); // Reset the cart badge
