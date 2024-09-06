@@ -13,7 +13,7 @@ exports.kiosk = async (req, res) => {
   try {
     const products = await Product.find({ });
     const productsSold = await Product.find({ })
-      .sort({ sold: -1})
+      .sort({ sold: -1, createdAt: -1 })
       .limit(9);
     const categories = await Category.find({ })
     
@@ -43,9 +43,13 @@ exports.allProducts = async (req, res) => {
 
     if(req.query.category) {
       var selectedCategory = await Category.findOne({ name: req.query.category });
-      products = await Product.find({ category: selectedCategory._id}).populate('category');
+      products = await Product.find({ category: selectedCategory._id})
+      .sort({ createdAt: -1 })
+      .populate('category');
     } else {
-      products = await Product.find({}).populate('category');
+      products = await Product.find({})
+      .sort({ createdAt: -1 })
+      .populate('category');
     }
 
     products.forEach(product => {
