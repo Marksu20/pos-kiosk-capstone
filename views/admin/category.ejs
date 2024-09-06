@@ -1,0 +1,116 @@
+<div class="container-fluid">
+  <div class="row">
+    <%- include('../partials/admin_sidebar.ejs') %>
+
+    <main class="col-md-9 ml-sm-auto col-lg-10 px-md-4 py-4">
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="/pos/admin/category">Categories</a></li>
+          <li class="breadcrumb-item active" aria-current="page">Overview</li>
+        </ol>
+      </nav>
+      
+      <div class="mb-3">
+        <button class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#categoryModal">
+          + New Category
+        </button>
+      </div>
+      
+      <div class="modal fade" id="categoryModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">New Category</h5>
+            </div>
+            <form action="/pos/admin/newCategory" method="POST">
+              <div class="modal-body">
+                <div class="input-group mb-3">
+                  <span class="input-group-text">Name</span>
+                  <input name="name" id="name" type="text" class="form-control" placeholder="Category name" >
+                </div>
+                <div class="input-group">
+                  <span class="input-group-text">Description</span>
+                  <textarea name="description" id="description" class="form-control"></textarea>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-primary">Save</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-12 col-xl-12 mb-4 mb-lg-0">
+          <div class="card">
+            <div class="card-header">
+              <input id="category-search" class="w-25 form-control form-control-dark" type="text" placeholder="Search..." aria-label="Search">
+            </div>
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th scope="col">Category Name</th>
+                      <th scope="col">Description</th>
+                      <th scope="col">Created</th>
+                      <th scope="col">Actions</th>
+                    </tr>
+                  </thead>
+                  <% if(categories.length > 0) { %>
+                    <% categories.forEach( category => { %>
+                      <tbody id="category-list">
+                        <tr class="category-row">
+                          <td scope="row"><%= category.name %></td>
+                          <td><%= category.description %></td>
+                          <td><%= new Date( category.createdAt ).toLocaleString() %></td>
+                          <td>
+                            <a href="/pos/admin/category/<%= category._id %>" class="btn btn-sm btn-secondary px-3">
+                              Edit
+                            </a>
+                          </td>
+                        </tr>
+                      </tbody>
+                    <% }) %>
+                  <% } else { %>
+                    <div>
+                      <p class="text-danger">You don't have a category yet.</p>
+                    </div>
+                  <% } %>
+                </table>
+                <div id="no-results" class="text-center" style="display: none;">
+                  No results found.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- search function -->
+<script>
+  document.getElementById('category-search').addEventListener('input', function () {
+    const searchQuery = this.value.toLowerCase();
+    const categoryRows = document.querySelectorAll('.category-row');
+    let hasResults = false;
+
+    categoryRows.forEach(row => {
+      const categoryName = row.querySelector('td:nth-child(1)').textContent.toLowerCase();
+      
+      if (categoryName.includes(searchQuery)) {
+        row.style.display = '';
+        hasResults = true;
+      } else {
+        row.style.display = 'none';
+      }
+    });
+
+    // Show "No results" message if no rows match the search query
+    document.getElementById('no-results').style.display = hasResults ? 'none' : 'block';
+  });
+</script>

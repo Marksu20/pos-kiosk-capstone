@@ -1,0 +1,145 @@
+<!-- main content -->
+<div class="container-fluid">
+  <div class="row">
+    <!-- sidebar -->
+    <%- include('../partials/admin_sidebar.ejs') %>
+    
+    <!-- main -->
+    <main class="col-md-9 ml-sm-auto col-lg-10 px-md-4 py-4">
+      <nav aria-label="breadcrumb">
+          <ol class="breadcrumb">
+              <li class="breadcrumb-item"><a href="/admin">Dashboard</a></li>
+              <li class="breadcrumb-item active" aria-current="page">Overview</li>
+          </ol>
+      </nav>
+      <h1 class="h2">Dashboard</h1>
+      <div class="row my-4">
+        <div class="col-12 col-md-6 col-lg-3 mb-4 mb-lg-4">
+          <div class="card">
+            <h5 class="card-header">Total Procuct Sold</h5>
+            <div class="card-body">
+              <h5 class="card-title"><%= totalQuantitySold %></h5>
+              <!-- <p class="card-text">This month</p> -->
+              <!-- <p class="card-text text-success">4.6% increase since last month</p> -->
+            </div>
+          </div>
+        </div>
+        <div class="col-12 col-md-6 col-lg-3 mb-4 mb-lg-4">
+          <div class="card">
+            <h5 class="card-header">Total Customer</h5>
+            <div class="card-body">
+              <h5 class="card-title"><%= totalCustomers %></h5>
+              <!-- <p class="card-text">This Month</p> -->
+              <!-- <p class="card-text text-success">18.2% increase since last month</p> -->
+            </div>
+          </div>
+        </div>
+        <div class="col-12 col-md-6 col-lg-3 mb-4 mb-lg-4">
+          <div class="card">
+            <h5 class="card-header">Total Revenue</h5>
+            <div class="card-body">
+              <h5 class="card-title">₱ <%= totalRevenue %></h5>
+              <!-- <p class="card-text">This month</p> -->
+              <!-- <p class="card-text text-danger">2.6% decrease since last month</p> -->
+            </div>
+          </div>
+        </div>
+        <div class="col-12 col-md-6 col-lg-3 mb-4 mb-lg-4">
+          <div class="card">
+            <h5 class="card-header">Total Expenses</h5>
+            <div class="card-body">
+              <h5 class="card-title">₱ <%= totalExpenses %></h5>
+              <!-- <p class="card-text">This month</p> -->
+              <!-- <p class="card-text text-danger">2.6% decrease since last month</p> -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-12 col-md-12 col-lg-8 mb-4 mb-lg-4">
+          <div class="card ">
+            <h5 class="card-header">Recent Transactions</h5>
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th scope="col">Order No.</th>
+                      <th scope="col">Customer</th>
+                      <th scope="col">Product(s)</th>
+                      <th scope="col">Order Type</th>
+                      <th scope="col">Discount</th>
+                      <th scope="col">Total</th>
+                      <th scope="col">Date & Time</th>
+                    </tr>
+                  </thead>
+                  <% recentOrders.forEach( recentOrder => { %>
+                    <tbody>
+                      <tr>
+                        <th># <%= recentOrder.orderNumber %></th>
+                        <td><%= recentOrder.customerName %></td>
+                        <td>
+                          <% recentOrder.orderItems.forEach(item => { %>
+                            <%= item.name %> -
+                            ₱ <%= item.price %> 
+                            ( x <%= item.quantity %> ) 
+                          <% }) %>
+                        </td>
+                        <td><%= recentOrder.orderType %></td>
+                        <td>₱ <%= recentOrder.discount %></td>
+                        <td>₱ <%= recentOrder.totalAmount %></td>
+                        <td><%= new Date( recentOrder.createdAt ).toLocaleString() %></td>
+                      </tr>
+                    </tbody>
+                  <% }) %>
+                </table>
+              </div>
+              <a href="/pos/admin/receipt" class="btn btn-block btn-light">View all</a>
+            </div>
+          </div>
+        </div>
+        <div class="col-12 col-md-12 col-lg-4 mb-4 mb-lg-4">
+          <div class="card">
+            <h5 class="card-header">Best Sellers Data</h5>
+            <div class="card-body">
+                <canvas id="bestSellersChart"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    console.log("Chart script loaded");
+    
+  const ctx = document.getElementById('bestSellersChart').getContext('2d');
+  const chartData = {
+    labels: <%- JSON.stringify(topSellingProducts.map(p => p.name)) %>,
+    datasets: [{
+      label: 'Product total sold',
+      data: <%- JSON.stringify(topSellingProducts.map(p => p.totalRevenue)) %>,
+      backgroundColor: 'rgba(75, 192, 192, 0.2)',
+      borderColor: 'rgba(75, 192, 192, 1)',
+      borderWidth: 1
+    }]
+  };
+
+  const myChart = new Chart(ctx, {
+    type: 'bar',
+    data: chartData,
+    options: {
+      scales: {
+        y: {
+          beginAtZero: true
+        }
+      }
+    }
+  });
+});
+</script>
+
+
+

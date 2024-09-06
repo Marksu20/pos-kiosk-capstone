@@ -1,0 +1,81 @@
+<div class="container-fluid w-75">
+  <div class="row">
+    <%- include('../partials/admin_sidebar.ejs') %>
+
+    <main class="col-md-9 ml-sm-auto col-lg-10 px-md-4 py-4">
+      <div class="col-12 col-xl-12 mb-4 mb-lg-0">
+        <nav class="w-50">
+          <ol class="breadcrumb">
+              <li class="breadcrumb-item"><a href="/pos/admin/discount">Discount</a></li>
+              <li class="breadcrumb-item active"><%= discount.name %></li>
+          </ol>
+        </nav>
+
+        <div class="card">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="card-title">Edit Discount</h5>
+            <a class="btn btn-sm btn-danger" id="deleteButton" data-bs-toggle="modal" data-bs-target="#deleteDiscountModal">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-trash"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+            </a>
+          </div>
+
+          <form action="/pos/admin/discount/<%= discountID %>?_method=PUT" method="POST">
+            <div class="card-body">
+              <div class="input-group mb-3">
+                <span class="input-group-text">Discount</span>
+                <input id="name" name="name" value="<%= discount.name %>" type="text" class="form-control" placeholder="Discount" required>
+              </div>
+
+              <div class="input-group mb-3">
+                <span class="input-group-text">Value</span>
+                <input id="value" name="value" value="<%= discount.value %>" type="number" class="form-control" placeholder="Value in percent" min="0" step="0.01" required>
+                <span class="input-group-text">%</span>
+              </div>
+
+              <div class="input-group">
+                <span class="input-group-text">Description</span>
+                <textarea id="description" name="description" class="form-control"><%= discount.description %></textarea>
+              </div>
+            </div>
+
+            <div class="card-footer text-start">
+              <button type="submit" class="btn btn-success px-5">Save Changes</button>
+              <button type="button" class="btn btn-secondary px-5">
+                <a href="/pos/admin/discount" style="text-decoration: none; color: #fff;">Cancel Edit</a>
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- delete modal -->
+<div class="modal" id="deleteDiscountModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      
+      <div class="modal-header">
+        <h5 class="modal-title">
+          You are about to delete a Item
+        </h5>
+      </div>
+      
+      <div class="modal-body">
+        <p>
+          This will delete your Discount   <b class="fw-bold text-danger"><%= discount.name %></b><br/>
+          Are you sure?
+        </p>
+      </div>
+
+      <!-- footer -->
+      <form action="/pos/admin/delete-discount/<%= discountID %>?_method=DELETE" method="POST">
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-danger">Delete</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>  
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

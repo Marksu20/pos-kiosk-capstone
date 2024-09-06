@@ -1,0 +1,15 @@
+POS
+- add to cart
+ADMIN
+- auth pincode
+- dashboard {
+  - customer count
+  - revenue
+  - expenses
+  - latest transactions
+}
+
+KIOSK
+- add to cart
+- show products ✓
+- show category ✓

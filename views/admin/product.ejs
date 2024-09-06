@@ -1,0 +1,171 @@
+<div class="container-fluid">
+  <div class="row">
+
+    <%- include('../partials/admin_sidebar.ejs') %>
+
+    <main class="col-md-9 ml-sm-auto col-lg-10 px-md-4 py-4">
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="/pos/admin/product">Products</a></li>
+          <li class="breadcrumb-item active" aria-current="page">Overview</li>
+        </ol>
+      </nav>
+      <div class="mb-3">
+        <button class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#productModal">
+          <strong>+</strong> New Product
+        </button>
+      </div>
+      <!-- new product modal -->
+      <div class="modal" id="productModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content">
+            <!-- header -->
+            <div class="modal-header">
+              <h5 class="modal-title">
+                 New Product
+              </h5>
+            </div>
+            <form action="/pos/admin/newProduct" method="POST" enctype="multipart/form-data">
+              <!-- body -->
+              <div class="modal-body">
+                <div class="input-group mb-3">
+                  <span class="input-group-text">Name</span>
+                  <input name="name" id="name" type="text" class="form-control" placeholder="Product name" required>
+                </div>
+                
+                <% if(categories.length > 0){ %>
+                  <div class="input-group mb-3">
+                    <span class="input-group-text">Category</span>
+                    <select class="form-select" name="category">
+                        <% categories.forEach( category => { %>
+                          <option value="<%= category._id %>"><%= category.name %></option>
+                        <% }) %>
+                    </select>
+                  </div>
+                <% } else { %>
+                    <!-- if no set category -->
+                    <div class="input-group mb-3">
+                      <span class="input-group-text">Category</span>
+                      <input name="newCategory" id="newCategory" type="text" class="form-control" placeholder="Create a category">
+                    </div>
+                    <div class="input-group mb-3">
+                      <span class="input-group-text">Category description</span>
+                      <textarea name="categoryDescription" id="categoryDescription" class="form-control"></textarea>
+                    </div>
+                <% } %>
+
+                <div class="input-group mb-3">
+                  <span class="input-group-text">₱</span>
+                  <input name="price" id="price" type="number" class="form-control" placeholder="Price" min="0" step="0.01" required>
+                  <span class="input-group-text">.00</span>
+                </div>
+        
+                <div class="input-group mb-3">
+                  <span class="input-group-text">Quantity</span>
+                  <input name="quantity" id="quantity" type="number" class="form-control" min="1" step="1">
+                </div>
+        
+                <div class="input-group mb-3">
+                  <input name="image" id="image" type="file" class="form-control">
+                </div>
+              </div>
+
+              <!-- footer -->
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-primary">Save</button>
+              </div>
+
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-12 col-xl-12 mb-4 mb-lg-0">
+          <div class="card">
+            <div class="card-header">
+              <input id="product-search" class="w-25 form-control form-control-dark" type="text" placeholder="Search..." aria-label="Search">
+            </div>
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th scope="col">Image</th>
+                      <th scope="col">Name</th>
+                      <th scope="col">Category</th>
+                      <th scope="col">Price</th>
+                      <th scope="col">Quantity</th>
+                      <th scope="col">Sold</th>
+                      <th scope="col">Created</th>
+                      <th scope="col">Action</th>
+                    </tr>
+                  </thead>
+                  <% if(products.length > 0) { %>
+                    <% products.forEach( product => { %>
+                      <tbody id="product-list">
+                        <tr class="product-row">
+                          <td scope="row">
+                            <img src="<%= product.image %>" class="img-fluid rounded-3" alt="product_image">
+                          </td>
+                          <td><%= product.name %></td>
+                          <% if(product.category){ %>
+                            <td><%= product.category.name %></td>
+                          <% } else { %>
+                            <td>No Category</td>
+                          <% } %>
+                          <td><%= product.price %></td>
+                          <td><%= product.quantity %></td>
+                          <td><%= product.sold %></td>
+                          <td><%= new Date( product.createdAt ).toLocaleString() %></td>
+                          <td>  
+                            <a href="/pos/admin/product/<%= product.id %>" class="btn btn-sm btn-secondary px-3">
+                              Edit
+                            </a>
+                          </td>
+                        </tr>
+                      </tbody>
+                    <% }) %>
+                  <% } else { %>
+                    <div>
+                      <p class="text-danger">you don't have a product yet.</p>
+                    </div>
+                  <% } %>
+                </table>
+                <div id="no-results" class="text-center" style="display: none;">
+                  No results found.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- search function -->
+<script>
+  document.getElementById('product-search').addEventListener('input', function () {
+    const searchQuery = this.value.toLowerCase();
+    const productRows = document.querySelectorAll('.product-row');
+    let hasResults = false;
+
+    productRows.forEach(row => {
+      const productName = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
+      const categoryName = row.querySelector('td:nth-child(3)').textContent.toLowerCase();
+      const productPrice = row.querySelector('td:nth-child(4)').textContent;
+
+      if (productName.includes(searchQuery) || categoryName.includes(searchQuery) || productPrice.includes(searchQuery)) {
+        row.style.display = '';
+        hasResults = true;
+      } else {
+        row.style.display = 'none';
+      }
+    });
+    // Show "No results" message if no rows match the search query
+    document.getElementById('no-results').style.display = hasResults ? 'none' : 'block';
+  })
+</script>
+

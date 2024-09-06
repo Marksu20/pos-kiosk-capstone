@@ -1,0 +1,95 @@
+<!-- cart summary -->
+<section class="h-100 mb-5" style="background-color: transparent;">
+  <div class="container py-5 h-100 ">
+    <div class="row d-flex justify-content-center align-items-center h-100 ">
+      <div class="col-12 ">
+        <div class="card shadow" style="border-radius: 15px;">
+          <div class="card-body p-0">
+            <div class="row g-0">
+              <div class="col-lg-8">
+                <div class="p-5">
+                  <div class="d-flex justify-content-between align-items-center mb-5">
+                    <h1 class="fw-bold mb-0">Order Summary</h1>
+                  </div>
+                  <hr class="my-2">
+
+                  <div class="order-summary">
+                    <!-- Order items will be inserted here dynamically by JavaScript -->
+                  </div>
+
+                  <hr class="my-2">
+                </div>
+              </div>
+  
+              <div class="col-lg-4 mb-5">
+                <div class="p-5">
+                  <h3 class="fw-bold mb-5 mt-2 pt-1">Order Total</h3>
+                  <hr class="my-4">
+  
+                  <div class="d-flex justify-content-between mb-4">
+                    <h5 class="text-uppercase">item(s) 3</h5>
+                    <!-- <h5>₱ 132.00</h5> -->
+                  </div>
+
+                  <input class="form-control mb-3" type="text" placeholder="Name (anything)">
+  
+                  <div class="mb-4 pb-2">
+                    <select class="form-select">
+                      <option value="1">Dine In</option>
+                      <option value="2">Take Out</option>
+                    </select>
+                  </div>
+  
+                  <hr class="my-4">
+  
+                  <div class="d-flex justify-content-between mb-5">
+                    <h5 class="text-uppercase">Total price</h5>
+                    <h5 class="total-amount">₱ 137.00</h5>
+                  </div>
+
+                  <button  type="button" class="btn btn-dark btn-block btn-lg">
+                    Checkout
+                  </button>
+                  
+                  <a href="/kiosk">
+                    <button  type="button" class="btn btn-danger btn-block btn-lg">
+                      Cancel Order
+                    </button>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="row mb-4 d-flex justify-content-between align-items-center">
+  <div class="col-md-2 col-lg-2 col-xl-2">
+    <img src="/img/cafe-latter.jpg" class="img-fluid rounded-3">
+  </div>
+
+  <div class="col-md-3 col-lg-3 col-xl-3">
+    <h6 class="text-muted">Coffee</h6>
+    <h6 class="mb-0">Cafe Latte</h6>
+  </div>
+  
+  <div class="col-md-3 col-lg-3 col-xl-2 d-flex">
+    <button data-mdb-button-init data-mdb-ripple-init class="btn btn-link px-2" onclick="this.parentNode.querySelector('input[type=number]').stepDown()">
+      <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-minus"><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+    </button>
+
+    <input id="form1" min="0" name="quantity" value="1" type="number" class="form-control form-control-sm" />
+
+    <button data-mdb-button-init data-mdb-ripple-init class="btn btn-link px-2" onclick="this.parentNode.querySelector('input[type=number]').stepUp()">
+      <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-plus"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+    </button>
+  </div>
+
+  <div class="col-md-3 col-lg-2 col-xl-2 offset-lg-1">
+    <h6 class="mb-0">₱ 44.00</h6>
+  </div>
+
+</div>

@@ -1,0 +1,143 @@
+<!-- main content -->
+<div class="container-fluid">
+  <div class="row">
+    <!-- sidebar -->
+    <%- include('../partials/pos_sidebar.ejs') %>
+    
+    <!-- main -->
+    <!-- <main class="col-md-9 ml-sm-auto col-lg-7 col-xl-7 px-md-4 py-4">
+    </main> -->
+    <main class="col-md-10 ml-sm-auto col-lg-10 px-md-4 py-4">
+    <h1 class="h2 mb-4">List of Receipts</h1>
+    <div class="row">
+      <div id="receipts" class="col-12 col-xl-12 mb-4 mb-lg-0">
+        <div class="card">
+          <div class="card-header">
+            <input id="receipt-search" class="w-25 form-control form-control-dark" type="text" placeholder="Search..." aria-label="Search">
+          </div>
+          <div id="card-body" class="card-body">
+            <div class="table-responsive">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th scope="col">Order No.</th>
+                    <th scope="col">Customer</th>
+                    <th scope="col">Product(s)</th>
+                    <th scope="col">Order Type</th>
+                    <th scope="col">Discount</th>
+                    <th scope="col">Total</th>
+                    <th scope="col">Created</th>
+                    <th scope="col">Action</th>
+                  </tr>
+                </thead>
+                <% if (receipts.length > 0) { %>
+                  <% receipts.forEach( receipt => { %>
+                    <tbody id="receipt-list">
+                      <tr class="receipt-row">
+                        <td># <%= receipt.orderNumber %></td>
+                        <td><%= receipt.customerName %></td>
+                        <td>
+                          <% receipt.orderItems.forEach(item => { %>
+                            <%= item.name %> - 
+                            ₱ <%= item.price %> 
+                            ( x <%= item.quantity %> ) 
+                          <% }) %>
+                        </td>
+                        <td><%= receipt.orderType %></td>
+                        <td>₱ <%= receipt.discount %></td>
+                        <td>₱ <%= receipt.totalAmount %></td>
+                        <td><%= new Date( receipt.createdAt ).toLocaleString() %></td>
+                        <td>
+                          <button class="btn btn-sm btn-primary px-3 view-receipt" data-receipt='<%= JSON.stringify(receipt) %>'>view</button>
+                        </td>
+                      </tr>
+                    </tbody>
+                  <% }) %>
+                <% } %>
+              </table>
+              <div id="no-results" class="text-center" style="display: none;">
+                No results found.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    </main>
+  </div>
+</div>
+<!-- Modal for displaying receipt -->
+<div class="modal fade" id="receipt-modal" tabindex="-1" aria-labelledby="receiptModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Order Summary</h5>
+      </div>
+      <div class="modal-body">
+        <h4><span id="customerName"></span></h4>
+        <h5>Order Number: #<span id="orderNumber"></span></h5>
+        <div id="receiptOrderSummary">
+          <!-- Order items will be dynamically inserted here -->
+        </div>
+        <hr>
+        <div id="orderType">Dine In</div>
+        <h6>Total Amount: ₱<span id="receiptTotalAmount"></span></h6>
+      </div>
+      <div class="modal-footer">
+        <button type="submit" class="btn btn-primary">Print</button>
+        <button type="button" class="btn btn-secondary close-btn" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Function to show receipt modal -->
+<script>
+
+document.querySelectorAll('.view-receipt').forEach(button => {
+  button.addEventListener('click', function () {
+    const receipt = JSON.parse(this.getAttribute('data-receipt'));
+
+    // Populate receipt modal
+    document.getElementById('customerName').textContent = receipt.customerName;
+    document.getElementById('orderNumber').textContent = receipt.orderNumber;
+    document.getElementById('orderType').textContent = receipt.orderType;
+    document.getElementById('receiptTotalAmount').textContent = receipt.totalAmount;
+
+    const receiptOrderSummary = receipt.orderItems.map(item => `
+      <p>${item.name} - ₱${item.price} (x${item.quantity})</p>
+    `).join('');
+    document.getElementById('receiptOrderSummary').innerHTML = receiptOrderSummary;
+
+    // Show modal
+    const receiptModal = new bootstrap.Modal(document.getElementById('receipt-modal'));
+    receiptModal.show();
+  });
+});
+</script>
+
+<!-- search function -->
+<script>
+  document.getElementById('receipt-search').addEventListener('input', function () {
+    const searchQuery = this.value.toLowerCase();
+    const receiptRows = document.querySelectorAll('.receipt-row');
+    let hasResults = false;
+
+    receiptRows.forEach(row => {
+      const orderNumber = row.querySelector('td:nth-child(1)').textContent.toLowerCase();
+      const customerName = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
+      
+      if (orderNumber.includes(searchQuery) || customerName.includes(searchQuery)) {
+        row.style.display = '';
+        hasResults = true;
+      } else {
+        row.style.display = 'none';
+      }
+    });
+
+    // Show "No results" message if no rows match the search query
+    document.getElementById('no-results').style.display = hasResults ? 'none' : 'block';
+  });
+</script>
+
+

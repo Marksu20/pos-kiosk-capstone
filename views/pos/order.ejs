@@ -1,0 +1,450 @@
+ <!-- main content -->
+ <div class="container-fluid">
+  <div class="row">
+    <!-- sidebar -->
+    <%- include('../partials/pos_sidebar.ejs') %>
+
+    <!-- main -->
+    <!-- <main class="col-md-9 ml-sm-auto col-lg-7 col-xl-7 px-md-4 py-4">
+    </main> -->
+    <main class="col-md-10 ml-sm-auto col-lg-10 px-md-4 py-4">
+      <ul class="nav nav-tabs mb-3" id="queueTab" role="tablist">
+        <li class="nav-item" role="presentation">
+          <button class="nav-link active" id="in-process-tab" data-bs-toggle="tab" data-bs-target="#inProcess" type="button" role="tab" aria-controls="inProcess" aria-selected="true">
+            In Process
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="to-serve-tab" data-bs-toggle="tab" data-bs-target="#toServe" type="button" role="tab" aria-controls="toServe" aria-selected="false">
+            To Serve
+          </button>
+        </li>
+      </ul>
+    <!-- queue -->
+    <div class="row tab-content" id="queueTabContent">
+
+      <!-------------------------------- in process ------------------------------------------>
+      <div class="col-12 col-xl-12 mb-4 mb-lg-0 tab-pane fade show active" id="inProcess" role="tabpanel" aria-labelledby="in-process-tab">
+        <div class="card">
+          <div class="card-header">
+            <input id="in-process-search" class="w-25 form-control form-control-dark" type="text" placeholder="Search Order No." aria-label="Search">
+          </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th scope="col">Order No.</th>
+                    <th scope="col">Customer</th>
+                    <th scope="col">Product(s)</th>
+                    <th scope="col">Order Type</th>
+                    <th scope="col">Discount</th>
+                    <th scope="col">Total</th>
+                    <th scope="col">Date & Time</th>
+                    <th scope="col">Status</th>
+                    <th scope="col" class="text-center">Actions</th>
+                  </tr>
+                </thead>
+                  <% orders.forEach(order => { %>
+                    <% if (order.status === "In Process") { %>
+                      <tbody id="in-process-list">
+                        <tr class="in-process-row">
+                          <td># <%= order.orderNumber %></td>
+                          <td><%= order.customerName %></td>
+                          <td>
+                            <% order.orderItems.forEach(item => { %>
+                                <%= item.name %> - ₱<%= item.price %> (x<%= item.quantity %>)<br>
+                            <% }) %>
+                          </td>
+                          <td><%= order.orderType %></td>
+                          <td>₱<%= order.discount %></td>
+                          <td>₱<%= order.totalAmount %></td>
+                          <td><%= new Date(order.createdAt).toLocaleString() %></td>
+                          <td class="text-warning"><%= order.status %></td>
+                          <td class="text-center">
+                            <button type="button" class="btn btn-sm btn-secondary px-3 btn-edit-order" data-order-id="<%= order._id %>">
+                              Edit
+                            </button>
+                            <button type="button" class="btn btn-sm btn-danger px-3 btn-delete-order" data-order-id="<%= order._id %>" data-order-number="<%= order.orderNumber %>">
+                              Delete
+                            </button>
+                          </td> 
+                        </tr>
+                      </tbody>
+                    <% } %>
+                  <% }) %>
+              </table>
+              <div id="no-results" class="text-center" style="display: none;">
+                No results found.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-------------------------------- to serve ------------------------------------------>
+      <div class="col-12 col-xl-12 mb-4 mb-lg-0 tab-pane fade" id="toServe" role="tabpanel" aria-labelledby="to-serve-tab">
+        <div class="card">
+          <div class="card-header">
+            <input id="to-serve-search" class="w-25 form-control form-control-dark" type="text" placeholder="Search Order No." aria-label="Search">
+          </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th scope="col">Order No.</th>
+                    <th scope="col">Customer</th>
+                    <th scope="col">Product(s)</th>
+                    <th scope="col">Order Type</th>
+                    <th scope="col">Discount</th>
+                    <th scope="col">Total</th>
+                    <th scope="col">Created</th>
+                    <th scope="col">Status</th>
+                  </tr>
+                </thead>
+                  <% orders.forEach(order => { %>
+                    <% if(order.status === "To Serve"){ %>
+                    <tbody id="to-serve-list">
+                      <tr class="to-serve-row">
+                        <td><%= order.orderNumber %></td>
+                        <td><%= order.customerName %></td>
+                        <td>
+                          <% order.orderItems.forEach(item => { %>
+                            <%= item.name %> - ₱<%= item.price %> (x<%= item.quantity %>)<br>
+                          <% }) %>
+                        </th>
+                        <td><%= order.orderType %></td>
+                        <td>₱ <%= order.discount %></td>
+                        <td><%= order.totalAmount %></td>
+                        <td><%= new Date(order.createdAt).toLocaleString() %></td>
+                        <td class="text-success"><%= order.status %></td>
+                      </tr>
+                    </tbody>
+                    <% } %>
+                  <% }) %>
+                </tbody>
+              </table>
+              <div id="ts-no-results" class="text-center" style="display: none;">
+                No results found.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    </main>
+  </div>
+</div>
+
+<!-- Order Edit Modal -->
+<div class="modal fade" id="editOrderModal" tabindex="-1" aria-labelledby="editOrderModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editOrderModalLabel">Update Order</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="editOrderForm">
+          <div class="mb-3">
+            <label for="orderNumber" class="form-label">Order Number</label>
+            <input type="text" class="form-control" id="orderNumber" readonly>
+          </div>
+          <div class="mb-3">
+            <label for="customerName" class="form-label">Customer Name</label>
+            <input type="text" class="form-control" id="customerName" readonly>
+          </div>
+          <div class="mb-3">
+            <label for="orderItems" class="form-label">Order Items</label>
+            <ul id="orderItems" class="list-group">
+              <!-- Dynamically generated items -->
+            </ul>
+          </div>
+          <div class="mb-3">
+            <label for="discount" class="form-label">Discount</label>
+            <select class="form-select" id="discount">
+              <option value="0">0</option>
+              <% discounts.forEach(discount => { %>
+                <option value="<%= discount.value %>"><%= discount.name %> - ₱<%= discount.value %></option>
+              <% }) %>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label for="totalAmount" class="form-label">Total Amount</label>
+            <input type="text" class="form-control" id="totalAmount" readonly>
+          </div>
+          <div class="mb-3">
+            <label for="status" class="form-label">Status</label>
+            <select class="form-select" id="status">
+              <option value="In Process">In Process</option>
+              <option value="To Serve">To Serve</option>
+            </select>
+          </div>
+          <input type="hidden" id="orderId">
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" id="saveOrderBtn">Save changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// handle edit order
+document.querySelectorAll('.btn-edit-order').forEach(button => {
+  button.addEventListener('click', async () => {
+    const orderId = button.getAttribute('data-order-id');
+
+    let order;
+
+    // Fetch the order details
+    const response = await fetch(`/orders/${orderId}`);
+    if (!response.ok) {
+      console.error('Failed to fetch order details:', response.statusText);
+      return;
+    }
+
+    try {
+      order = await response.json();
+    } catch (error) {
+      console.error('Failed to parse JSON:', error);
+      return;
+    }
+
+    if (order) {
+      document.getElementById('orderId').value = order._id;
+      document.getElementById('orderNumber').value = order.orderNumber;
+      document.getElementById('customerName').value = order.customerName;
+      
+      const orderItemsList = document.getElementById('orderItems');
+      orderItemsList.innerHTML = '';
+      order.orderItems.forEach(item => {
+        const listItem = document.createElement('li');
+        listItem.className = 'list-group-item';
+        listItem.textContent = `${item.name} - ₱${item.price} (x${item.quantity})`;
+        orderItemsList.appendChild(listItem);
+      });
+      
+      // Set the current discount and status
+      document.getElementById('discount').value = order.discount;
+      document.getElementById('totalAmount').value = order.totalAmount;
+      document.getElementById('status').value = order.status;
+      
+      // Show the modal
+      const editOrderModal = new bootstrap.Modal(document.getElementById('editOrderModal'));
+      editOrderModal.show();
+    }
+  });
+});
+
+// handle delete order
+document.querySelectorAll('.btn-delete-order').forEach(button => {
+  button.addEventListener('click', function () {
+    const orderId = this.getAttribute('data-order-id');
+    const orderNumber = this.getAttribute('data-order-number');
+    
+    if (confirm(`Are you sure you want to delete the ${orderNumber} ?`)) {
+      fetch(`/orders/${orderId}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          alert(`${orderNumber} deleted successfully.`);
+          location.reload(); // Reload the page to reflect the deletion
+        } else {
+          alert('Failed to delete order: ' + data.message);
+        }
+      })
+      .catch(error => {
+        console.error('Error deleting order:', error);
+      });
+    }
+  });
+});
+
+// Recalculate total amount when discount is changed
+document.getElementById('discount').addEventListener('change', () => {
+  const discount = parseFloat(document.getElementById('discount').value) || 0;
+  const orderItems = document.querySelectorAll('#orderItems .list-group-item');
+  let totalAmount = 0;
+
+  orderItems.forEach(item => {
+    const priceMatch = item.textContent.match(/₱(\d+(\.\d+)?)/);
+    const quantityMatch = item.textContent.match(/x(\d+)/);
+    if (priceMatch && quantityMatch) {
+      const price = parseFloat(priceMatch[1]);
+      const quantity = parseInt(quantityMatch[1]);
+      totalAmount += price * quantity;
+    }
+  });
+
+  totalAmount = totalAmount - discount;
+  document.getElementById('totalAmount').value = totalAmount.toFixed(2);
+});
+
+// Handle save button click
+document.getElementById('saveOrderBtn').addEventListener('click', async () => {
+  const orderId = document.getElementById('orderId').value;
+  const discount = parseFloat(document.getElementById('discount').value) || 0;
+  const totalAmount = parseFloat(document.getElementById('totalAmount').value);
+  const status = document.getElementById('status').value;
+
+  const updatedOrder = {
+    discount: discount,
+    totalAmount: totalAmount,
+    status: status
+  };
+
+  const updateResponse = await fetch(`/orders/${orderId}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(updatedOrder)
+  });
+
+  if (updateResponse.ok) {
+    // Close the modal and refresh the page or update the UI
+    document.getElementById('editOrderModal').classList.remove('show');
+    document.querySelector('.modal-backdrop').remove();
+    window.location.reload();
+  } else {
+    // Handle error
+    console.error('Failed to update the order');
+  }
+});
+
+// handle search "In Process"
+// document.getElementById('order-search').addEventListener('input', function () {
+//   const searchQuery = this.value.toLowerCase();
+
+//   fetch(`/orders/search?query=${encodeURIComponent(searchQuery)}`)
+//     .then(response => response.json())
+//     .then(data => {
+//       if (data.success) {
+//         const tbody = document.querySelector('#inProcess tbody');
+//         tbody.innerHTML = '';
+
+//         data.orders.forEach(order => {
+//           const orderItemsHtml = order.orderItems.map(item => `${item.name} - ₱${item.price} (x${item.quantity})`).join('<br>');
+          
+//           if (order.status === "In Process") {
+//             tbody.innerHTML += `
+//               <tr>
+//                 <th scope="row">${order.orderNumber}</th>
+//                 <td>${order.customerName}</td>
+//                 <td>${orderItemsHtml}</td>
+//                 <td>${order.orderType}</td>
+//                 <td>₱ ${order.discount}</td>
+//                 <td>₱ ${order.totalAmount}</td>
+//                 <td>${new Date(order.createdAt).toLocaleString()}</td>
+//                 <td class="text-warning">${order.status}</td>
+//                 <td class="text-center">
+//                   <button type="button" class="btn btn-sm btn-secondary px-3 btn-edit-order" data-order-id="${order._id}">
+//                     Edit
+//                   </button>
+//                   <button type="button" class="btn btn-sm btn-danger px-3 btn-delete-order" data-order-id="${order._id}" data-order-number="${order.orderNumber}">
+//                     Delete
+//                   </button>
+//                 </td>
+//               </tr>`;
+//           } 
+//         });
+//       } else {
+//         console.error('Failed to fetch search results:', data.message);
+//       }
+//     })
+//     .catch(error => {
+//       console.error('Error fetching search results:', error);
+//     });
+// });
+
+// handle search "To Serve"
+// document.getElementById('to-serve-search').addEventListener('input', function(){
+//   const searchQuery = this.value.toLowerCase();
+
+//   fetch(`/orders/search?query=${encodeURIComponent(searchQuery)}`)
+//   .then(response => response.json())
+//   .then(data => {
+//     if (data.success) {
+//       const tbody = document.querySelector('#toServe tbody');
+//       tbody.innerHTML = '';
+
+//       data.orders.forEach(order => {
+//         const orderItemsHtml = order.orderItems.map(item => `${item.name} - ₱${item.price} (x${item.quantity})`).join('<br>');
+
+//         if (order.status === "To Serve") {
+//           tbody.innerHTML += `
+//             <tr>
+//               <th scope="row">${order.orderNumber}</th>
+//               <td>${order.customerName}</td>
+//               <td>${orderItemsHtml}</td>
+//               <td>${order.orderType}</td>
+//               <td>₱${order.discount}</td>
+//               <td>₱${order.totalAmount}</td>
+//               <td>${new Date(order.createdAt).toLocaleString()}</td>
+//               <td class="text-warning">${order.status}</td>
+//             </tr>`;
+//         }
+//       });
+//     } else {
+//       console.error('Failed to fetch search results:', data.message);
+//     }
+//   })
+//   .catch(error => {
+//     console.error('Error fetching search results:', error);
+//   });
+// })
+</script>
+
+
+<!-- search function -->
+<script>
+  document.getElementById('in-process-search').addEventListener('input', function () {
+    const searchQuery = this.value.toLowerCase();
+    const inProcessRows = document.querySelectorAll('.in-process-row');
+    let hasResults = false;
+
+    inProcessRows.forEach(row => { 
+      const orderNumber = row.querySelector('td:nth-child(1)').textContent.toLowerCase();
+      const customerName = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
+
+      if (orderNumber.includes(searchQuery) || customerName.includes(searchQuery)) {
+        row.style.display = '';
+        hasResults = true;
+      } else {
+        row.style.display = 'none';
+      }
+    });
+    document.getElementById('no-results').style.display = hasResults ? 'none' : 'block';
+  })
+
+  document.getElementById('to-serve-search').addEventListener('input', function () {
+    const searchQuery = this.value.toLowerCase();
+    const toServeRows = document.querySelectorAll('.to-serve-row');
+    let hasResults = false;
+
+    toServeRows.forEach(row => { 
+      const orderNumber = row.querySelector('td:nth-child(1)').textContent.toLowerCase();
+      const customerName = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
+
+      if (orderNumber.includes(searchQuery) || customerName.includes(searchQuery)) {
+        row.style.display = '';
+        hasResults = true;
+      } else {
+        row.style.display = 'none';
+      }
+    });
+    document.getElementById('ts-no-results').style.display = hasResults ? 'none' : 'block';
+  })
+</script>
+
+
+ 

@@ -1,0 +1,137 @@
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <div class="container px-4 px-lg-5">
+    <a class="navbar-brand" href="/kiosk"><%= companyname %></a>
+    <!-- toggle button -->
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+    <!-- collapse -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4">
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Select Category</a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+            <li><a class="dropdown-item" href="/kiosk/allProducts">All Products</a></li>
+            <li><hr class="dropdown-divider" /></li>
+            <% categories.forEach(function (category) { %>
+              <li>
+                <a class="dropdown-item" href="/kiosk/allProducts?category=<%= category.name %>">
+                  <%= category.name %> 
+                </a>
+              </li>
+            <% }) %>
+          </ul>
+        </li>
+      </ul>
+      <!-- orders -->
+        <button type="button" class="btn btn-outline-dark" data-bs-toggle="modal" data-bs-target="#orderSummary">
+          <i class="bi-cart-fill me-1"></i>
+            Order(s)
+          <span class="badge bg-dark text-white ms-1 rounded-pill">0</span>
+        </button>
+    </div>
+  </div>
+</nav>
+
+<div class="modal fade" id="orderSummary" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+  <div class="modal-dialog modal-fullscreen">
+    <div class="modal-content h-100 mb-5" style="background-color: transparent;">
+      <div class="container py-5 h-100">
+        <div class="row d-flex justify-content-center align-items-center h-100">
+          <div class="col-12">
+            <div class="card shadow" style="border-radius: 15px;">
+              <div class="modal-header">
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="card-body p-0">
+                <div class="row g-0">
+                  <div class="col-lg-8">
+                    <div class="p-5">
+                      <div class="d-flex justify-content-between align-items-center mb-5">
+                        <h1 class="fw-bold mb-0">Order Summary</h1>
+                      </div>
+                      
+                      <hr class="my-2">
+
+                      <div class="order-summary">
+                        <!-- Order items will be inserted here dynamically by JavaScript -->
+                      </div>
+
+                    </div>
+                  </div>
+
+                  <div class="col-lg-4 mb-5">
+                    <div class="p-5">
+                      <h3 class="fw-bold mb-5 mt-2 pt-1">Order Total</h3>
+                      
+                      <hr class="my-4">
+
+                      <div class="d-flex justify-content-between mb-4">
+                        <h5 class="text-uppercase badgde">item(s) </h5>
+                      </div>
+
+                      <input type="text" class="customer-name form-control mb-3" placeholder="Customer Name" />
+
+                      <div class="mb-4 pb-2">
+                        <select class="form-select">
+                          <option selected>Dine In</option>
+                          <option value="1">Takeout</option>
+                        </select>
+                      </div>
+
+                      <hr class="my-4">
+
+                      <div class="d-flex justify-content-between mb-5">
+                        <h5 class="text-uppercase">Total price</h5>
+                        <h5><span class="total-amount">0.00</span></h5>
+                      </div>
+                      
+                        <button type="button" class="btn btn-dark btn-block btn-lg" data-bs-dismiss="modal">
+                          Confirm
+                        </button>
+
+                        <button type="button" class="btn btn-danger btn-block btn-lg" data-bs-dismiss="modal">
+                          Cancel Order
+                        </button>
+
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- End Customer Order Modal -->
+
+<!-- Receipt Modal -->
+<div class="modal fade" id="receiptModal" tabindex="-1" aria-labelledby="receiptModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="receiptModalLabel">Order Summary</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form action="/kiosk/orders" method="POST">
+        <div class="modal-body">
+          <h4><span id="customerName"></span></h4>
+          <h5>Order Number: <span id="orderNumber"></span></h5>
+          <div id="receiptOrderSummary">
+            <!-- Order items will be dynamically inserted here -->
+          </div>
+          <hr>
+          <div id="orderType">Dine In</div>
+          <h6>Total Amount: ₱<span id="receiptTotalAmount"></span></h6>
+        </div>
+      </form>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-success" data-bs-dismiss="modal">Confirm Order</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+

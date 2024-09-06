@@ -1,0 +1,28 @@
+<!-- NAVBAR HEADER -->
+<nav class="navbar shadow-sm p-3">
+  <div class="d-flex col-12 col-md-3 col-lg-2 mb-2 mb-lg-0 flex-wrap flex-md-nowrap justify-content-between">
+    <!-- title -->
+    <a class="navbar-brand" style="color: rgb(0, 104, 74);" href="/pos">
+      koka POS
+    </a>
+
+    <!-- toggle navbar -->
+    <button class="navbar-toggler d-md-none collapsed mb-3" type="button" data-toggle="collapse" data-target="#sidebar" aria-controls="sidebar" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    
+  </div>
+  
+  <!-- user name -->
+  <div class="col-12 col-md-5 col-lg-8 d-flex align-items-center justify-content-md-end mt-3 mt-md-0 mx-5">
+    <div class="dropdown">
+      <button class="btn btn-outline-secondary rounded-pill dropdown-toggle border" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-expanded="false">
+        <%= username %>
+      </button>
+      <!-- sign out -->
+      <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+        <li><a class="dropdown-item" href="/logout">Sign out</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>

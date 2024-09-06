@@ -1,0 +1,36 @@
+//desiging ui 749pm
+//fixinfg pos pathing 156pm
+//google login success 801pm
+//image display problem 4:16pm
+//add product 10:38pm
+//create more dummy data 7:39pm
+//continue watch tut 209am / create more dummy data
+//handle pages 1258am
+//add product (repeat to all)
+//post methods 628pm 
+
+features:
+track stocks
+admin pin
+404 page
+
+posui/functions{
+  make quantity color change ✔
+  show warning for quantity when low ✔
+  search function ✔
+  make quantity dont go negative ✔
+}
+order{
+  notification ✔
+  search by order number/name ✔
+}
+receipts{
+  seacrh function ✔
+  view receipt summary ✔
+}
+
+mongodb:
+kC4W2GSwwiuGmtFx
+
+login template:
+https://bootstrapbrain.com/component/bootstrap-simple-login-form-template/#code

@@ -1,0 +1,126 @@
+<div class="container-fluid">
+  <div class="row">
+    <%- include('../partials/admin_sidebar.ejs') %>
+
+    <main class="col-md-9 ml-sm-auto col-lg-10 px-md-4 py-4">
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="/pos/admin/stock">Stocks</a></li>
+          <li class="breadcrumb-item active" aria-current="page">Overview</li>
+        </ol>
+      </nav>
+
+      <div class="mb-3">
+        <button class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#itemModal">
+          + New Item
+        </button>
+      </div>
+
+      <div class="modal fade" id="itemModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">New Item</h5>
+            </div>
+
+            <form action="/pos/admin/newStock" method="POST">
+              <div class="modal-body">
+                <div class="input-group mb-3">
+                  <span class="input-group-text">Item</span>
+                  <input name="item" id="item" type="text" class="form-control" placeholder="Item name" >
+                </div>
+
+                <div class="input-group mb-3">
+                  <span class="input-group-text">Quantity</span>
+                  <input name="quantity" id="quantity" type="number" class="form-control" min="1" step="1" required>
+                </div>
+
+                <div class="input-group mb-3">
+                  <span class="input-group-text">₱</span>
+                  <input name="cost" id="cost" type="number" class="form-control" placeholder="Cost" min="0" step="0.01" required>
+                  <span class="input-group-text">.00</span>
+                </div>
+              </div>
+
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-primary">Save</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-12 col-xl-12 mb-4 mb-lg-0">
+          <div class="card">
+            <div class="card-header">
+              <input id="stock-search" class="w-25 form-control form-control-dark" type="text" placeholder="Search..." aria-label="Search">
+            </div>
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th scope="col">Item</th>
+                      <th scope="col">Quantity</th>
+                      <th scope="col">Cost</th>
+                      <th scope="col">Created</th>
+                      <th scope="col">Actions</th>
+                    </tr>
+                  </thead>
+                  <% if(stocks.length > 0) { stocks.forEach( stock => { %>
+                    <tbody id="stock-list">
+                      <tr class="stock-row">
+                        <td><%= stock.item %></td>
+                        <td><%= stock.quantity %></td>
+                        <td>₱ <%= stock.cost %></td>
+                        <td><%= new Date( stock.createdAt ).toLocaleString() %></td>
+                        <td>
+                          <a href="/pos/admin/stock/<%= stock._id %>" class="btn btn-sm btn-secondary px-3">
+                            Edit
+                          </a>
+                        </td>
+                      </tr>
+                    </tbody>
+                  <% }) %>
+                  <% } else { %>
+                      <div>
+                        <p class="text-danger">you don't have item yet.</p>
+                      </div>
+                  <% } %>
+                </table>
+                <div id="no-results" class="text-center" style="display: none;">
+                  No results found.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- search function -->
+<script>
+  document.getElementById('stock-search').addEventListener('input', function () {
+    const searchQuery = this.value.toLowerCase();
+    const stockRows = document.querySelectorAll('.stock-row');
+    let hasResults = false;
+
+    stockRows.forEach(row => {
+      const stockName = row.querySelector('td:nth-child(1)').textContent.toLowerCase();
+      
+      if (stockName.includes(searchQuery)) {
+        row.style.display = '';
+        hasResults = true;
+      } else {
+        row.style.display = 'none';
+      }
+    });
+
+    // Show "No results" message if no rows match the search query
+    document.getElementById('no-results').style.display = hasResults ? 'none' : 'block';
+  });
+</script>

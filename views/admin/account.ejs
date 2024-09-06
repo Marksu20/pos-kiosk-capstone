@@ -1,0 +1,90 @@
+<div class="container-fluid">
+  <div class="row">
+    <!-- sidebar -->
+    <%- include('../partials/admin_sidebar.ejs') %>
+
+    <!-- main -->
+    <main class="col-md-9 ml-sm-auto col-lg-10 px-md-4 py-4">
+      <!-- account information -->
+      <div class="container mt-5">
+        <div class="card">
+          <div class="card-header">
+            <h4>User Account Information</h4>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-4 text-center">
+                <img src="<%= profileimage %>" class="rounded-circle img-thumbnail" alt="User Avatar">
+              </div>
+              <div class="col-md-8">
+                <h5 class="card-title mb-4"><%= displayname %></h5>
+                <p class="card-text"><strong>Email:</strong> <%= emailaddress %></p>
+                <p class="card-text"><strong>Company Name:</strong> <%= companyname %></p>
+                <p class="card-text"><strong>Admin Password:</strong> <%= adminpassword %> </p>
+              </div>
+            </div>
+          </div>
+          <div class="card-footer text-muted text-center">
+            <!-- trigger modal -->
+            <button class="btn btn-primary w-25" data-bs-toggle="modal" data-bs-target="#accountModal">
+              Edit
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- kiosk -->
+      <div class="container mt-5">
+        <div class="card text-center">
+          <div class="card-header">
+            <h4>Account Kiosk</h4>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-12">
+                <p>kiosk link</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- update account modal -->
+<div class="modal fade" id="accountModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <!-- header -->
+      <div class="modal-header">
+        <h5 class="modal-title">Update Account</h5>
+      </div>
+      <!-- body -->
+      <form action="/pos/admin/account/<%= accountID %>?_method=PUT" method="POST"">
+        <div class="modal-body">
+          <div class="input-group mb-3">
+            <span class="input-group-text">New Company Name</span>
+            <input id="companyname" name="companyname" value="<%= companyname %>" type="text" class="form-control">
+          </div>
+
+          <div class="input-group mb-3">
+            <span class="input-group-text">New Password</span>
+            <input id="adminpassword" name="adminpassword" type="password" class="form-control" placeholder="****">
+          </div>
+
+          <div class="input-group mb-3">
+            <span class="input-group-text">Confirm Password</span>
+            <input id="confirmpassword" name="confirmpassword" type="password" class="form-control" placeholder="****">
+          </div>
+
+          <!-- footer -->
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-primary">Update</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
