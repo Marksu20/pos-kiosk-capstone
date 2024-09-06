@@ -43,7 +43,6 @@ body{
       padding: 0;
   }
 }
-
 /* navbar */
 .navbar {
   box-shadow: inset 0 -1px 0 rgba(0, 0, 0, .1);
@@ -61,7 +60,6 @@ body{
 .sidebar .nav-link.active {
   color: #0d6efd;
 }
-
 .img-container {
   width: 100%;
   height: 150px; /* Set the desired height for all images */

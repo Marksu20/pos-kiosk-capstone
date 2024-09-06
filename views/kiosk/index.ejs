@@ -12,8 +12,10 @@
       <% productsSold.forEach(function(productSold){ %>
         <% if(productSold.sold) { %>
           <div class="col mb-5">
-            <div class="card  shadow">
-              <img class="card-img-top" src="<%= productSold.image %>" alt="<%= productSold.name %>" />
+            <div class="card shadow">
+              <div class="img-container shadow-sm rounded">
+                <img class="card-img-top" src="<%= productSold.image %>" alt="<%= productSold.name %>" />
+              </div>
               <div class="card-body p-4">
                 <div class="text-center">
                   <h5 class="fw-bolder"><%= productSold.name %></h5>
