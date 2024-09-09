@@ -15,7 +15,7 @@ const bcrypt = require('bcryptjs');
 
 // GET: amdin
 exports.admin = async (req, res) => {
-
+  res.render('/pos/admin',)
 }
 
 exports.dashboard = async (req, res) => {
@@ -233,8 +233,6 @@ exports.account = async (req, res) => {
     title: "Account",
     description: "koka POS web application"
   }
-  
-  
 
   res.render('admin/account', {
     username: req.user.firstName,
@@ -423,31 +421,69 @@ exports.updateDiscount = async (req, res) => {
   }
 }
 
+
 exports.updateAccount = async (req, res) => {
+  const { companyName, adminPassword, newPassword, confirmPassword, removePassword } = req.body;
+  const accountID = req.params.id;
+
   try {
-    const { companyName, adminPassword } = req.body;
-    const accountID = req.params.id;
+    // Find the account by ID
+    const user = await User.findById(accountID);
 
-    if(!companyName) {
-      return res.status(400).json({ success: false, message: 'Company name is required.' });
+    //check if the user exist
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found!' });
     }
 
-    let updateFields = { companyName };
-    if (adminPassword) {
-      const salt = await bcrypt.genSalt(10);
-      const hashedPassword = await bcrypt.hash(adminPassword, salt);
-      updateFields.adminPassword = hashedPassword;
+    // Update the company name
+    if (companyName) {
+      user.companyName = companyName;
+    }
+    
+    // If adminPassword is provided and there is no password set, create the first password
+    if(adminPassword && !user.adminPassword) {
+      const hashedPassword = await bcrypt.hash(adminPassword, 10);
+      user.adminPassword = hashedPassword;
+      await user.save();
+      return res.status(200).json({ success: true, message: 'Admin PIN created successfully!' });
     }
 
-    // Find the account by ID and update it
-    await User.findByIdAndUpdate(accountID, updateFields);
+     // If a new password is being set, validate and update
+    if(newPassword && confirmPassword) {
+      const isMatch = await bcrypt.compare(adminPassword, user.adminPassword);
 
-    res.json({ success: true, message: 'Account information updated successfully.' });
+      if (newPassword !== confirmPassword) {
+        return res.status(400).json({ success: false, message: 'New PIN and confirm PIN do not match!' });
+      } else if (!isMatch){
+        return res.status(400).json({ success: false, message: 'Current admin PIN is incorrect!' });
+      }
+
+      const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+      user.adminPassword = hashedNewPassword;
+    }
+
+    // If remove password checkbox is checked, remove the password
+    if (removePassword) {
+      const isMatch = await bcrypt.compare(adminPassword, user.adminPassword);
+
+      if(isMatch){
+        user.adminPassword = null;
+        return res.status(200).json({ success: true, message: 'Admin PIN remove successfully!' });
+      } else {
+        return res.status(400).json({ success: false, message: 'Current admin PIN is incorrect!' });
+      }
+    }
+
+    // Save changes to the account
+    await user.save();
+    // Send success response
+    res.status(200).json({ success: true, message: 'Account updated successfully!' });
   } catch (error) {
-    console.error('Update Account Error:', error);
-    return res.status(500).json({ success: false, message: 'Server error. Please try again later.' });
+    console.error(error);
+    // Send error response
+    res.status(500).json({ success: false, message: 'An error occurred while updating the account.' });
   }
-}
+};
 
 exports.adminLogin = async (req, res) => {
   const locals = {
