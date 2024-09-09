@@ -10,27 +10,27 @@ const uploads = multer({ dest: 'public/uploads/' });
 // admin routes
 
 // GET
-// router.get('/pos/admin', isLoggedIn, requireAdminPassword, adminController.admin);
+router.get('/pos/admin', isLoggedIn, requireAdminPassword, reAuth, adminController.admin);
 router.get('/pos/admin/admin-login',  isLoggedIn, adminController.adminLogin);
 router.post('/pos/admin/admin-login', isLoggedIn, adminController.adminEntry);
 
-router.get('/pos/admin/dashboard', isLoggedIn, requireAdminPassword, reAuth, adminController.dashboard);
+router.get('/pos/admin/dashboard', isLoggedIn, reAuth, adminController.dashboard);
 
-router.get('/pos/admin/product', isLoggedIn,  adminController.product);
+router.get('/pos/admin/product', isLoggedIn, reAuth, adminController.product);
 router.get('/pos/admin/product/:id', isLoggedIn, adminController.viewProduct);
 
-router.get('/pos/admin/category', isLoggedIn, adminController.category);
-router.get('/pos/admin/category/:id', isLoggedIn, adminController.viewCategory);
+router.get('/pos/admin/category', isLoggedIn, reAuth, adminController.category);
+router.get('/pos/admin/category/:id', isLoggedIn, reAuth, adminController.viewCategory);
 
-router.get('/pos/admin/stock', isLoggedIn, adminController.stock);
-router.get('/pos/admin/stock/:id', isLoggedIn, adminController.viewStock);
+router.get('/pos/admin/stock', isLoggedIn, reAuth, adminController.stock);
+router.get('/pos/admin/stock/:id', isLoggedIn, reAuth, adminController.viewStock);
 
-router.get('/pos/admin/receipt', isLoggedIn, adminController.receipt);
+router.get('/pos/admin/receipt', isLoggedIn, reAuth, adminController.receipt);
 
-router.get('/pos/admin/discount', isLoggedIn, adminController.discount);
-router.get('/pos/admin/discount/:id', isLoggedIn, adminController.viewDiscount);
+router.get('/pos/admin/discount', isLoggedIn, reAuth, adminController.discount);
+router.get('/pos/admin/discount/:id', isLoggedIn, reAuth, adminController.viewDiscount);
 
-router.get('/pos/admin/account', isLoggedIn, adminController.account);
+router.get('/pos/admin/account', isLoggedIn, reAuth, adminController.account);
 
 // PUT
 router.put('/pos/admin/product/:id', uploads.single('image'), isLoggedIn, adminController.updateProduct);
