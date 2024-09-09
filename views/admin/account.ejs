@@ -17,7 +17,7 @@
                 <h5 class="card-title mb-4"><%= displayname %></h5>
                 <p class="card-text"><strong>Email:</strong> <%= emailaddress %></p>
                 <p class="card-text"><strong>Company Name:</strong> <%= companyname %></p>
-                <p class="card-text"><strong>Admin Password:</strong>
+                <p class="card-text"><strong>Admin PIN:</strong>
                   <% if(adminpassword){ %>
                     ****
                   <% } else { %>
@@ -63,9 +63,9 @@
       <div class="modal-header">
         <h5 class="modal-title">Update Account</h5>
       </div>
-      <form id="updateAccountForm" action="/pos/admin/account/<%= accountID %>?_method=PUT" method="POST">
+      <form id="updateAccountForm" method="POST">
         <div class="modal-body">
-          
+
           <div id="error-message" class="alert alert-danger d-none"></div>
           <div id="success-message" class="alert alert-success d-none"></div>
           
@@ -74,11 +74,49 @@
             <input id="companyname" name="companyName" value="<%= companyname %>" type="text" class="form-control">
           </div>
 
+          <div class="input-group mb-3">
+            <span class="input-group-text">Admin PIN</span>
+            <input id="adminpassword" name="adminPassword" type="password" maxlength="4" class="form-control" placeholder="****" 
+              oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 4);">
+            <span class="input-group-text" id="passEye">
+              <a class="pe-auto link-success" href="javascript:void(0);">
+                <i id="js-eyeicon" class="js-password bi bi-eye-slash-fill"></i>
+              </a>
+            </span>
+          </div>
+
+          <% if(adminpassword){ %>
             <div class="input-group mb-3">
-              <span class="input-group-text">Admin Password</span>
-              <input id="adminpassword" name="adminPassword" type="text" class="form-control" placeholder="****">
+              <span class="input-group-text">New PIN</span>
+              <input id="newpassword" name="newPassword" type="password" maxlength="4" class="form-control" placeholder="****"
+                oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 4);">
+              <span class="input-group-text">
+                <a class="pe-auto link-success" href="javascript:void(0);" id="newPassEye">
+                  <i class="js-password bi bi-eye-slash-fill"></i>
+                </a>
+              </span>
             </div>
 
+            <div class="input-group mb-3">
+              <span class="input-group-text">Confirm New PIN</span>
+              <input id="confirmpassword" name="confirmPassword" type="password" maxlength="4" class="form-control" placeholder="****"
+                oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 4);">
+              <span class="input-group-text">
+                <a class="pe-auto link-success" href="javascript:void(0);" id="confirmPassEye">
+                  <i class="js-password bi bi-eye-slash-fill"></i>
+                </a>
+              </span>
+            </div>
+
+            <div class="form-check">
+              <input id="removepassword" name="removePassword" class="form-check-input" type="checkbox" value="true">
+              <label class="form-check-label" for="removepassword">
+                Remove PIN
+              </label>
+            </div>
+
+          <% } %>
+          
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
             <button type="submit" class="btn btn-primary">Update</button>
@@ -90,6 +128,7 @@
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
 <!-- generate qr code -->
 <script>
   function generateKioskDetails() {
@@ -114,102 +153,89 @@
 </script>
 
 <script>
-document.getElementById('updateAccountForm')
-  .addEventListener('submit', async function(event) {
-    event.preventDefault();
+document.getElementById('updateAccountForm').addEventListener('submit', async function(event) {
+  event.preventDefault(); // Prevent default form submission
 
-    const form = event.target;
-    const formData = new FormData(form);
-    const accountId = '<%= accountID %>';
+  const form = event.target;
+  const formData = new FormData(form);
+  
+  // Convert FormData to a JSON object
+  const formObj = {};
+  formData.forEach((value, key) => {
+    formObj[key] = value;
+  });
 
-    try {
-      const formObject = {};
-      formData.forEach((value, key) => {
-        formObject[key] = value;
-      });
-      
-      const response = await fetch(`/pos/admin/account/${accountId}?_method=PUT`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',  // Set the content type to JSON
-          'Accept': 'application/json',
-          'X-Requested-With': 'XMLHttpRequest',
-        },
-        body: JSON.stringify(formObject)  // Convert formObject to JSON
-      });
+  const url = `/pos/admin/account/<%= accountID %>?_method=PUT`;
 
-      const result = await response.json();
-
-      const errorMessage = document.getElementById('error-message');
-      const successMessage = document.getElementById('success-message');
-
-      if (result.success) {
-        successMessage.textContent = result.message;
-        successMessage.classList.remove('d-none');
-        errorMessage.classList.add('d-none');
-        // Optionally, refresh the page or update the UI with new data
-      } else {
-        errorMessage.textContent = result.message;
-        errorMessage.classList.remove('d-none');
-        successMessage.classList.add('d-none');
-      }
-    } catch (error) {
-      console.error('Error:', error);
-      document.getElementById('error-message').textContent = 'An error occurred while updating the account.';
-      document.getElementById('error-message').classList.remove('d-none');
-    }
-})
-</script>
-
-<!-- <script>
-document.getElementById('updateAccountForm')
-  .addEventListener('submit', async function(event) {
-    event.preventDefault();
-
-    const companyname = document.getElementById('companyname').value;
-    const adminpassword = document.getElementById('adminpassword') ? document.getElementById('adminpassword').value : null;;
-    const newpassword = document.getElementById('newpassword').value;
-
-    // Client-side validation
-    if (document.getElementById('adminpassword') && !adminpassword) {
-      alert('Current password is required to update the password.');
-      return;
-    }
-
-    if (adminpassword && !newpassword) {
-      alert('New password cannot be empty.');
-      return;
-    }
-
-    const response = await fetch('/pos/admin/account/<%= accountID %>?_method=PUT', {
+  // Hide previous messages
+  document.getElementById('error-message').classList.add('d-none');
+  document.getElementById('success-message').classList.add('d-none');
+  
+  try {
+    const response = await fetch(url, {
       method: 'POST',
-      headers: { 
-        'Content-Type': 'application/json',
+      headers: {
+        'Content-Type': 'application/json'
       },
-      body: JSON.stringify({
-      companyname: companyname,
-      adminpassword: adminpassword,
-      newpassword: newpassword
-      })
+      body: JSON.stringify(formObj)
     });
 
     const result = await response.json();
 
-    if (result.error) {
-      const errorMessageElement = document.getElementById('error-message');
-      const successMessageElement = document.getElementById('success-message');
-
-      successMessageElement.classList.add('d-none');
-      errorMessageElement.textContent = result.error;
-      errorMessageElement.classList.remove('d-none');
+    if (result.success) {
+      // Show success message
+      const successMessage = document.getElementById('success-message');
+      successMessage.innerHTML = result.message;
+      successMessage.classList.remove('d-none');
     } else {
-      const successMessageElement = document.getElementById('success-message');
-      const errorMessageElement = document.getElementById('error-message');
-
-      errorMessageElement.classList.add('d-none');
-      successMessageElement.textContent = result.success;
-      successMessageElement.classList.remove('d-none');
+      // Show error message
+      const errorMessage = document.getElementById('error-message');
+      errorMessage.innerHTML = result.message;
+      errorMessage.classList.remove('d-none');
     }
-  })
+  } catch (error) {
+    // Handle fetch error
+    const errorMessage = document.getElementById('error-message');
+    errorMessage.innerHTML = 'An unexpected error occurred. Please try again.';
+    errorMessage.classList.remove('d-none');
+  }
+});
+document.getElementById('accountModal').addEventListener('hidden.bs.modal', function () {
+  location.reload();
+});
+</script>
 
-</script> -->
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+  // HIDE PASSWORD FUNCTION
+  function togglePasswordVisibility(inputId, iconId) {
+    let inputField = document.getElementById(inputId);
+    let iconElement = document.getElementById(iconId);
+
+    // Check if the elements exist before proceeding
+    if (inputField && iconElement) {
+      let icon = iconElement.querySelector('i');
+      icon.addEventListener("click", () => {
+        if (inputField.type === "password") {
+          inputField.type = "text";
+          icon.classList.remove("bi-eye-slash-fill");
+          icon.classList.add("bi-eye-fill");
+        } else {
+          inputField.type = "password";
+          icon.classList.remove("bi-eye-fill");
+          icon.classList.add("bi-eye-slash-fill");
+        }
+      });
+    }
+  }
+
+  // Apply toggle function to each password field only if the elements exist
+  togglePasswordVisibility('adminpassword', 'passEye');
+  togglePasswordVisibility('newpassword', 'newPassEye');
+  togglePasswordVisibility('confirmpassword', 'confirmPassEye');
+});
+
+  </script>
+
+
+
