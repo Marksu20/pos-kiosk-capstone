@@ -2,6 +2,7 @@ const Product = require('../models/Product');
 const Category = require('../models/Category');
 const Order = require('../models/Order');
 const mongoose = require('mongoose');
+const jwt = require('jsonwebtoken');
 
 // GET: kiosk
 exports.kiosk = async (req, res) => {
@@ -23,6 +24,7 @@ exports.kiosk = async (req, res) => {
       products,
       productsSold,
       categories,
+      user: req.user,
       layout: '../views/layouts/kiosk'
     });
   } catch (error) {

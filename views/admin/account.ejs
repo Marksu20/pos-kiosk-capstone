@@ -1,11 +1,8 @@
 <div class="container-fluid">
   <div class="row">
-    <!-- sidebar -->
     <%- include('../partials/admin_sidebar.ejs') %>
 
-    <!-- main -->
     <main class="col-md-9 ml-sm-auto col-lg-10 px-md-4 py-4">
-      <!-- account information -->
       <div class="container mt-5">
         <div class="card">
           <div class="card-header">
@@ -20,12 +17,17 @@
                 <h5 class="card-title mb-4"><%= displayname %></h5>
                 <p class="card-text"><strong>Email:</strong> <%= emailaddress %></p>
                 <p class="card-text"><strong>Company Name:</strong> <%= companyname %></p>
-                <p class="card-text"><strong>Admin Password:</strong> <%= adminpassword %> </p>
+                <p class="card-text"><strong>Admin Password:</strong>
+                  <% if(adminpassword){ %>
+                    ****
+                  <% } else { %>
+                    
+                  <% } %>
+                </p>
               </div>
             </div>
           </div>
           <div class="card-footer text-muted text-center">
-            <!-- trigger modal -->
             <button class="btn btn-primary w-25" data-bs-toggle="modal" data-bs-target="#accountModal">
               Edit
             </button>
@@ -33,7 +35,6 @@
         </div>
       </div>
 
-      <!-- kiosk -->
       <div class="container mt-5">
         <div class="card text-center">
           <div class="card-header">
@@ -42,7 +43,11 @@
           <div class="card-body">
             <div class="row">
               <div class="col-md-12">
-                <p>kiosk link</p>
+                <a id="kioskLink" target="_blank"></a>
+                
+                <div id="qrcode" class="mt-3 mb-5">
+                  <!-- QR Code -->
+                </div>
               </div>
             </div>
           </div>
@@ -51,34 +56,29 @@
     </main>
   </div>
 </div>
-
 <!-- update account modal -->
 <div class="modal fade" id="accountModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
-      <!-- header -->
       <div class="modal-header">
         <h5 class="modal-title">Update Account</h5>
       </div>
-      <!-- body -->
-      <form action="/pos/admin/account/<%= accountID %>?_method=PUT" method="POST"">
+      <form id="updateAccountForm" action="/pos/admin/account/<%= accountID %>?_method=PUT" method="POST">
         <div class="modal-body">
+          
+          <div id="error-message" class="alert alert-danger d-none"></div>
+          <div id="success-message" class="alert alert-success d-none"></div>
+          
           <div class="input-group mb-3">
             <span class="input-group-text">New Company Name</span>
-            <input id="companyname" name="companyname" value="<%= companyname %>" type="text" class="form-control">
+            <input id="companyname" name="companyName" value="<%= companyname %>" type="text" class="form-control">
           </div>
 
-          <div class="input-group mb-3">
-            <span class="input-group-text">New Password</span>
-            <input id="adminpassword" name="adminpassword" type="password" class="form-control" placeholder="****">
-          </div>
+            <div class="input-group mb-3">
+              <span class="input-group-text">Admin Password</span>
+              <input id="adminpassword" name="adminPassword" type="text" class="form-control" placeholder="****">
+            </div>
 
-          <div class="input-group mb-3">
-            <span class="input-group-text">Confirm Password</span>
-            <input id="confirmpassword" name="confirmpassword" type="password" class="form-control" placeholder="****">
-          </div>
-
-          <!-- footer -->
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
             <button type="submit" class="btn btn-primary">Update</button>
@@ -88,3 +88,128 @@
     </div>
   </div>
 </div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<!-- generate qr code -->
+<script>
+  function generateKioskDetails() {
+    const kioskPath = "/kiosk"; // Update this with your actual kiosk path
+    const baseUrl = window.location.origin; // Get the current origin (protocol + domain)
+    const kioskUrl = `${baseUrl}${kioskPath}`;
+
+    // Set the kiosk link
+    const kioskLinkElement = document.getElementById("kioskLink");
+    kioskLinkElement.href = kioskUrl;
+    kioskLinkElement.textContent = kioskUrl;
+
+    const qrCodeElement = document.getElementById("qrcode");
+    new QRCode(qrCodeElement, {
+      text: kioskUrl,
+      width: 200,
+      height: 200,
+    });
+  }
+  // Call the function to generate the details when the page loads
+  window.onload = generateKioskDetails;
+</script>
+
+<script>
+document.getElementById('updateAccountForm')
+  .addEventListener('submit', async function(event) {
+    event.preventDefault();
+
+    const form = event.target;
+    const formData = new FormData(form);
+    const accountId = '<%= accountID %>';
+
+    try {
+      const formObject = {};
+      formData.forEach((value, key) => {
+        formObject[key] = value;
+      });
+      
+      const response = await fetch(`/pos/admin/account/${accountId}?_method=PUT`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',  // Set the content type to JSON
+          'Accept': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest',
+        },
+        body: JSON.stringify(formObject)  // Convert formObject to JSON
+      });
+
+      const result = await response.json();
+
+      const errorMessage = document.getElementById('error-message');
+      const successMessage = document.getElementById('success-message');
+
+      if (result.success) {
+        successMessage.textContent = result.message;
+        successMessage.classList.remove('d-none');
+        errorMessage.classList.add('d-none');
+        // Optionally, refresh the page or update the UI with new data
+      } else {
+        errorMessage.textContent = result.message;
+        errorMessage.classList.remove('d-none');
+        successMessage.classList.add('d-none');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      document.getElementById('error-message').textContent = 'An error occurred while updating the account.';
+      document.getElementById('error-message').classList.remove('d-none');
+    }
+})
+</script>
+
+<!-- <script>
+document.getElementById('updateAccountForm')
+  .addEventListener('submit', async function(event) {
+    event.preventDefault();
+
+    const companyname = document.getElementById('companyname').value;
+    const adminpassword = document.getElementById('adminpassword') ? document.getElementById('adminpassword').value : null;;
+    const newpassword = document.getElementById('newpassword').value;
+
+    // Client-side validation
+    if (document.getElementById('adminpassword') && !adminpassword) {
+      alert('Current password is required to update the password.');
+      return;
+    }
+
+    if (adminpassword && !newpassword) {
+      alert('New password cannot be empty.');
+      return;
+    }
+
+    const response = await fetch('/pos/admin/account/<%= accountID %>?_method=PUT', {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+      companyname: companyname,
+      adminpassword: adminpassword,
+      newpassword: newpassword
+      })
+    });
+
+    const result = await response.json();
+
+    if (result.error) {
+      const errorMessageElement = document.getElementById('error-message');
+      const successMessageElement = document.getElementById('success-message');
+
+      successMessageElement.classList.add('d-none');
+      errorMessageElement.textContent = result.error;
+      errorMessageElement.classList.remove('d-none');
+    } else {
+      const successMessageElement = document.getElementById('success-message');
+      const errorMessageElement = document.getElementById('error-message');
+
+      errorMessageElement.classList.add('d-none');
+      successMessageElement.textContent = result.success;
+      successMessageElement.classList.remove('d-none');
+    }
+  })
+
+</script> -->

@@ -57,3 +57,21 @@ input[type="number"] {
   width: 50px; height: 50px; object-fit: cover
 }
 
+.nav-link.active{
+  border-right: 5px solid rgb(0, 104, 74);
+  border-radius: 5px;
+  background-color:rgba(227, 252, 247);
+  font-weight: 500;
+}
+.nav-link:hover{
+  background-color:rgba(227, 252, 247)
+}
+#sidebar a{
+  color: rgb(0, 30, 43);
+}
+#qrcode {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+

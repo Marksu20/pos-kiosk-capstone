@@ -8,13 +8,19 @@ const mongoose = require('mongoose');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
 
 // const upload = multer({ dest: 'public/uploads/' });
 
 // GET: amdin
 exports.admin = async (req, res) => {
+
+}
+
+exports.dashboard = async (req, res) => {
   const locals = {
-    title: "admin POS",
+    title: "Dashboard",
     description: "koka POS web application"
   }
   
@@ -89,7 +95,7 @@ exports.admin = async (req, res) => {
     const metrics = await calculateDashboardMetrics();
 
 
-    res.render('admin/index', {
+    res.render('admin/dashboard', {
       username: req.user.firstName,
       locals,
       totalCustomers: metrics.totalCustomers,
@@ -99,6 +105,8 @@ exports.admin = async (req, res) => {
       totalQuantitySold: metrics.totalQuantitySold,
       topSellingProducts: metrics.topSellingProducts,
       recentOrders,
+      companyname: req.user.companyName,
+      currentPath: req.path,
       layout: '../views/layouts/admin'
     });
   } catch (error) {
@@ -122,6 +130,8 @@ exports.product = async (req, res) => {
       locals,
       products,
       categories,
+      companyname: req.user.companyName,
+      currentPath: req.path,
       layout: '../views/layouts/admin'
     });
   } catch (error) {
@@ -142,6 +152,8 @@ exports.category = async (req, res) => {
       username: req.user.firstName,
       locals,
       categories,
+      companyname: req.user.companyName,
+      currentPath: req.path,
       layout: '../views/layouts/admin'
     });
   } catch (error) {
@@ -162,6 +174,8 @@ exports.stock = async (req, res) => {
       username: req.user.firstName,
       locals,
       stocks,
+      companyname: req.user.companyName,
+      currentPath: req.path,
       layout: '../views/layouts/admin'
     });
   } catch (error) {
@@ -182,6 +196,8 @@ exports.receipt = async (req, res) => {
       username: req.user.firstName,
       locals,
       receipts,
+      companyname: req.user.companyName,
+      currentPath: req.path,
       layout: '../views/layouts/admin'
     });
   } catch (error) {
@@ -202,6 +218,8 @@ exports.discount = async (req, res) => {
       username: req.user.firstName,
       locals,
       discounts,
+      companyname: req.user.companyName,
+      currentPath: req.path,
       layout: '../views/layouts/admin'
     });
   } catch (error) {
@@ -211,11 +229,12 @@ exports.discount = async (req, res) => {
 }
 
 exports.account = async (req, res) => {
-  
   const locals = {
     title: "Account",
     description: "koka POS web application"
   }
+  
+  
 
   res.render('admin/account', {
     username: req.user.firstName,
@@ -226,6 +245,7 @@ exports.account = async (req, res) => {
     adminpassword: req.user.adminPassword,
     accountID: req.user._id,
     locals,
+    currentPath: req.path,
     layout: '../views/layouts/admin'
   });
 }
@@ -246,6 +266,8 @@ exports.viewProduct = async (req, res) => {
         product,
         products,
         categories,
+        currentPath: req.path,
+        companyname: req.user.companyName,
         layout: '../views/layouts/admin'
       });
     } else {
@@ -263,6 +285,8 @@ exports.viewCategory = async (req, res) => {
       categoryID: req.params.id,
       category,
       categories,
+      currentPath: req.path,
+      companyname: req.user.companyName,
       layout: '../views/layouts/admin'
     });
   } else {
@@ -281,6 +305,8 @@ exports.viewStock = async (req, res) => {
         stockID: req.params.id,
         stock,
         stocks,
+        currentPath: req.path,
+        companyname: req.user.companyName,
         layout: '../views/layouts/admin'
       });
     } else {
@@ -303,6 +329,8 @@ exports.viewDiscount = async (req, res) => {
         discountID: req.params.id,
         discount,
         discounts,
+        currentPath: req.path,
+        companyname: req.user.companyName,
         layout: '../views/layouts/admin'
       });
     } else {
@@ -349,24 +377,6 @@ exports.updateProduct = async (req, res) => {
   } catch (error) {
     
   }
-//   try {
-//     if (req.file) {
-//       updatedFields.image = `/uploads/${req.file.filename}`;
-//     }
-
-//     await Product.findOneAndUpdate(
-//       { _id: req.params.id },
-//       { name: req.body.name, 
-//         category: req.body.category,
-//         price: req.body.price,
-//         quantity: req.body.quantity,
-//         image: req.body.image
-//       }
-//     ).where({ user: req.user.id });
-//     res.redirect('/pos/admin/product');
-//   } catch (error) {
-//     console.log("error", error)
-//   }
 }
 
 exports.updateCategory = async (req, res) => {
@@ -415,24 +425,64 @@ exports.updateDiscount = async (req, res) => {
 
 exports.updateAccount = async (req, res) => {
   try {
-    if (req.body.adminpassword !== req.body.confirmpassword) {
-      return res.status(400).send("Passwords do not match.");
+    const { companyName, adminPassword } = req.body;
+    const accountID = req.params.id;
+
+    if(!companyName) {
+      return res.status(400).json({ success: false, message: 'Company name is required.' });
     }
 
-    await User.findOneAndUpdate(
-      { _id: req.user.id },
-      { 
-        companyName: req.body.companyname, 
-        adminPassword: req.body.adminpassword 
-      }
-    );
-    
-    res.redirect('/pos/admin/account');
+    let updateFields = { companyName };
+    if (adminPassword) {
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(adminPassword, salt);
+      updateFields.adminPassword = hashedPassword;
+    }
+
+    // Find the account by ID and update it
+    await User.findByIdAndUpdate(accountID, updateFields);
+
+    res.json({ success: true, message: 'Account information updated successfully.' });
   } catch (error) {
-    console.log("error", error)
-    res.status(500).send("Error updating account details.");
+    console.error('Update Account Error:', error);
+    return res.status(500).json({ success: false, message: 'Server error. Please try again later.' });
   }
 }
+
+exports.adminLogin = async (req, res) => {
+  const locals = {
+    title: "Enter Password",
+    description: "koka POS web application",
+  }
+
+  res.render('admin/admin-login', {
+    username: req.user.firstName,
+    currentPath: req.path,
+    companyname: req.user.companyName,
+    locals,
+    error: null,
+    layout: '../views/layouts/admin'
+  });
+}
+
+exports.adminEntry = async (req, res) => {
+  const user = await User.findById(req.user.id);
+
+  const isMatch = await bcrypt.compare(req.body.password, user.adminPassword);
+  if (isMatch) {
+    req.session.adminAuthenticated = true;
+    req.session.lastActivity = Date.now(); // Reset the last activity time
+    res.redirect('/pos/admin/dashboard');
+  } else {
+    res.render('admin/admin-login', {
+      username: req.user.firstName,
+      currentPath: req.path,
+      companyname: req.user.companyName,
+      error: 'Incorrect Password.', 
+      layout: '../views/layouts/admin'
+    });
+  }
+};
 
 // DELETE
 exports.deleteProduct = async (req, res) => {

@@ -62,6 +62,7 @@ exports.pos = async (req, res) => {
       currentPath: req.path,
       currentCategory: currentCategory || '',
       searchTerm: searchTerm || '',
+      companyname: req.user.companyName,
       layout: '../views/layouts/pos'
     });
   } catch (error) {
@@ -113,33 +114,12 @@ exports.order = async (req, res) => {
       orders,
       discounts,
       currentPath: req.path,
+      companyname: req.user.companyName,
       layout: '../views/layouts/pos'
     });
   } catch (error) {
     console.log("error", + error);
   }  
-}
-
-exports.orderSearch = async (req, res) => {
-  try {
-    const searchQuery = req.query.query;
-    
-    if (!searchQuery) {
-      return res.json({ success: false, message: 'No search query provided.' });
-    }
-
-    const orders = await Order.find({
-      $or: [
-        { orderNumber: { $regex: searchQuery, $options: 'i' } },
-        { customerName: { $regex: searchQuery, $options: 'i' } }
-      ]
-    }).lean(); // lean() to improve performance when returning the orders
-
-    res.json({ success: true, orders });
-  } catch (error) {
-    console.error('Error searching for orders:', error);
-    res.status(500).json({ success: false, message: 'Failed to search orders.' });
-  }
 }
 
 exports.orderCount = async (req, res) => {
@@ -184,6 +164,7 @@ exports.receipt = async (req, res) => {
       locals,
       receipts,
       currentPath: req.path,
+      companyname: req.user.companyName,
       layout: '../views/layouts/pos'
     });
   } catch (error) {

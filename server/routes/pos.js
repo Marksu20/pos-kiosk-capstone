@@ -10,7 +10,6 @@ router.get('/pos/order-notif', isLoggedIn, posController.orderNotif);
 
 router.get('/pos/order', isLoggedIn, posController.order);
 router.get('/pos/order/order-count', isLoggedIn, posController.orderCount);
-router.get('/orders/search', isLoggedIn, posController.orderSearch);
 
 router.get('/pos/receipt', isLoggedIn, posController.receipt);
 

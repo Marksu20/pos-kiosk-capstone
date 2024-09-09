@@ -1,17 +1,22 @@
 const express = require('express');
 const router = express.Router();
 const { isLoggedIn } = require('../middleware/checkAuth');
+const { requireAdminPassword } = require('../middleware/requireAdminPassword');
+const { reAuth } = require('../middleware/reAuth');
 const  adminController = require('../controllers/adminController');
 const multer = require('multer');
 const path = require('path');
-
 const uploads = multer({ dest: 'public/uploads/' });
 // admin routes
 
 // GET
-router.get('/pos/admin', isLoggedIn, adminController.admin);
+// router.get('/pos/admin', isLoggedIn, requireAdminPassword, adminController.admin);
+router.get('/pos/admin/admin-login',  isLoggedIn, adminController.adminLogin);
+router.post('/pos/admin/admin-login', isLoggedIn, adminController.adminEntry);
 
-router.get('/pos/admin/product', isLoggedIn, adminController.product);
+router.get('/pos/admin/dashboard', isLoggedIn, requireAdminPassword, reAuth, adminController.dashboard);
+
+router.get('/pos/admin/product', isLoggedIn,  adminController.product);
 router.get('/pos/admin/product/:id', isLoggedIn, adminController.viewProduct);
 
 router.get('/pos/admin/category', isLoggedIn, adminController.category);
@@ -37,7 +42,6 @@ router.put('/pos/admin/stock/:id', isLoggedIn, adminController.updateStock);
 router.put('/pos/admin/discount/:id', isLoggedIn, adminController.updateDiscount);
 
 router.put('/pos/admin/account/:id', isLoggedIn, adminController.updateAccount);
-
 
 // DELETE
 router.delete('/pos/admin/delete-product/:id', isLoggedIn, adminController.deleteProduct);

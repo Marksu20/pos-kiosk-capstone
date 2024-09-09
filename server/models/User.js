@@ -32,11 +32,11 @@ const UserSchema = new Schema({
   },
   companyName: {
     type: String,
-    required: false
+    required: true
   },
   adminPassword: {
     type: String,
-    required: false
+    required: true
   }
 });
 

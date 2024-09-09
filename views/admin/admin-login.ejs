@@ -1,0 +1,13 @@
+<div class="col-8 col-sm-8 ml-sm-auto col-md-8 ml-sm-auto col-lg-7 mt-5">
+  <h1>Admin Access</h1>
+  <form action="/pos/admin/admin-login" method="POST">
+      <div class="form-group">
+          <label class="col-form-label" for="password">Enter Admin Password:</label>
+          <input class="form-control mb-3 w-25" type="password" id="password" name="password" required>
+      </div>
+      <% if (error) { %>
+        <div class="alert alert-danger w-25"><%= error %></div>
+      <% } %>
+      <button type="submit" class="btn btn-success px-5">Enter</button>
+  </form>
+</div>

@@ -60,7 +60,7 @@
                           <td>₱<%= order.discount %></td>
                           <td>₱<%= order.totalAmount %></td>
                           <td><%= new Date(order.createdAt).toLocaleString() %></td>
-                          <td class="text-warning"><%= order.status %></td>
+                          <td><p class="text-warning"><%= order.status %></p></td>
                           <td class="text-center">
                             <button type="button" class="btn btn-sm btn-secondary px-3 btn-edit-order" data-order-id="<%= order._id %>">
                               Edit
@@ -118,7 +118,7 @@
                         <td>₱ <%= order.discount %></td>
                         <td><%= order.totalAmount %></td>
                         <td><%= new Date(order.createdAt).toLocaleString() %></td>
-                        <td class="text-success"><%= order.status %></td>
+                        <td><p class="text-success"><%= order.status %></p></td>
                       </tr>
                     </tbody>
                     <% } %>
