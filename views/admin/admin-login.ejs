@@ -3,11 +3,44 @@
   <form action="/pos/admin/admin-login" method="POST">
       <div class="form-group">
           <label class="col-form-label" for="password">Enter Admin Password:</label>
-          <input class="form-control mb-3 w-25" type="password" id="password" name="password" required>
+          <input class="form-control mb-3 w-25" type="password" id="password" name="password" maxlength="4" class="form-control" placeholder="****" 
+          oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 4);" required>
       </div>
       <% if (error) { %>
         <div class="alert alert-danger w-25"><%= error %></div>
       <% } %>
-      <button type="submit" class="btn btn-success px-5">Enter</button>
+      <button type="submit" class="btn btn-success px-5 mb-3">Enter</button>
+
+        <a type="button" class="btn text-primary" data-bs-toggle="modal" data-bs-target="#resetPassword">
+          Forgot PIN?
+        </a>
+
   </form>
+</div>
+
+<!-- reset password modal -->
+<div class="modal fade" id="resetPassword" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+      <div class="card ">
+        <div class="card-header text-center">
+          <h5 class="card-title">Remove PIN</h5>
+        </div>
+        <div class="card-body text-center">
+          <p class="card-text">
+            Enter your email address and we'll send you an instructions to remove your PIN.
+          </p>
+          <form action="/send-remove-pin-link" method="POST">
+            <div class="input-group flex-nowrap mb-3">
+              <input type="email" name="emailAddress" class="form-control" placeholder="Email input" aria-describedby="addon-wrapping">
+            </div>
+            <button type="submit" class="btn btn-outline-danger">Remove PIN</button>
+          </form>
+        </div>
+        <div class="card-footer text-muted">
+          <button type="button" class="btn btn-secondary text-start" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>

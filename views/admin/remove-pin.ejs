@@ -1,0 +1,8 @@
+<div class="container mt-5">
+  <h1>Reset Admin PIN for <%= user.companyname %></h1>
+  <p>Click the button below to remove your admin PIN.</p>
+  <form action="/admin/remove-pin" method="POST">
+    <input type="hidden" name="userId" value="<%= user._id %>">
+    <button type="submit" class="btn btn-danger">Remove PIN</button>
+  </form>
+</div>

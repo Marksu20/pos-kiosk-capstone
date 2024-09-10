@@ -37,6 +37,12 @@ const UserSchema = new Schema({
   adminPassword: {
     type: String,
     required: false
+  },
+  pinResetToken: { 
+    type: String
+  },
+  pinResetExpires: { 
+    type: Date
   }
 });
 

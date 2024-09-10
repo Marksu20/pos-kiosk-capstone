@@ -14,6 +14,10 @@ router.get('/pos/admin', isLoggedIn, requireAdminPassword, reAuth, adminControll
 router.get('/pos/admin/admin-login',  isLoggedIn, adminController.adminLogin);
 router.post('/pos/admin/admin-login', isLoggedIn, adminController.adminEntry);
 
+router.post('/send-remove-pin-link', isLoggedIn, adminController.sendRemovePIN );
+router.get('/reset-pin/:token', isLoggedIn, adminController.resetPIN );
+router.post('/admin/remove-pin', isLoggedIn, adminController.removePIN );
+
 router.get('/pos/admin/dashboard', isLoggedIn, reAuth, adminController.dashboard);
 
 router.get('/pos/admin/product', isLoggedIn, reAuth, adminController.product);

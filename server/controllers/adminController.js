@@ -10,8 +10,17 @@ const path = require('path');
 const fs = require('fs');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
-
+const nodemailer = require('nodemailer');
+const crypto = require('crypto');
 // const upload = multer({ dest: 'public/uploads/' });
+
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: 'markjoshuadlcrz@gmail.com',
+    pass: 'dzct bsys sqdd ctmh'
+  }
+});
 
 // GET: amdin
 exports.admin = async (req, res) => {
@@ -421,7 +430,6 @@ exports.updateDiscount = async (req, res) => {
   }
 }
 
-
 exports.updateAccount = async (req, res) => {
   const { companyName, adminPassword, newPassword, confirmPassword, removePassword } = req.body;
   const accountID = req.params.id;
@@ -468,6 +476,7 @@ exports.updateAccount = async (req, res) => {
 
       if(isMatch){
         user.adminPassword = null;
+        await user.save();
         return res.status(200).json({ success: true, message: 'Admin PIN remove successfully!' });
       } else {
         return res.status(400).json({ success: false, message: 'Current admin PIN is incorrect!' });
@@ -483,13 +492,14 @@ exports.updateAccount = async (req, res) => {
     // Send error response
     res.status(500).json({ success: false, message: 'An error occurred while updating the account.' });
   }
-};
+}
 
 exports.adminLogin = async (req, res) => {
   const locals = {
     title: "Enter Password",
     description: "koka POS web application",
   }
+
 
   res.render('admin/admin-login', {
     username: req.user.firstName,
@@ -499,6 +509,103 @@ exports.adminLogin = async (req, res) => {
     error: null,
     layout: '../views/layouts/admin'
   });
+}
+
+exports.sendRemovePIN = async (req, res) => {
+  try {
+    const { emailAddress } = req.body;
+    console.log(emailAddress);
+
+    // Generate a unique token
+    const token = crypto.randomBytes(32).toString('hex');
+
+    // Find user by email
+    const user = await User.findOne({ emailAddress: { $regex: new RegExp(`^${emailAddress}$`, 'i') } });
+
+    if (!user) {
+      console.error(`User with email ${emailAddress} not found`);
+      return res.status(400).send('User not found');
+    }
+
+    // Save token and expiration time
+    user.pinResetToken = token;
+    user.pinResetExpires = Date.now() + 3600000; // 1 hour expiration
+    await user.save();
+
+    // Create reset link
+    const resetLink = `http://localhost:5000/reset-pin/${token}`;
+
+    // Send email
+    const mailOptions = {
+      from: 'markjoshuadlcrz@gmail.com',
+      to: emailAddress,
+      subject: 'Admin PIN Reset',
+      text: `Click the following link to remove your admin PIN: ${resetLink}`,
+      html: `<p>Click <a href="${resetLink}">here</a> to remove your admin PIN.</p>`
+    };
+
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.error('Error sending email:', error);
+        return res.status(500).send('Error sending email');
+      }
+      console.log('Email sent:', info.response);
+      res.status(200).send('Email sent');
+    });
+  } catch (err) {
+    console.error('Error in sendRemovePIN:', err);
+    res.status(500).send('Server error');
+  }
+}
+
+exports.resetPIN = async (req, res) => {
+  const locals = {
+    title: "Enter Password",
+    description: "koka POS web application",
+  }
+
+  try {
+    const user = await User.findOne({
+      pinResetToken: req.params.token,
+      pinResetExpires: { $gt: Date.now() } // Token is valid if expiration is in the future
+    });
+
+    if (!user) {
+      return res.status(400).send('Invalid or expired token');
+    }
+
+    res.render('admin/remove-pin', {
+      user,
+      username: req.user.firstName,
+      currentPath: req.path,
+      companyname: req.user.companyName,
+      locals,
+      layout: '../views/layouts/admin' 
+    });
+  } catch (err) {
+    console.error('Error in resetPIN:', err);
+    return res.status(500).send('Server error');
+  }
+}
+
+exports.removePIN = async (req, res) => {
+  try {
+    const { userId } = req.body;
+
+    // Find the user and remove the admin PIN
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(400).send('User not found');
+    }
+
+    user.adminPassword = null; // Remove the admin PIN
+    await user.save();
+
+    res.redirect('/pos/admin/dashboard'); // Redirect to the admin dashboard
+  } catch (err) {
+    console.error('Error in removePIN:', err);
+    res.status(500).send('Server error');
+  }
 }
 
 exports.adminEntry = async (req, res) => {
