@@ -1,3 +1,4 @@
+const User = require('../models/User');
 const Product = require('../models/Product');
 const Category = require('../models/Category');
 const Discount = require('../models/Discount');
@@ -52,6 +53,10 @@ exports.pos = async (req, res) => {
       return res.json(products); //Respond with JSON if it's an AJAX request
     }
 
+    const user = await User.findOne();
+
+    const isPinSet = user && user.adminPassword ? true : false;
+
     res.render('pos/index', {
       username: req.user.firstName,
       locals,
@@ -63,6 +68,7 @@ exports.pos = async (req, res) => {
       currentCategory: currentCategory || '',
       searchTerm: searchTerm || '',
       companyname: req.user.companyName,
+      isPinSet,
       layout: '../views/layouts/pos'
     });
   } catch (error) {
@@ -106,7 +112,9 @@ exports.order = async (req, res) => {
     const orders = await Order.find({ }).sort({ createdAt: -1 });
     const discounts = await Discount.find({ });
     
-
+    const user = await User.findOne();
+    const isPinSet = user && user.adminPassword ? true : false;
+    
     res.render('pos/order', {
       username: req.user.firstName,
       orderID: req.params._id,
@@ -115,6 +123,7 @@ exports.order = async (req, res) => {
       discounts,
       currentPath: req.path,
       companyname: req.user.companyName,
+      isPinSet,
       layout: '../views/layouts/pos'
     });
   } catch (error) {
@@ -159,19 +168,22 @@ exports.receipt = async (req, res) => {
     const receipts = await Receipt.find({})
       .sort({ createdAt: -1});
 
+    const user = await User.findOne();
+    const isPinSet = user && user.adminPassword ? true : false;
+
     res.render('pos/receipt', {
       username: req.user.firstName,
       locals,
       receipts,
       currentPath: req.path,
       companyname: req.user.companyName,
+      isPinSet,
       layout: '../views/layouts/pos'
     });
   } catch (error) {
     console.log("err", + error);
   }
 };
-
 
 exports.confirmPayment = async (req, res) => {
   try {
