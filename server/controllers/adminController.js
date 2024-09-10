@@ -24,7 +24,17 @@ const transporter = nodemailer.createTransport({
 
 // GET: amdin
 exports.admin = async (req, res) => {
-  res.render('/pos/admin',)
+  try {
+    // Render the admin page as middleware has already handled redirection
+    res.render('pos/admin', {
+      username: req.user.firstName,
+      companyname: req.user.companyName,
+      layout: '../views/layouts/pos'
+    });
+  } catch (error) {
+    console.error("Error in admin route: ", error);
+    return res.status(500).send("Internal server error");
+  }
 }
 
 exports.dashboard = async (req, res) => {
