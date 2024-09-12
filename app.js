@@ -9,6 +9,7 @@ const passport = require('passport');
 const MongoStore = require('connect-mongo');
 const multer = require('multer');
 const socketIO = require('socket.io');
+const flash = require('connect-flash');
 
 const app = express();
 const port = 5000 || process.env.PORT;
@@ -32,6 +33,7 @@ app.use(express.urlencoded({extended: true}));
 app.use(express.json());
 app.use(methodOverride("_method"));
 
+
 // Database Connection
 connectDB();
 
@@ -42,6 +44,13 @@ app.use(express.static('public'));
 app.use(expressLayouts);
 app.set('layout', './layouts/main');
 app.set('view engine', 'ejs');
+app.use(flash());
+
+app.use((req, res, next) => {
+  res.locals.success_msg = req.flash('success_msg');
+  res.locals.error_msg = req.flash('error_msg');
+  next();
+});
 
 // routes
 app.use('/', require('./server/routes/auth'));

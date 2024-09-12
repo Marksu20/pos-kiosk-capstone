@@ -15,6 +15,7 @@
           <strong>+</strong> New Product
         </button>
       </div>
+      
       <!-- new product modal -->
       <div class="modal" id="productModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
@@ -25,7 +26,7 @@
                  New Product
               </h5>
             </div>
-            <form action="/pos/admin/newProduct" method="POST" enctype="multipart/form-data">
+            <form id="new-product-form" action="/pos/admin/newProduct" method="POST" enctype="multipart/form-data">
               <!-- body -->
               <div class="modal-body">
                 <div class="input-group mb-3">
@@ -84,10 +85,24 @@
       <div class="row">
         <div class="col-12 col-xl-12 mb-4 mb-lg-0">
           <div class="card">
-            <div class="card-header">
+            <div class="card-header d-flex">
               <input id="product-search" class="w-25 form-control form-control-dark" type="text" placeholder="Search..." aria-label="Search">
             </div>
             <div class="card-body">
+              <!-- Success message -->
+              <% if (typeof success_msg !== 'undefined' && success_msg.length > 0) { %>
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                  <%= success_msg %>
+                  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+              <% } %>
+              <!-- Error message -->
+              <% if (typeof error_msg !== 'undefined' && error_msg.length > 0) { %>
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                  <%= error_msg %>
+                  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+              <% } %>
               <div class="table-responsive">
                 <table class="table">
                   <thead>
@@ -113,9 +128,9 @@
                           <% if(product.category){ %>
                             <td><%= product.category.name %></td>
                           <% } else { %>
-                            <td>No Category</td>
+                            <td>Uncategorized</td>
                           <% } %>
-                          <td><%= product.price %></td>
+                          <td>₱ <%= product.price %></td>
                           <td><%= product.quantity %></td>
                           <td><%= product.sold %></td>
                           <td><%= new Date( product.createdAt ).toLocaleString() %></td>
@@ -168,4 +183,5 @@
     document.getElementById('no-results').style.display = hasResults ? 'none' : 'block';
   })
 </script>
+
 

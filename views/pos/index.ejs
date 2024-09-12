@@ -184,9 +184,8 @@
     </nav>
 </div>
 
-<script>  
-  // Initialize order array
-  let order = JSON.parse(localStorage.getItem('order')) // Load from localStorage or initialize empty array
+<script> 
+  let order = JSON.parse(localStorage.getItem('order')) || []; // Load from localStorage or initialize empty array
   let discountValue = parseFloat(localStorage.getItem('discountValue')) || 0; // Load from localStorage or initialize 0
 
    // Function to update order summary
