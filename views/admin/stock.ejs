@@ -58,6 +58,20 @@
               <input id="stock-search" class="w-25 form-control form-control-dark" type="text" placeholder="Search..." aria-label="Search">
             </div>
             <div class="card-body">
+              <!-- Success message -->
+              <% if (typeof success_msg !== 'undefined' && success_msg.length > 0) { %>
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                  <%= success_msg %>
+                  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+              <% } %>
+              <!-- Error message -->
+              <% if (typeof error_msg !== 'undefined' && error_msg.length > 0) { %>
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                  <%= error_msg %>
+                  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+              <% } %>
               <div class="table-responsive">
                 <table class="table">
                   <thead>

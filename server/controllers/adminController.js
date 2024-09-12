@@ -735,6 +735,9 @@ exports.newCategory = async (req, res) => {
 
   try {
     await newCategory.save();
+
+    // Set success flash message
+    req.flash('success_msg', `Category "${name}" successfully added!`);
     res.redirect('/pos/admin/category'); 
   } catch (error) {
     console.error(err);
@@ -754,6 +757,9 @@ exports.newStock = async (req, res) => {
 
   try {
     await newStock.save();
+
+    // Set success flash message
+    req.flash('success_msg', `Item "${item}" successfully added!`);
     res.redirect('/pos/admin/stock'); 
   } catch (error) {
     console.error(err);
@@ -773,6 +779,9 @@ exports.newDiscount = async (req, res) => {
 
   try {
     await newDiscount.save();
+
+    // Set success flash message
+    req.flash('success_msg', `Discount "${name}" successfully added!`);
     res.redirect('/pos/admin/discount'); 
   } catch (error) {
     console.error(err);
