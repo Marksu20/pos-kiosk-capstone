@@ -30,9 +30,13 @@
               <div class="input-group mb-3">
                 <span class="input-group-text">Category</span>
                 <select name="category" class="form-select">
-                  <% categories.forEach( category => { %>
-                    <option value="<%= category._id %>"><%= category.name %></option>
+                  <% categories.forEach(category => { %>
+                    <option value="<%= category._id %>" 
+                      <%= category._id.equals(product.category._id) ? 'selected' : '' %>>
+                      <%= category.name %>
+                    </option>
                   <% }) %>
+                  <option value="" <%= !product.category._id ? 'selected' : '' %>>Uncategorized</option>
                 </select>
               </div>
   

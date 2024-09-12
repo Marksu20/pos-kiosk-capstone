@@ -277,6 +277,14 @@ exports.viewProduct = async (req, res) => {
     .lean();
 
     if(product) {
+
+      if(!product.category) {
+        product.category = {
+          _id: null,
+          name: 'Uncategorized'
+        }
+      }
+
       res.render('admin/view-product', {
         username: req.user.firstName, 
         productID: req.params.id,
@@ -704,10 +712,15 @@ exports.newProduct = async (req, res) => {
     });
     await newProduct.save();
     
-    res.redirect('/pos/admin/product')
+    // Set success flash message
+    req.flash('success_msg', `Product "${name}" successfully added!`);
+    res.redirect('/pos/admin/product');
+
   } catch (err) {
     console.error(err);
-    res.status(500).send('Server Error');
+    // Set error flash message
+    req.flash('error_msg', 'An error occurred while creating the product.');
+    res.redirect('/pos/admin/product');
   }
 }
 
