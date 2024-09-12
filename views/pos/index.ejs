@@ -71,7 +71,7 @@
               <% }) %>
             <% } else { %>
               <div class="col-12">
-                <p>no product yet.</p>
+                <p class="text-danger">no product yet.</p>
               </div>
             <% } %> 
           </div>
@@ -87,7 +87,7 @@
           <form action="/pos/confirm-payment"  method="POST">
             <div class="card-body">
               <div class="p-3 bg-light mb-3">
-                <input name="customerName" id="customer-name" class="w-25"  type="text" style="border:none; outline: none; border-bottom: 0.5px solid #adb5bd; background-color: #f8f9fa;" placeholder="Customer">
+                <input name="customerName" id="customer-name" class="w-50"  type="text" style="border:none; outline: none; border-bottom: 0.5px solid #adb5bd; background-color: #f8f9fa;" placeholder="Customer">
                 <input type="hidden" name="hiddenCustomerName" id="hidden-customer-name">
               </div>
               <input type="hidden" name="orderItems" id="order-items" value="[]">
@@ -263,13 +263,13 @@
   });
   });
 
-  // Add event listener for discount dropdown
+  // handle discount
   document.getElementById('discount').addEventListener('change', (event) => {
       discountValue = parseFloat(event.target.value); // Get selected discount value
       updateOrderSummary(); // Recalculate totals with the new discount
     });
 
-  // Add event listener for quantity increase and decrease
+  // handle increment and decrement of order
   document.getElementById('order-summary').addEventListener('click', (event) => {
     if (event.target.classList.contains('increase-quantity')) {
       const productId = event.target.getAttribute('data-id');
@@ -290,13 +290,13 @@
     }
    });
 
-  // Add event listener for the "Cancel" button
+  // if order void clear order summary
   document.getElementById('cancel-order').addEventListener('click', () => {
       order.length = 0; // Clear the order array
       updateOrderSummary(); // Update the order summary to reflect the cleared order
     });
 
-  // Add event listener for the "Confirm" button
+  // handle "null" order if confirm
   document.getElementById('confirm-order').addEventListener('click', () => {
       if (order.length === 0) {
         alert("Please select at least one product before confirming the order.");
@@ -404,7 +404,7 @@
             productContainer.insertAdjacentHTML('beforeend', productHtml);
           });
         } else {
-          productContainer.innerHTML = '<div class="col-12"><p>No products found.</p></div>';
+          productContainer.innerHTML = '<div class="col-12"><p class="text-danger">No product(s) found.</p></div>';
         }
       });
     });
@@ -412,8 +412,8 @@
   
 </script>
 
+<!-- handle order notification -->
 <script>
-  //handle notification
   document.addEventListener('DOMContentLoaded', function() {
     function showNotification(order) {
 
