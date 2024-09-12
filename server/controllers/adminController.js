@@ -209,18 +209,18 @@ exports.receipt = async (req, res) => {
   }
 
   try {
-    const receipts = await Receipt.find({ });
+    const receipts = await Receipt.find({ user: req.user.id }).lean();
 
     res.render('admin/receipt', {
       username: req.user.firstName,
-      locals,
       receipts,
       companyname: req.user.companyName,
       currentPath: req.path,
+      locals,
       layout: '../views/layouts/admin'
     });
   } catch (error) {
-    console.log("err", + error);
+    console.log("error",  error);
   }
 }
 
@@ -321,7 +321,9 @@ exports.viewCategory = async (req, res) => {
 
 exports.viewStock = async (req, res) => {
   try {
-    const stock = await Stock.findById({ _id: req.params.id }).where({ user: req.user.id }).lean()
+    const stock = await Stock.findById({ _id: req.params.id })
+      .where({ user: req.user.id })
+      .lean()
     const stocks = await Stock.find({});
 
     if(stock) {
@@ -675,10 +677,26 @@ exports.deleteStock = async (req, res) => {
 
 exports.deleteDiscount = async (req, res) => {
   try {
-    await Discount.deleteOne({ _id: req.params.id }).where({ user: req.user.id });
+    await Discount.deleteOne({ _id: req.params.id })
+      .where({ user: req.user.id });
+
     res.redirect('/pos/admin/discount');
   } catch (error) {
     console.log("error", error)
+  }
+}
+
+exports.deleteReceipt = async (req, res) => {
+  try {
+    const receipt = await Receipt.findByIdAndDelete(req.params.id);
+    if (receipt) {
+      return res.status(200).json({ success: true });
+    } else {
+      return res.status(404).json({ success: false, message: 'Receipt not found' });
+    }
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ success: false, message: 'Server error' });
   }
 }
 

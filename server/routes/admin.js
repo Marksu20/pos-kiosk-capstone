@@ -56,6 +56,9 @@ router.delete('/pos/admin/delete-stock/:id', isLoggedIn, adminController.deleteS
 
 router.delete('/pos/admin/delete-discount/:id', isLoggedIn, adminController.deleteDiscount);
 
+router.delete('/delete-receipt/:id', isLoggedIn, adminController.deleteReceipt);
+
+
 // POST
 var storage = multer.diskStorage({
   destination: function (req, file, cb) {
