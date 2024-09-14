@@ -57,7 +57,7 @@
       </div>
 
       <div class="row">
-        <div class="col-12 col-md-12 col-lg-8 mb-4 mb-lg-4">
+        <div class="col-12 col-md-12 col-lg-12 mb-4 mb-lg-4">
           <div class="card ">
             <h5 class="card-header">Recent Transactions</h5>
             <div class="card-body">
@@ -83,8 +83,9 @@
                           <% recentOrder.orderItems.forEach(item => { %>
                             <%= item.name %> -
                             ₱ <%= item.price %> 
-                            ( x <%= item.quantity %> ) 
+                            ( x <%= item.quantity %> ), <br>
                           <% }) %>
+                          
                         </td>
                         <td><%= recentOrder.orderType %></td>
                         <td>₱ <%= recentOrder.discount %></td>
@@ -99,7 +100,8 @@
             </div>
           </div>
         </div>
-        <div class="col-12 col-md-12 col-lg-4 mb-4 mb-lg-4">
+        <!-- sales data -->
+        <div class="col-12 col-md-12 col-lg-10 mb-4 mb-lg-4">
           <div class="card">
             <h5 class="card-header">Best Sellers Data</h5>
             <div class="card-body">

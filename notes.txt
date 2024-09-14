@@ -29,6 +29,8 @@ receipts{
   view receipt summary ✔
 }
 
+test account page 
+
 
 
 mongodb:

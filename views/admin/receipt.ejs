@@ -39,7 +39,7 @@
                         <% receipt.orderItems.forEach(item => { %>
                           <%= item.name %> -
                           ₱ <%= item.price %> 
-                          ( x <%= item.quantity %> ) 
+                          ( x <%= item.quantity %> ), <br>
                         <% }) %>
                       </td>
                       <td><%= receipt.orderType %></td>
