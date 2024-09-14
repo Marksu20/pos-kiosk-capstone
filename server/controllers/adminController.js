@@ -26,7 +26,7 @@ const transporter = nodemailer.createTransport({
 exports.admin = async (req, res) => {
   try {
     // Render the admin page as middleware has already handled redirection
-    res.render('pos/admin', {
+    res.render('/pos/admin', {
       username: req.user.firstName,
       companyname: req.user.companyName,
       layout: '../views/layouts/pos'
@@ -84,7 +84,7 @@ exports.dashboard = async (req, res) => {
           }
         },
         { $sort: { sold: -1 } },
-        { $limit: 5 }
+        { $limit: 10 }
       ]);
       
       return {
@@ -526,7 +526,6 @@ exports.adminLogin = async (req, res) => {
     currentPath: req.path,
     companyname: req.user.companyName,
     locals,
-    error: null,
     layout: '../views/layouts/admin'
   });
 }
@@ -544,7 +543,8 @@ exports.sendRemovePIN = async (req, res) => {
 
     if (!user) {
       console.error(`User with email ${emailAddress} not found`);
-      return res.status(400).send('User not found');
+      req.flash('error_msg', 'User not found');
+      return res.redirect('/pos/admin/admin-login');
     }
 
     // Save token and expiration time
@@ -566,17 +566,38 @@ exports.sendRemovePIN = async (req, res) => {
 
     transporter.sendMail(mailOptions, (error, info) => {
       if (error) {
-        console.error('Error sending email:', error);
-        return res.status(500).send('Error sending email');
+        req.flash('error_msg', 'Error sending email.');
+
+        return res.redirect('/pos/admin/admin-login');
       }
-      console.log('Email sent:', info.response);
-      res.status(200).send('Email sent');
+      req.flash('success_msg', 'Email sent successfully. Please check your inbox.');
+
+      return res.redirect('/pos/admin/admin-login');
     });
   } catch (err) {
-    console.error('Error in sendRemovePIN:', err);
-    res.status(500).send('Server error');
+    req.flash('error_msg', 'Server error.');
+    return res.redirect('/pos/admin/admin-login');
   }
 }
+
+exports.adminEntry = async (req, res) => {
+  const user = await User.findById(req.user.id);
+
+  const isMatch = await bcrypt.compare(req.body.password, user.adminPassword);
+  if (isMatch) {
+    req.session.adminAuthenticated = true;
+    req.session.lastActivity = Date.now(); // Reset the last activity time
+    res.redirect('/pos/admin/dashboard');
+  } else {
+    res.render('admin/admin-login', {
+      username: req.user.firstName,
+      currentPath: req.path,
+      companyname: req.user.companyName,
+      error: 'Incorrect Password.', 
+      layout: '../views/layouts/admin'
+    });
+  }
+};
 
 exports.resetPIN = async (req, res) => {
   const locals = {
@@ -621,31 +642,14 @@ exports.removePIN = async (req, res) => {
     user.adminPassword = null; // Remove the admin PIN
     await user.save();
 
-    res.redirect('/pos/admin/dashboard'); // Redirect to the admin dashboard
+    res.status(200).send('Password removed! :)');
+    // res.redirect('/pos/admin/dashboard'); // Redirect to the admin dashboard
   } catch (err) {
     console.error('Error in removePIN:', err);
     res.status(500).send('Server error');
   }
 }
 
-exports.adminEntry = async (req, res) => {
-  const user = await User.findById(req.user.id);
-
-  const isMatch = await bcrypt.compare(req.body.password, user.adminPassword);
-  if (isMatch) {
-    req.session.adminAuthenticated = true;
-    req.session.lastActivity = Date.now(); // Reset the last activity time
-    res.redirect('/pos/admin/dashboard');
-  } else {
-    res.render('admin/admin-login', {
-      username: req.user.firstName,
-      currentPath: req.path,
-      companyname: req.user.companyName,
-      error: 'Incorrect Password.', 
-      layout: '../views/layouts/admin'
-    });
-  }
-};
 
 // DELETE
 exports.deleteProduct = async (req, res) => {
@@ -689,11 +693,27 @@ exports.deleteDiscount = async (req, res) => {
 exports.deleteReceipt = async (req, res) => {
   try {
     const receipt = await Receipt.findByIdAndDelete(req.params.id);
-    if (receipt) {
-      return res.status(200).json({ success: true });
-    } else {
+
+    if (!receipt) {
       return res.status(404).json({ success: false, message: 'Receipt not found' });
     }
+
+    // Loop through the products in the receipt and update them
+    for (const item of receipt.orderItems) {
+      const product = await Product.findById(item.id);
+
+      if (product) {
+        product.sold = product.sold - item.quantity >= 0 ? product.sold - item.quantity : 0; // Prevent negative sold count
+        product.quantity += item.quantity;
+
+        await product.save(); // Save the product changes
+      }
+    }
+
+    // Delete the receipt
+    await Receipt.findByIdAndDelete(req.params.id);
+
+    return res.status(200).json({ success: true });
   } catch (error) {
     console.log(error);
     return res.status(500).json({ success: false, message: 'Server error' });

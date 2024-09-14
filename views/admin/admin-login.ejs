@@ -1,14 +1,27 @@
 <div class="col-8 col-sm-8 ml-sm-auto col-md-8 ml-sm-auto col-lg-7 mt-5">
   <h1>Admin Access</h1>
+  <!-- Success message -->
+  <% if (typeof success_msg !== 'undefined' && success_msg.length > 0) { %>
+    <div class="alert alert-success alert-dismissible fade show w-25" role="alert">
+      <%= success_msg %>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+  <% } %>
+
+  <!-- Error message -->
+  <% if (typeof error_msg !== 'undefined' && error_msg.length > 0) { %>
+    <div class="alert alert-danger alert-dismissible fade show w-25" role="alert">
+      <%= error_msg %>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+  <% } %>
   <form action="/pos/admin/admin-login" method="POST">
       <div class="form-group">
           <label class="col-form-label" for="password">Enter Admin Password:</label>
           <input class="form-control mb-3 w-25" type="password" id="password" name="password" maxlength="4" class="form-control" placeholder="****" 
           oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 4);" required>
       </div>
-      <% if (error) { %>
-        <div class="alert alert-danger w-25"><%= error %></div>
-      <% } %>
+      
       <button type="submit" class="btn btn-success px-5 mb-3">Enter</button>
 
         <a type="button" class="btn text-primary" data-bs-toggle="modal" data-bs-target="#resetPassword">

@@ -318,6 +318,7 @@ exports.deleteOrder = async (req, res) => {
 
     for (let item of order.orderItems) {
       const product = await Product.findById(item.id);
+      
       if (product) {
         product.sold -= item.quantity; // Decrement sold count
         product.quantity += item.quantity; // Restore quantity in stock

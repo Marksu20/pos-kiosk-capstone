@@ -17,7 +17,7 @@ const port = 5000 || process.env.PORT;
 app.use(session({
   secret: 'keyboard dog',
   resave: false,
-  saveUninitialized: true,
+  saveUninitialized: false,
   store: MongoStore.create({
     mongoUrl: process.env.MONGODB_URI
   }),
@@ -25,6 +25,7 @@ app.use(session({
   // Date.now() - 30 * 24 * 60 * 1000
 }));
 
+app.use(flash());
 
 app.use(passport.initialize());
 app.use(passport.session());
@@ -32,25 +33,22 @@ app.use(passport.session());
 app.use(express.urlencoded({extended: true}));
 app.use(express.json());
 app.use(methodOverride("_method"));
-
-
-// Database Connection
-connectDB();
-
-/// static files
 app.use(express.static('public'));
-
-// templateting engine
-app.use(expressLayouts);
-app.set('layout', './layouts/main');
-app.set('view engine', 'ejs');
-app.use(flash());
 
 app.use((req, res, next) => {
   res.locals.success_msg = req.flash('success_msg');
   res.locals.error_msg = req.flash('error_msg');
   next();
 });
+
+// Database Connection
+connectDB();
+
+// templateting engine
+app.use(expressLayouts);
+app.set('layout', './layouts/main');
+app.set('view engine', 'ejs');
+
 
 // routes
 app.use('/', require('./server/routes/auth'));
