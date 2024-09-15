@@ -3,12 +3,12 @@ const router = express.Router();
 const { isLoggedIn } = require('../middleware/checkAuth');
 const kioskController = require('../controllers/kioskController');
 
-router.get('/kiosk', isLoggedIn, kioskController.kiosk);
+router.get('/kiosk', kioskController.kiosk);
 
-router.get('/kiosk/allProducts', isLoggedIn, kioskController.allProducts);
+router.get('/kiosk/allProducts', kioskController.allProducts);
 
-router.get('/kiosk/cart', isLoggedIn, kioskController.cart);
+router.post('/kiosk/orders', kioskController.orders);
 
-router.post('/kiosk/orders', isLoggedIn, kioskController.orders);
+router.get('/kiosk/orders/generate-order-number', kioskController.generateOrderNumber);
 
 module.exports = router;
