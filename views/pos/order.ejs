@@ -49,7 +49,7 @@
                     <% if (order.status === "In Process") { %>
                       <tbody id="in-process-list">
                         <tr class="in-process-row">
-                          <td># <%= order.orderNumber %></td>
+                          <td><strong># <%= order.orderNumber %></strong></td>
                           <td><%= order.customerName %></td>
                           <td>
                             <% order.orderItems.forEach(item => { %>
@@ -107,7 +107,7 @@
                     <% if(order.status === "To Serve"){ %>
                     <tbody id="to-serve-list">
                       <tr class="to-serve-row">
-                        <td><%= order.orderNumber %></td>
+                        <td><strong># <%= order.orderNumber %></strong></td>
                         <td><%= order.customerName %></td>
                         <td>
                           <% order.orderItems.forEach(item => { %>

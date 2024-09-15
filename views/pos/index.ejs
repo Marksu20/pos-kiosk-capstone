@@ -57,7 +57,7 @@
                       <img class="rounded" src="<%= product.image %>" alt="<%= product.name %>">
                     </div>
                     <div class="card-body">
-                      <h6 class="card-title"><%= product.name %> - ₱ <%= product.price %></h6>
+                      <h6 class="card-title"><%= product.name %> <br> ₱ <%= product.price %></h6>
                       <% if(product.quantity == 0){ %>
                         <p>x<strong class="text-danger"><%= product.quantity %></strong> <span class="badge bg-danger rounded-pill">no stock</span></p>
                       <% } else if (product.quantity >= 0 && product.quantity <= 5) { %>

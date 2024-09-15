@@ -29,7 +29,9 @@ receipts{
   view receipt summary ✔
 }
 
-test account page 
+test account page ✔
+
+order delete modal
 
 
 

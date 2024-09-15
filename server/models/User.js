@@ -32,7 +32,7 @@ const UserSchema = new Schema({
   },
   companyName: {
     type: String,
-    required: true
+    required: false
   },
   adminPassword: {
     type: String,

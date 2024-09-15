@@ -24,7 +24,7 @@ const receiptSchema = new Schema({
   ],
   orderType: { 
     type: String, 
-    enum: ['Dine In', 'Take Out'], 
+    enum: ['Dine In', 'Takeout'], 
     required: true 
   },
   totalAmount: { 
