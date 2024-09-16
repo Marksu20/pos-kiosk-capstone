@@ -28,7 +28,7 @@ const UserSchema = new Schema({
   },
   profileImage: {
     type: String,
-    required: true
+    required: false
   },
   companyName: {
     type: String,

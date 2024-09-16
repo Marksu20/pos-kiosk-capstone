@@ -109,6 +109,7 @@ exports.order = async (req, res) => {
   }
   
   try {
+    const order = await Order.find({ });
     const orders = await Order.find({ }).sort({ createdAt: -1 });
     const discounts = await Discount.find({ });
     
@@ -118,6 +119,7 @@ exports.order = async (req, res) => {
     res.render('pos/order', {
       username: req.user.firstName,
       orderID: req.params._id,
+      order,
       locals,
       orders,
       discounts,
