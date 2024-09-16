@@ -45,34 +45,34 @@
                     <th scope="col" class="text-center">Actions</th>
                   </tr>
                 </thead>
-                  <% orders.forEach(order => { %>
-                    <% if (order.status === "In Process") { %>
-                      <tbody id="in-process-list">
-                        <tr class="in-process-row">
-                          <td><strong># <%= order.orderNumber %></strong></td>
-                          <td><%= order.customerName %></td>
-                          <td>
-                            <% order.orderItems.forEach(item => { %>
-                                <%= item.name %> - ₱<%= item.price %> (x<%= item.quantity %>)<br>
-                            <% }) %>
-                          </td>
-                          <td><%= order.orderType %></td>
-                          <td>₱<%= order.discount %></td>
-                          <td>₱<%= order.totalAmount %></td>
-                          <td><%= new Date(order.createdAt).toLocaleString() %></td>
-                          <td><p class="text-warning"><%= order.status %></p></td>
-                          <td class="text-center">
-                            <button type="button" class="btn btn-sm btn-secondary px-3 btn-edit-order" data-order-id="<%= order._id %>">
-                              Edit
-                            </button>
-                            <button type="button" class="btn btn-sm btn-danger px-3 btn-delete-order" data-order-id="<%= order._id %>" data-order-number="<%= order.orderNumber %>">
-                              Delete
-                            </button>
-                          </td> 
-                        </tr>
-                      </tbody>
-                    <% } %>
-                  <% }) %>
+                <% orders.forEach(order => { %>
+                <% if (order.status === "In Process") { %>
+                <tbody id="in-process-list">
+                  <tr class="in-process-row">
+                    <td><strong># <%= order.orderNumber %></strong></td>
+                    <td><%= order.customerName %></td>
+                    <td>
+                      <% order.orderItems.forEach(item => { %>
+                      <%= item.name %> - ₱<%= item.price %> (x<%= item.quantity %>)<br>
+                      <% }) %>
+                    </td>
+                    <td><%= order.orderType %></td>
+                    <td>₱<%= order.discount %></td>
+                    <td>₱<%= order.totalAmount %></td>
+                    <td><%= new Date(order.createdAt).toLocaleString() %></td>
+                    <td><p class="text-warning"><%= order.status %></p></td>
+                    <td class="text-center">
+                      <button type="button" class="btn btn-sm btn-secondary px-3 btn-edit-order" data-order-id="<%= order._id %>">
+                        Edit
+                      </button>
+                      <button type="button" class="btn btn-sm btn-danger px-3 btn-delete-order" data-bs-toggle="modal" data-bs-target="#deleteOrderModal" data-order-id="<%= order._id %>" data-order-number="<%= order.orderNumber %>" data-customer-name="<%= order.customerName %>">
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+                <% } %>
+                <% }) %>
               </table>
               <div id="no-results" class="text-center" style="display: none;">
                 No results found.
@@ -132,62 +132,65 @@
           </div>
         </div>
       </div>
+
     </div>
     </main>
   </div>
 </div>
 
 <!-- Order Edit Modal -->
-<div class="modal fade" id="editOrderModal" tabindex="-1" aria-labelledby="editOrderModalLabel" aria-hidden="true">
+<div class="modal" id="deleteOrderModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
+
       <div class="modal-header">
-        <h5 class="modal-title" id="editOrderModalLabel">Update Order</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <h5 class="modal-title"><strong class="text-danger">!</strong> You are about to delete an Order</h5>
       </div>
+
       <div class="modal-body">
-        <form id="editOrderForm">
-          <div class="mb-3">
-            <label for="orderNumber" class="form-label">Order Number</label>
-            <input type="text" class="form-control" id="orderNumber" readonly>
-          </div>
-          <div class="mb-3">
-            <label for="customerName" class="form-label">Customer Name</label>
-            <input type="text" class="form-control" id="customerName" readonly>
-          </div>
-          <div class="mb-3">
-            <label for="orderItems" class="form-label">Order Items</label>
-            <ul id="orderItems" class="list-group">
-              <!-- Dynamically generated items -->
-            </ul>
-          </div>
-          <div class="mb-3">
-            <label for="discount" class="form-label">Discount</label>
-            <select class="form-select" id="discount">
-              <option value="0">0</option>
-              <% discounts.forEach(discount => { %>
-                <option value="<%= discount.value %>"><%= discount.name %> - ₱<%= discount.value %></option>
-              <% }) %>
-            </select>
-          </div>
-          <div class="mb-3">
-            <label for="totalAmount" class="form-label">Total Amount</label>
-            <input type="text" class="form-control" id="totalAmount" readonly>
-          </div>
-          <div class="mb-3">
-            <label for="status" class="form-label">Status</label>
-            <select class="form-select" id="status">
-              <option value="In Process">In Process</option>
-              <option value="To Serve">To Serve</option>
-            </select>
-          </div>
-          <input type="hidden" id="orderId">
-        </form>
+        <p>
+          This will delete the Order <b id="modal-order-number" class="fw-bold text-danger"></b><br/>
+          for <strong id="modal-customer-name"></strong>. Are you sure?
+        </p>
       </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary" id="saveOrderBtn">Save changes</button>
+
+      <!-- Footer -->
+      <form method="POST" id="deleteOrderForm" action="/delete-order">
+        <input type="hidden" name="orderId" id="modal-order-id">
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-danger">Delete</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- delete modal -->
+<div class="modal" id="deleteOrderModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      
+      <div class="modal-header">
+        <h5 class="modal-title">
+          You are about to delete an Order
+        </h5>
       </div>
+      
+      <div class="modal-body">
+        <p>
+          This will delete your Order <b class="fw-bold text-danger">order_number</b><br/>
+          for <strong id="modal-customer-name">customer_name</strong>  Are you sure?
+        </p>
+      </div>
+
+      <!-- footer -->
+      <form method="POST">
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-danger">Delete</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>  
+        </div>
+      </form>
     </div>
   </div>
 </div>
@@ -240,32 +243,57 @@ document.querySelectorAll('.btn-edit-order').forEach(button => {
   });
 });
 
-// handle delete order
-document.querySelectorAll('.btn-delete-order').forEach(button => {
-  button.addEventListener('click', function () {
-    const orderId = this.getAttribute('data-order-id');
-    const orderNumber = this.getAttribute('data-order-number');
-    
-    if (confirm(`Are you sure you want to delete the ${orderNumber} ?`)) {
-      fetch(`/orders/${orderId}`, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      })
-      .then(response => response.json())
-      .then(data => {
-        if (data.success) {
-          alert(`${orderNumber} deleted successfully.`);
-          location.reload(); // Reload the page to reflect the deletion
-        } else {
-          alert('Failed to delete order: ' + data.message);
-        }
-      })
-      .catch(error => {
-        console.error('Error deleting order:', error);
-      });
+//handle delete
+document.getElementById('deleteOrderForm').addEventListener('submit', async function (e) {
+  e.preventDefault(); // Prevent form from submitting the traditional way
+
+  const orderId = document.getElementById('modal-order-id').value;
+
+  try {
+    const response = await fetch(`/delete-order/${orderId}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      alert(data.message); // Show success message
+      // Optionally, remove the deleted order row from the DOM here
+      location.reload(); // Reload the page to reflect the changes
+    } else {
+      alert(data.message); // Show error message
     }
+  } catch (error) {
+    console.error('Error:', error);
+    alert('An error occurred while deleting the order');
+  }
+});
+
+
+document.addEventListener('DOMContentLoaded', function () {
+  const deleteOrderModal = document.getElementById('deleteOrderModal');
+  const orderNumberElement = document.getElementById('modal-order-number');
+  const customerNameElement = document.getElementById('modal-customer-name');
+  const orderIdElement = document.getElementById('modal-order-id');
+  const deleteOrderForm = document.getElementById('deleteOrderForm');
+
+  document.querySelectorAll('.btn-delete-order').forEach(button => {
+    button.addEventListener('click', function () {
+      const orderId = this.getAttribute('data-order-id');
+      const orderNumber = this.getAttribute('data-order-number');
+      const customerName = this.getAttribute('data-customer-name');
+
+      // Set the order details in the modal
+      orderNumberElement.textContent = `#${orderNumber}`;
+      customerNameElement.textContent = customerName;
+      orderIdElement.value = orderId;
+
+      // Update form action if needed (optional)
+      // deleteOrderForm.action = `/orders/delete/${orderId}`;
+    });
   });
 });
 
@@ -320,88 +348,6 @@ document.getElementById('saveOrderBtn').addEventListener('click', async () => {
     console.error('Failed to update the order');
   }
 });
-
-// handle search "In Process"
-// document.getElementById('order-search').addEventListener('input', function () {
-//   const searchQuery = this.value.toLowerCase();
-
-//   fetch(`/orders/search?query=${encodeURIComponent(searchQuery)}`)
-//     .then(response => response.json())
-//     .then(data => {
-//       if (data.success) {
-//         const tbody = document.querySelector('#inProcess tbody');
-//         tbody.innerHTML = '';
-
-//         data.orders.forEach(order => {
-//           const orderItemsHtml = order.orderItems.map(item => `${item.name} - ₱${item.price} (x${item.quantity})`).join('<br>');
-          
-//           if (order.status === "In Process") {
-//             tbody.innerHTML += `
-//               <tr>
-//                 <th scope="row">${order.orderNumber}</th>
-//                 <td>${order.customerName}</td>
-//                 <td>${orderItemsHtml}</td>
-//                 <td>${order.orderType}</td>
-//                 <td>₱ ${order.discount}</td>
-//                 <td>₱ ${order.totalAmount}</td>
-//                 <td>${new Date(order.createdAt).toLocaleString()}</td>
-//                 <td class="text-warning">${order.status}</td>
-//                 <td class="text-center">
-//                   <button type="button" class="btn btn-sm btn-secondary px-3 btn-edit-order" data-order-id="${order._id}">
-//                     Edit
-//                   </button>
-//                   <button type="button" class="btn btn-sm btn-danger px-3 btn-delete-order" data-order-id="${order._id}" data-order-number="${order.orderNumber}">
-//                     Delete
-//                   </button>
-//                 </td>
-//               </tr>`;
-//           } 
-//         });
-//       } else {
-//         console.error('Failed to fetch search results:', data.message);
-//       }
-//     })
-//     .catch(error => {
-//       console.error('Error fetching search results:', error);
-//     });
-// });
-
-// handle search "To Serve"
-// document.getElementById('to-serve-search').addEventListener('input', function(){
-//   const searchQuery = this.value.toLowerCase();
-
-//   fetch(`/orders/search?query=${encodeURIComponent(searchQuery)}`)
-//   .then(response => response.json())
-//   .then(data => {
-//     if (data.success) {
-//       const tbody = document.querySelector('#toServe tbody');
-//       tbody.innerHTML = '';
-
-//       data.orders.forEach(order => {
-//         const orderItemsHtml = order.orderItems.map(item => `${item.name} - ₱${item.price} (x${item.quantity})`).join('<br>');
-
-//         if (order.status === "To Serve") {
-//           tbody.innerHTML += `
-//             <tr>
-//               <th scope="row">${order.orderNumber}</th>
-//               <td>${order.customerName}</td>
-//               <td>${orderItemsHtml}</td>
-//               <td>${order.orderType}</td>
-//               <td>₱${order.discount}</td>
-//               <td>₱${order.totalAmount}</td>
-//               <td>${new Date(order.createdAt).toLocaleString()}</td>
-//               <td class="text-warning">${order.status}</td>
-//             </tr>`;
-//         }
-//       });
-//     } else {
-//       console.error('Failed to fetch search results:', data.message);
-//     }
-//   })
-//   .catch(error => {
-//     console.error('Error fetching search results:', error);
-//   });
-// })
 </script>
 
 

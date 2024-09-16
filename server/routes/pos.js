@@ -20,7 +20,7 @@ router.get('/orders/:id', isLoggedIn, posController.viewOrder);
 router.put('/orders/:id', isLoggedIn, posController.updateOrder);
 
 // DELETE
-router.delete('/orders/:id', isLoggedIn, posController.deleteOrder)
+router.delete('/delete-order/:id', isLoggedIn, posController.deleteOrder)
 
 router.delete('/receipts/:id', isLoggedIn, posController.deleteReceipt)
 
