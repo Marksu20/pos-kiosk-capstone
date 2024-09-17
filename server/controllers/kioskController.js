@@ -23,8 +23,7 @@ exports.kiosk = async (req, res) => {
       userId = req.user._id; // Use the logged-in user's ID
       user = await User.findById(userId);
     } else {
-      // You can hard-code a registered owner user ID for public access
-      // For example, using the first user in the database or a specific user
+      // use the first user in the database or a specific user
       const registeredOwner = await User.findOne(); // Fetch the registered user (owner)
       if (registeredOwner) {
         userId = registeredOwner._id;
