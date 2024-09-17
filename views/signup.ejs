@@ -72,20 +72,34 @@
                 <div class="mb-4">
                   <h3>Sign Up</h3>
                   <p>Already have an account? <a href="/">Sign in</a></p>
+                  <!-- Success message -->
+                  <% if (typeof success_msg !== 'undefined' && success_msg.length > 0) { %>
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                      <%= success_msg %><a href="/">Log In</a>
+                      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                  <% } %>
+                  <!-- Error message -->
+                  <% if (typeof error_msg !== 'undefined' && error_msg.length > 0) { %>
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                      <%= error_msg %>
+                      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                  <% } %>
                 </div>
               </div>
             </div>
-            <form action="#!">
+            <form action="/signup" method="POST">
               <div class="row gy-3 overflow-hidden">
                 <div class="col-12">
                   <div class="form-floating mb-3">
-                    <input type="text" class="form-control" name="email" id="email" placeholder="name@example.com" required>
-                    <label for="username" class="form-label">Company Name</label>
+                    <input type="text" class="form-control" name="companyName" id="company-name" placeholder="koka Company" value="<%= typeof companyName !== 'undefined' ? companyName : '' %>" required>
+                    <label for="company-name" class="form-label">Company Name</label>
                   </div>
                 </div>
                 <div class="col-12">
                   <div class="form-floating mb-3">
-                    <input type="email" class="form-control" name="email" id="email" placeholder="name@example.com" required>
+                    <input type="email" class="form-control" name="email" id="email" placeholder="name@example.com" value="<%= typeof email !== 'undefined' ? email : '' %>" required>
                     <label for="email" class="form-label">Email</label>
                   </div>
                 </div>
@@ -96,8 +110,15 @@
                   </div>
                 </div>
                 <div class="col-12">
+                  <div class="form-floating mb-3">
+                    <input type="password" class="form-control" name="confirmPassword" id="confirm-password" value="" placeholder="Confirm Password" required>
+                    <label for="confirm-password" class="form-label">Confirm Password</label>
+                  </div>
+                </div>
+                
+                <div class="col-12">
                   <div class="d-grid">
-                    <button class="btn-login btn btn-lg" type="submit">Register now</button>
+                    <button type="submit" class="btn-login btn btn-lg">Register now</button>
                   </div>
                 </div>
               </div>

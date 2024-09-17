@@ -82,20 +82,34 @@
                 <div class="mb-4">
                   <h3>Sign In</h3>
                   <p>Don't have an account? <a href="/signup">Sign up</a></p>
+                  <!-- Success message -->
+                  <% if (typeof success_msg !== 'undefined' && success_msg.length > 0) { %>
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                      <%= success_msg %><a href="/">Log In</a>
+                      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                  <% } %>
+                  <!-- Error message -->
+                  <% if (typeof error_msg !== 'undefined' && error_msg.length > 0) { %>
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                      <%= error_msg %>
+                      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                  <% } %>
                 </div>
               </div>
             </div>
-            <form action="#!">
+            <form action="/login" method="POST">
               <div class="row gy-3 overflow-hidden">
                 <div class="col-12">
                   <div class="form-floating mb-3">
-                    <input type="email" class="form-control" name="email" id="email" placeholder="name@example.com" required>
+                    <input type="email" class="form-control" name="email" id="email" placeholder="name@example.com" value="<%= typeof email !== 'undefined' ? email : '' %>" required>
                     <label for="email" class="form-label">Email</label>
                   </div>
                 </div>
                 <div class="col-12">
                   <div class="form-floating mb-3">
-                    <input type="password" class="form-control" name="password" id="password" value="" placeholder="Password" required>
+                    <input type="password" class="form-control" name="password" id="password" value="<%= typeof password !== 'undefined' ? password : '' %>" placeholder="Password" required>
                     <label for="password" class="form-label">Password</label>
                   </div>
                 </div>
