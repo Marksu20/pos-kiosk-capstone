@@ -31,7 +31,9 @@ receipts{
 
 test account page ✔
 
-order delete modal
+order delete modal✔
+
+handle forgot password
 
 
 
