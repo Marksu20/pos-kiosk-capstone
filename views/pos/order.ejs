@@ -111,12 +111,12 @@
                         <td><%= order.customerName %></td>
                         <td>
                           <% order.orderItems.forEach(item => { %>
-                            <%= item.name %> - ₱<%= item.price %> (x<%= item.quantity %>)<br>
+                            <%= item.name %> - ₱<%= item.price %> (x<%= item.quantity %>),<br>
                           <% }) %>
                         </th>
                         <td><%= order.orderType %></td>
                         <td>₱ <%= order.discount %></td>
-                        <td><%= order.totalAmount %></td>
+                        <td>₱ <%= order.totalAmount %></td>
                         <td><%= new Date(order.createdAt).toLocaleString() %></td>
                         <td><p class="text-success"><%= order.status %></p></td>
                       </tr>
@@ -138,7 +138,66 @@
   </div>
 </div>
 
-<!-- Order Edit Modal -->
+<!-- Edit Order Modal -->
+<div class="modal fade" id="editOrderModal" tabindex="-1" aria-labelledby="editOrderModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editOrderModalLabel">Edit Order</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="editOrderForm">
+          <input type="hidden" id="orderId" name="orderId">
+          
+          <div class="mb-3">
+            <label for="orderNumber" class="form-label">Order Number</label>
+            <input type="text" class="form-control" id="orderNumber" name="orderNumber" readonly>
+          </div>
+          
+          <div class="mb-3">
+            <label for="customerName" class="form-label">Customer Name</label>
+            <input type="text" class="form-control" id="customerName" name="customerName" readonly>
+          </div>
+
+          <div class="mb-3">
+            <label for="orderItems" class="form-label">Order Items</label>
+            <ul id="orderItems" class="list-group"></ul>
+          </div>
+          
+          <div class="mb-3">
+            <label for="discount" class="form-label">Discount</label>
+            <select class="form-select" id="discount">
+              <option value="0">No Discount</option>
+              <% discounts.forEach(function(discount) { %> 
+                <option value="<%= discount.value %>"><%= discount.name %> - <%= discount.value %>%</option>
+              <% }) %>
+            </select>
+          </div>
+          
+          <div class="mb-3">
+            <label for="totalAmount" class="form-label">Total Amount</label>
+            <input type="text" class="form-control" id="totalAmount" name="totalAmount" readonly>
+          </div>
+          
+          <div class="mb-3">
+            <label for="status" class="form-label">Status</label>
+            <select id="status" name="status" class="form-select">
+              <option value="In Process">In Process</option>
+              <option value="To Serve">To Serve</option>
+            </select>
+          </div>
+
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary" id="saveOrderBtn">Save changes</button>
+        </form>
+        </div>
+      
+    </div>
+  </div>
+</div>
+
+<!-- Order Delete Modal -->
 <div class="modal" id="deleteOrderModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -166,34 +225,6 @@
   </div>
 </div>
 
-<!-- delete modal -->
-<div class="modal" id="deleteOrderModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      
-      <div class="modal-header">
-        <h5 class="modal-title">
-          You are about to delete an Order
-        </h5>
-      </div>
-      
-      <div class="modal-body">
-        <p>
-          This will delete your Order <b class="fw-bold text-danger">order_number</b><br/>
-          for <strong id="modal-customer-name">customer_name</strong>  Are you sure?
-        </p>
-      </div>
-
-      <!-- footer -->
-      <form method="POST">
-        <div class="modal-footer">
-          <button type="submit" class="btn btn-danger">Delete</button>
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>  
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
 
 <script>
 // handle edit order
