@@ -46,6 +46,12 @@ const UserSchema = new Schema({
   },
   pinResetExpires: { 
     type: Date
+  },
+  resetPasswordToken: {
+    type: String
+  },
+  resetPasswordExpires: {
+    type: Date
   }
 });
 

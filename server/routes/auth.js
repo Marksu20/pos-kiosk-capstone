@@ -2,9 +2,10 @@ const express = require('express');
 const router = express.Router();
 const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
-const User = require('../models/User')
-const bcrypt = require('bcryptjs')
-
+const User = require('../models/User');
+const bcrypt = require('bcryptjs');
+const crypto = require('crypto');
+const nodemailer = require('nodemailer');
 
 passport.use(new GoogleStrategy({
   clientID: process.env.GOOGLE_CLIENT_ID,
@@ -145,7 +146,110 @@ router.post('/login', async (req, res) => {
     }
     return res.redirect('/pos'); // Redirect after successful login
   });
-  
 })
+
+router.post('/forgot-password', async (req, res) => {
+  const { email } = req.body;
+
+  try {
+    // Check if user exists
+    const user = await User.findOne({ emailAddress: email });
+    if (!user) {
+        return res.render('index', {error_msg: 'The email does not exists' });
+    }
+
+    // Generate a reset token
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    user.resetPasswordToken = resetToken;
+    user.resetPasswordExpires = Date.now() + 3600000; // 1 hour expiration
+    await user.save();
+
+
+    // Send email with reset link
+    const resetUrl = `http://localhost:5000/reset-password/${resetToken}`;
+    const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+            user: process.env.EMAIL_USER,
+            pass: process.env.EMAIL_PASS
+        }
+    });
+
+    const mailOptions = {
+      to: user.emailAddress,
+      from: process.env.EMAIL_USER,
+      subject: 'Password Reset',
+      text: `You are receiving this because you have requested the reset of your account's password. 
+      Please click the following link to reset your password: ${resetUrl}`
+    };
+
+    transporter.sendMail(mailOptions, (err) => {
+      if (err) {
+        return res.render('index', {error_msg: 'Error sending email.' });
+      }
+      return res.render('index', {success_msg: 'Email sent successfully.' });
+    });
+  } catch (error) {
+    res.status(500).send('Server error');
+  }
+});
+
+router.post('/reset-password/:token', async (req, res) => {
+  const { token } = req.params;
+  const { newPassword, confirmPassword } = req.body;
+
+  try {
+    const user = await User.findOne({ 
+      resetPasswordToken: token, 
+      resetPasswordExpires: { $gt: Date.now() } 
+    });
+
+    if (!user) {
+      return res.render('index', {error_msg: 'Password reset token is invalid or has expired.' });
+    }
+
+    if (newPassword !== confirmPassword) {
+      return res.render('index', {error_msg: 'Password do not match' });
+    }
+
+    // Hash the new password
+    const salt = await bcrypt.genSalt(10);  // generate salt
+    const hashedPassword = await bcrypt.hash(newPassword, salt);  // hash the password
+
+    // Set the new hashed password
+    user.password = hashedPassword;
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpires = undefined;
+
+    await user.save();
+
+    res.send('Password has been reset successfully.');
+  } catch (error) {
+    console.error('Server error:', error);
+    res.status(500).send('Server error');
+  }
+});
+
+router.get('/reset-password/:token', async (req, res) => {
+  const { token } = req.params;
+
+  try {
+    const user = await User.findOne({
+      resetPasswordToken: token,
+      resetPasswordExpires: { $gt: Date.now() }
+    });
+
+    if (!user) {
+      return res.status(400).send('Password reset token is invalid or has expired.');
+    }
+
+    res.render('reset-password', { 
+      token,
+    }); // render a form to enter a new password
+  } catch (error) {
+    res.status(500).send('Server error');
+  }
+});
+
 
 module.exports = router;

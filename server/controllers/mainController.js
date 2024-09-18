@@ -17,3 +17,7 @@ exports.signup = async (req, res) => {
 
   res.render('signup', locals);
 }
+
+exports.forgotPassword = async (req, res) => {
+  res.redirect('/forgotPassword')
+}
