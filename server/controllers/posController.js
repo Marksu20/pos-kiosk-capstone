@@ -15,30 +15,35 @@ exports.pos = async (req, res) => {
   }
 
   try {
-    // const products = await Product.find({ });
-    const categories = await Category.find({});
-    const discounts = await Discount.find({});
     const currentCategory = req.query.category || null;
     const { category, searchTerm } = req.query;
 
-    let query = {};
+    const categories = await Category.find({ user: req.user._id });
+    const discounts = await Discount.find({ user: req.user._id });
+
+    let query = { user: req.user._id };
     let products;
 
     if(req.query.category) {
-      var selectedCategory = await Category.findOne({ name: req.query.category });
-      products = await Product.find({ category: selectedCategory._id }).populate('category');
+      const selectedCategory = await Category.findOne({ name: req.query.category, user: req.user._id });
+      if (selectedCategory) {
+        products = await Product.find({ category: selectedCategory._id, user: req.user._id }).populate('category');
+      } else {
+        products = [];
+      }
     } else {
-      products = await Product.find({}).populate('category');
+      products = await Product.find({ user: req.user._id }).populate('category');
     }
 
+    // Set a default value if price is missing
     products.forEach(product => {
       if (!product.price) {
-        product.price = 0; // Set a default value if price is missing
+        product.price = 0; 
       }
     });
 
     if(category) {
-      const selectedCategory = await Category.findOne({ name: category });
+      const selectedCategory = await Category.findOne({ name: category, user: req.user._id });
       if (selectedCategory) {
         query.category = selectedCategory._id;
       }
@@ -54,7 +59,6 @@ exports.pos = async (req, res) => {
     }
 
     const user = await User.findOne();
-
     const isPinSet = user && user.adminPassword ? true : false;
 
     res.render('pos/index', {
@@ -74,12 +78,11 @@ exports.pos = async (req, res) => {
   } catch (error) {
     console.log("error:", error)
   }
-  
 };
 
 exports.orderNotif = async (req, res) => {
   try {
-    const latestOrder = await Order.findOne({ status: { $ne: 'To Serve' } })// Exclude "To Serve" orders
+    const latestOrder = await Order.findOne({ status: { $ne: 'To Serve' }, })// Exclude "To Serve" orders
       .sort({ createdAt: -1 }).lean();
 
     if (!latestOrder) {
@@ -109,9 +112,9 @@ exports.order = async (req, res) => {
   }
   
   try {
-    const order = await Order.find({ });
-    const orders = await Order.find({ }).sort({ createdAt: -1 });
-    const discounts = await Discount.find({ });
+    const order = await Order.find({ user: req.user._id });
+    const orders = await Order.find({ user: req.user._id }).sort({ createdAt: -1 });
+    const discounts = await Discount.find({ user: req.user._id });
     
     const user = await User.findOne();
     const isPinSet = user && user.adminPassword ? true : false;
@@ -167,7 +170,7 @@ exports.receipt = async (req, res) => {
   }
 
   try {
-    const receipts = await Receipt.find({})
+    const receipts = await Receipt.find({ user: req.user._id })
       .sort({ createdAt: -1});
 
     const user = await User.findOne();

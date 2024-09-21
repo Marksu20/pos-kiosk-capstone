@@ -35,6 +35,7 @@ order delete modal✔
 
 handle forgot password
 
+show only items accustomed each account
 
 
 mongodb:

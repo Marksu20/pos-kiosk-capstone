@@ -141,11 +141,11 @@ exports.product = async (req, res) => {
   }
 
   try {
-    const products = await Product.find({})
+    const products = await Product.find({ user: req.user._id })
       .sort({ createdAt: -1 })
       .populate('category')
       .exec()
-    const categories = await Category.find({}); 
+    const categories = await Category.find({ user: req.user._id }); 
 
     res.render('admin/product', {
       username: req.user.firstName,
@@ -168,7 +168,7 @@ exports.category = async (req, res) => {
   }
   
   try {
-    const categories = await Category.find({}).sort({ createdAt: -1 });
+    const categories = await Category.find({ user: req.user._id }).sort({ createdAt: -1 });
 
     res.render('admin/category', {
       username: req.user.firstName,
@@ -190,7 +190,7 @@ exports.stock = async (req, res) => {
   }
 
   try {
-    const stocks = await Stock.find({ }).sort({ createdAt: -1});
+    const stocks = await Stock.find({ user: req.user._id }).sort({ createdAt: -1});
 
     res.render('admin/stock', {
       username: req.user.firstName,
@@ -236,7 +236,7 @@ exports.discount = async (req, res) => {
   }
 
   try {
-    const discounts = await Discount.find({}).sort({ createdAt: -1 });
+    const discounts = await Discount.find({ user: req.user._id }).sort({ createdAt: -1 });
 
     res.render('admin/discount', {
       username: req.user.firstName,
