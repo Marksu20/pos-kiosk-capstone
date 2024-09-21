@@ -165,8 +165,9 @@ router.post('/forgot-password', async (req, res) => {
     await user.save();
 
 
+    //https://kokapos.onrender.com
     // Send email with reset link
-    const resetUrl = `http://localhost:5000/reset-password/${resetToken}`;
+    const resetUrl = `https://kokapos.onrender.com/reset-password/${resetToken}`;
     const transporter = nodemailer.createTransport({
         service: 'gmail',
         auth: {

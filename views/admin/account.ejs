@@ -133,7 +133,7 @@
 <script>
   function generateKioskDetails() {
     const kioskPath = "/kiosk"; // Update this with your actual kiosk path
-    const baseUrl = window.location.origin; // Get the current origin (protocol + domain)
+    const baseUrl = "https://kokapos.onrender.com";
     const kioskUrl = `${baseUrl}${kioskPath}`;
 
     // Set the kiosk link
@@ -205,9 +205,9 @@ document.getElementById('accountModal').addEventListener('hidden.bs.modal', func
 });
 </script>
 
+// HIDE PASSWORD FUNCTION
 <script>
   document.addEventListener('DOMContentLoaded', () => {
-  // HIDE PASSWORD FUNCTION
   function togglePasswordVisibility(inputId, iconId) {
     let inputField = document.getElementById(inputId);
     let iconElement = document.getElementById(iconId);
