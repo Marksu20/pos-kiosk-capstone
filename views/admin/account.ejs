@@ -11,7 +11,9 @@
           <div class="card-body">
             <div class="row">
               <div class="col-md-4 text-center">
-                <img src="<%= profileimage %>" class="rounded-circle img-thumbnail" alt="User Avatar">
+                <img src="<%= profileimage ? profileimage : '/img/user.jpg' %>" 
+                  class="rounded-circle img-thumbnail img-fluid" 
+                  alt="User Avatar" style="width: 150px ; max-width: 200px; height: auto;">
               </div>
               <div class="col-md-8">
                 <h5 class="card-title mb-4"><%= displayname %></h5>
@@ -34,7 +36,6 @@
           </div>
         </div>
       </div>
-
       <div class="container mt-5">
         <div class="card text-center">
           <div class="card-header">
