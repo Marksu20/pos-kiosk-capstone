@@ -16,8 +16,8 @@ router.get('/pos/receipt', isLoggedIn, posController.receipt);
 router.post('/pos/confirm-payment', isLoggedIn, posController.confirmPayment);
 
 router.get('/orders/:id', isLoggedIn, posController.viewOrder);
-
 router.put('/orders/:id', isLoggedIn, posController.updateOrder);
+router.put('/orders/:id/served', isLoggedIn, posController.served);
 
 // DELETE
 router.delete('/delete-order/:id', isLoggedIn, posController.deleteOrder)

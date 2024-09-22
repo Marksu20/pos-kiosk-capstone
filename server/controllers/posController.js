@@ -114,9 +114,9 @@ exports.order = async (req, res) => {
   }
   
   try {
-    const order = await Order.find({ });
+    const order = await Order.find({ }).sort({ createdAt: -1 });;
     const orders = await Order.find({ }).sort({ createdAt: -1 });
-    const discounts = await Discount.find({ });
+    const discounts = await Discount.find({ }).sort({ createdAt: -1 });;
     
     const user = await User.findOne();
     const isPinSet = user && user.adminPassword ? true : false;
@@ -272,7 +272,7 @@ exports.updateOrder = async (req, res) => {
       orderId,
       updatedOrder, 
       { new: true }
-    ); //{ _id: req.params.id },
+    );
 
     if (!order) {
       console.log("order not found")
@@ -290,15 +290,37 @@ exports.updateOrder = async (req, res) => {
         discount: order.discount,
         createdAt: new Date(),
       };
-
       const newReceipt = new Receipt(receiptData);
       await newReceipt.save();
-    }
 
-    res.status(200).json({ message: 'Order updated successfully', order });
+      // Respond with success and order info
+      return res.status(200).json({
+        message: `Order #${order.orderNumber} for ${order.customerName} has been updated to 'To Serve'`,
+        order
+      });
+    }
+    res.status(200).json({ message: 'Order updated successfully' });
   } catch (error) {
     console.error('Error updating order:', error);
     res.status(500).json({ error: 'Failed to update the order' });
+  }
+}
+
+exports.served = async (req, res) => {
+  try {
+    const orderId = req.params.id;
+
+    // Update the order's status to "Served"
+    const order = await Order.findByIdAndUpdate(orderId, { status: 'Served' }, { new: true });
+
+    if (!order) {
+      return res.status(404).json({ error: 'Order not found' });
+    }
+
+    res.status(200).json({ message: 'Order status updated to Served', order });
+  } catch (error) {
+    console.error('Error updating order status:', error);
+    res.status(500).json({ error: 'Failed to update order status' });
   }
 }
 

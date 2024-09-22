@@ -4,9 +4,6 @@
     <!-- sidebar -->
     <%- include('../partials/pos_sidebar.ejs') %>
 
-    <!-- main -->
-    <!-- <main class="col-md-9 ml-sm-auto col-lg-7 col-xl-7 px-md-4 py-4">
-    </main> -->
     <main class="col-md-10 ml-sm-auto col-lg-10 px-md-4 py-4">
       <ul class="nav nav-tabs mb-3" id="queueTab" role="tablist">
         <li class="nav-item" role="presentation">
@@ -18,6 +15,27 @@
           <button class="nav-link" id="to-serve-tab" data-bs-toggle="tab" data-bs-target="#toServe" type="button" role="tab" aria-controls="toServe" aria-selected="false">
             To Serve
           </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="served-tab" data-bs-toggle="tab" data-bs-target="#served" type="button" role="tab" aria-controls="served" aria-selected="false">
+            Served
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <!-- Success message -->
+          <% if (typeof success_msg !== 'undefined' && success_msg.length > 0) { %>
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+              <%= success_msg %>
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+          <% } %>
+          <!-- Error message -->
+          <% if (typeof error_msg !== 'undefined' && error_msg.length > 0) { %>
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+              <%= error_msg %>
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+          <% } %>
         </li>
       </ul>
     <!-- queue -->
@@ -42,7 +60,7 @@
                     <th scope="col">Total</th>
                     <th scope="col">Date & Time</th>
                     <th scope="col">Status</th>
-                    <th scope="col" class="text-center">Actions</th>
+                    <th scope="col" class="text-center">Action</th>
                   </tr>
                 </thead>
                 <% orders.forEach(order => { %>
@@ -60,7 +78,7 @@
                     <td>₱<%= order.discount %></td>
                     <td>₱<%= order.totalAmount %></td>
                     <td><%= new Date(order.createdAt).toLocaleString() %></td>
-                    <td><p class="text-warning"><%= order.status %></p></td>
+                    <td><p class="text-primary"><%= order.status %></p></td>
                     <td class="text-center">
                       <button type="button" class="btn btn-sm btn-secondary px-3 btn-edit-order" data-order-id="<%= order._id %>">
                         Edit
@@ -101,6 +119,7 @@
                     <th scope="col">Total</th>
                     <th scope="col">Created</th>
                     <th scope="col">Status</th>
+                    <th scope="col" class="text-center">Action</th>
                   </tr>
                 </thead>
                   <% orders.forEach(order => { %>
@@ -118,12 +137,17 @@
                         <td>₱ <%= order.discount %></td>
                         <td>₱ <%= order.totalAmount %></td>
                         <td><%= new Date(order.createdAt).toLocaleString() %></td>
-                        <td><p class="text-success"><%= order.status %></p></td>
+                        <td><p class="text-warning"><%= order.status %></p></td>
+                        <td class="text-center">
+                          <button type="button" class="btn btn-sm btn-outline-success px-3 btn-served" data-order-id="<%= order._id %>">
+                            Served
+                          </button>
+                        </td>
                       </tr>
                     </tbody>
                     <% } %>
                   <% }) %>
-                </tbody>
+                </thead>
               </table>
               <div id="ts-no-results" class="text-center" style="display: none;">
                 No results found.
@@ -133,6 +157,56 @@
         </div>
       </div>
 
+      <!-------------------------------- served ------------------------------------------>
+      <div class="col-12 col-xl-12 mb-4 mb-lg-0 tab-pane fade" id="served" role="tabpanel" aria-labelledby="served-tab">
+        <div class="card">
+          <div class="card-header">
+            <input id="served-search" class="w-25 form-control form-control-dark" type="text" placeholder="Search Order No." aria-label="Search">
+          </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th scope="col">Order No.</th>
+                    <th scope="col">Customer</th>
+                    <th scope="col">Product(s)</th>
+                    <th scope="col">Order Type</th>
+                    <th scope="col">Discount</th>
+                    <th scope="col">Total</th>
+                    <th scope="col">Created</th>
+                    <th scope="col">Status</th>
+                  </tr>
+                </thead>
+                  <% orders.forEach(order => { %>
+                    <% if(order.status === "Served"){ %>
+                    <tbody id="served-list">
+                      <tr class="served-row">
+                        <td><strong># <%= order.orderNumber %></strong></td>
+                        <td><%= order.customerName %></td>
+                        <td>
+                          <% order.orderItems.forEach(item => { %>
+                            <%= item.name %> - ₱<%= item.price %> (x<%= item.quantity %>),<br>
+                          <% }) %>
+                        </th>
+                        <td><%= order.orderType %></td>
+                        <td>₱ <%= order.discount %></td>
+                        <td>₱ <%= order.totalAmount %></td>
+                        <td><%= new Date(order.createdAt).toLocaleString() %></td>
+                        <td><p class="text-success"><%= order.status %></p></td>
+                      </tr>
+                    </tbody>
+                    <% } %>
+                  <% }) %>
+                </thead>
+              </table>
+              <div id="ts-no-results" class="text-center" style="display: none;">
+                No results found.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
     </main>
   </div>
@@ -225,7 +299,7 @@
   </div>
 </div>
 
-
+<!-- handle order -->
 <script>
 // handle edit order
 document.querySelectorAll('.btn-edit-order').forEach(button => {
@@ -292,7 +366,6 @@ document.getElementById('deleteOrderForm').addEventListener('submit', async func
 
     if (response.ok) {
       alert(data.message); // Show success message
-      // Optionally, remove the deleted order row from the DOM here
       location.reload(); // Reload the page to reflect the changes
     } else {
       alert(data.message); // Show error message
@@ -303,7 +376,7 @@ document.getElementById('deleteOrderForm').addEventListener('submit', async func
   }
 });
 
-
+// modal order details
 document.addEventListener('DOMContentLoaded', function () {
   const deleteOrderModal = document.getElementById('deleteOrderModal');
   const orderNumberElement = document.getElementById('modal-order-number');
@@ -321,9 +394,6 @@ document.addEventListener('DOMContentLoaded', function () {
       orderNumberElement.textContent = `#${orderNumber}`;
       customerNameElement.textContent = customerName;
       orderIdElement.value = orderId;
-
-      // Update form action if needed (optional)
-      // deleteOrderForm.action = `/orders/delete/${orderId}`;
     });
   });
 });
@@ -361,26 +431,82 @@ document.getElementById('saveOrderBtn').addEventListener('click', async () => {
     status: status
   };
 
-  const updateResponse = await fetch(`/orders/${orderId}`, {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(updatedOrder)
-  });
+  try {
+    const updateResponse = await fetch(`/orders/${orderId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(updatedOrder)
+    });
 
-  if (updateResponse.ok) {
-    // Close the modal and refresh the page or update the UI
-    document.getElementById('editOrderModal').classList.remove('show');
-    document.querySelector('.modal-backdrop').remove();
-    window.location.reload();
-  } else {
-    // Handle error
-    console.error('Failed to update the order');
+    const data = await updateResponse.json();
+
+    if (updateResponse.ok) {
+      // Close the modal and refresh the page or update the UI
+      document.getElementById('editOrderModal').classList.remove('show');
+      document.querySelector('.modal-backdrop').remove();
+      alert(data.message);
+
+      window.location.reload();
+    } else {
+      console.error('Failed to update the order');
+      alert(`Failed to update order: ${data.error}`);
+    }
+  } catch (error) {
+    console.error('Error updating the order:', error);
+    alert('An error occurred while updating the order');
   }
 });
-</script>
 
+// Handle "Served" button click
+document.querySelectorAll('.btn-served').forEach(button => {
+  button.addEventListener('click', async () => {
+    const orderId = button.getAttribute('data-order-id');
+
+    try {
+      // Send a request to update the order status to "Served"
+      const response = await fetch(`/orders/${orderId}/served`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ status: 'Served' })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        const orderNumber = data.order.orderNumber;
+        const customerName = data.order.customerName;
+
+        alert(`Order #${orderNumber} for ${customerName} has been updated to 'Served'.`);
+        window.location.reload();
+
+        // Update the UI by moving the order to the "Served" tab
+        const row = button.closest('tr');
+        const servedList = document.getElementById('served-list');
+        
+        if (servedList) {
+          // Append the row to the served list
+          servedList.appendChild(row);
+          
+          // Change the status text to "Served"
+          row.querySelector('td:nth-child(8)').innerHTML = `<p class="text-success">Served</p>`;
+        } else {
+          console.error("Served list does not exist.");
+        }
+      } else {
+        const errorData = await response.json();
+        alert(`Failed to update order: ${errorData.error}`);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      alert('An error occurred while updating the order');
+    }
+  });
+});
+
+</script>
 
 <!-- search function -->
 <script>
