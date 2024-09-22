@@ -83,7 +83,6 @@ exports.pos = async (req, res) => {
 exports.orderNotif = async (req, res) => {
   try {
     const latestOrder = await Order.findOne({ 
-      user: req.user._id,
       status: { $ne: 'To Serve' }, 
     })
     .sort({ createdAt: -1 })
@@ -115,9 +114,9 @@ exports.order = async (req, res) => {
   }
   
   try {
-    const order = await Order.find({ user: req.user._id });
-    const orders = await Order.find({ user: req.user._id }).sort({ createdAt: -1 });
-    const discounts = await Discount.find({ user: req.user._id });
+    const order = await Order.find({ });
+    const orders = await Order.find({ }).sort({ createdAt: -1 });
+    const discounts = await Discount.find({ });
     
     const user = await User.findOne();
     const isPinSet = user && user.adminPassword ? true : false;
@@ -141,7 +140,7 @@ exports.order = async (req, res) => {
 
 exports.orderCount = async (req, res) => {
   try {
-    const count = await Order.countDocuments({ user: req.user._id, status: 'In Process' });
+    const count = await Order.countDocuments({ status: 'In Process' });
     res.json({ count });
   } catch (error) {
       res.status(500).json({ error: 'Failed to fetch order count' });
@@ -150,7 +149,7 @@ exports.orderCount = async (req, res) => {
 
 exports.orderLatest = async (req, res) => {
   try {
-    const latestOrder = await Order.findOne({ user: req.user._id })
+    const latestOrder = await Order.findOne({ })
       .sort({ createdAt: -1 })
       .lean();
 
@@ -175,7 +174,7 @@ exports.receipt = async (req, res) => {
   }
 
   try {
-    const receipts = await Receipt.find({ user: req.user._id })
+    const receipts = await Receipt.find({ })
       .sort({ createdAt: -1});
 
     const user = await User.findOne();
