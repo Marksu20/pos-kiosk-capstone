@@ -29,6 +29,7 @@ exports.admin = async (req, res) => {
     res.render('/pos/admin', {
       username: req.user.firstName,
       companyname: req.user.companyName,
+      showNavbar: true,
       layout: '../views/layouts/pos'
     });
   } catch (error) {
@@ -126,6 +127,7 @@ exports.dashboard = async (req, res) => {
       recentOrders,
       companyname: req.user.companyName,
       currentPath: req.path,
+      showNavbar: true,
       layout: '../views/layouts/admin'
     });
   } catch (error) {
@@ -154,6 +156,7 @@ exports.product = async (req, res) => {
       categories,
       companyname: req.user.companyName,
       currentPath: req.path,
+      showNavbar: true,
       layout: '../views/layouts/admin'
     });
   } catch (error) {
@@ -176,6 +179,7 @@ exports.category = async (req, res) => {
       categories,
       companyname: req.user.companyName,
       currentPath: req.path,
+      showNavbar: true,
       layout: '../views/layouts/admin'
     });
   } catch (error) {
@@ -198,6 +202,7 @@ exports.stock = async (req, res) => {
       stocks,
       companyname: req.user.companyName,
       currentPath: req.path,
+      showNavbar: true,
       layout: '../views/layouts/admin'
     });
   } catch (error) {
@@ -222,6 +227,7 @@ exports.receipt = async (req, res) => {
       companyname: req.user.companyName,
       currentPath: req.path,
       locals,
+      showNavbar: true,
       layout: '../views/layouts/admin'
     });
   } catch (error) {
@@ -244,6 +250,7 @@ exports.discount = async (req, res) => {
       discounts,
       companyname: req.user.companyName,
       currentPath: req.path,
+      showNavbar: true,
       layout: '../views/layouts/admin'
     });
   } catch (error) {
@@ -268,6 +275,7 @@ exports.account = async (req, res) => {
     accountID: req.user._id,
     locals,
     currentPath: req.path,
+    showNavbar: true,
     layout: '../views/layouts/admin'
   });
 }
@@ -298,6 +306,7 @@ exports.viewProduct = async (req, res) => {
         categories,
         currentPath: req.path,
         companyname: req.user.companyName,
+        showNavbar: true,
         layout: '../views/layouts/admin'
       });
     } else {
@@ -317,6 +326,7 @@ exports.viewCategory = async (req, res) => {
       categories,
       currentPath: req.path,
       companyname: req.user.companyName,
+      showNavbar: true,
       layout: '../views/layouts/admin'
     });
   } else {
@@ -339,6 +349,7 @@ exports.viewStock = async (req, res) => {
         stocks,
         currentPath: req.path,
         companyname: req.user.companyName,
+        showNavbar: true,
         layout: '../views/layouts/admin'
       });
     } else {
@@ -363,6 +374,7 @@ exports.viewDiscount = async (req, res) => {
         discounts,
         currentPath: req.path,
         companyname: req.user.companyName,
+        showNavbar: true,
         layout: '../views/layouts/admin'
       });
     } else {
@@ -531,6 +543,7 @@ exports.adminLogin = async (req, res) => {
     currentPath: req.path,
     companyname: req.user.companyName,
     locals,
+    showNavbar: true,
     layout: '../views/layouts/admin'
   });
 }
@@ -598,7 +611,8 @@ exports.adminEntry = async (req, res) => {
       username: req.user.firstName,
       currentPath: req.path,
       companyname: req.user.companyName,
-      error: 'Incorrect Password.', 
+      error: 'Incorrect Password.',
+      showNavbar: true,
       layout: '../views/layouts/admin'
     });
   }
@@ -626,6 +640,7 @@ exports.resetPIN = async (req, res) => {
       currentPath: req.path,
       companyname: req.user.companyName,
       locals,
+      showNavbar: false,
       layout: '../views/layouts/admin' 
     });
   } catch (err) {
@@ -647,7 +662,7 @@ exports.removePIN = async (req, res) => {
     user.adminPassword = null; // Remove the admin PIN
     await user.save();
 
-    res.status(200).send('Password removed! :)');
+    res.status(200).send('PIN removed! :)');
     // res.redirect('/pos/admin/dashboard'); // Redirect to the admin dashboard
   } catch (err) {
     console.error('Error in removePIN:', err);
