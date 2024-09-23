@@ -558,7 +558,7 @@ exports.sendRemovePIN = async (req, res) => {
     await user.save();
 
     // Create reset link
-    const resetLink = `http://localhost:5000/reset-pin/${token}`;
+    const resetLink = `https://kokapos.onrender.com/reset-pin/${token}`;
 
     // Send email
     const mailOptions = {
