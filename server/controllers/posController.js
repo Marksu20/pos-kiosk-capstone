@@ -83,7 +83,7 @@ exports.pos = async (req, res) => {
 exports.orderNotif = async (req, res) => {
   try {
     const latestOrder = await Order.findOne({ 
-      status: { $ne: 'To Serve' }, 
+      status: { $ne: 'To Serve', $ne: 'Served' }, 
     })
     .sort({ createdAt: -1 })
     .lean();
