@@ -6,6 +6,7 @@ const User = require('../models/User');
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
 const nodemailer = require('nodemailer');
+const { error } = require('console');
 
 passport.use(new GoogleStrategy({
   clientID: process.env.GOOGLE_CLIENT_ID,
@@ -87,30 +88,36 @@ passport.deserializeUser(async (id, done) => {
 router.post('/signup', async (req, res) => {
   const { companyName, email, password, confirmPassword } = req.body;
 
-  // Email validation function
+  // Email validation 
   function isValidEmail(email) {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
   }
 
-  // Check if email is valid
+  // Check email validation
   if (!isValidEmail(email)) {
-    return res.render('signup', { companyName, email, error_msg: 'Invalid email format' });
+    return res.render('signup', { companyName, email, error_msg: 'Invalid email format!' });
+  }
+
+  // require company name
+  if(!companyName) {
+    return res.render('signup', { companyName, email, error_msg: 'Company Name is required!'})
   }
 
   // Check if passwords match
   if (password !== confirmPassword) {
-    return res.render('signup', { companyName, email, error_msg: 'Passwords do not match' });
+    return res.render('signup', { companyName, email, error_msg: 'Passwords do not match!' });
   }
 
-  // Password length validation (at least 8 characters)
+  // Password length validation 
   if (password.length < 4) {
-    return res.render('signup', { companyName, email, error_msg: 'Password must be at least 4 characters long' });
+    return res.render('signup', { companyName, email, error_msg: 'Password must be at least 4 characters long!' });
   }
 
+  // if user exists
   const existingUser = await User.findOne({ emailAddress: email });
   if (existingUser) {
-    return res.render('signup', { companyName, email, error_msg: 'User already exists' });
+    return res.render('signup', { companyName, email, error_msg: 'User already exists!' });
   }
 
   const hashedPassword = await bcrypt.hash(password, 10);
@@ -122,7 +129,7 @@ router.post('/signup', async (req, res) => {
   });
 
   await newUser.save();
-  return res.render('signup', {success_msg: 'Registered Successfully! click here to ' });
+  return res.render('index', {success_msg: 'Registered Successfully! You can Sign In now' });
 });
 
 
@@ -144,7 +151,7 @@ router.post('/login', async (req, res) => {
     if (err) {
       return next(err);
     }
-    return res.redirect('/pos'); // Redirect after successful login
+    return res.redirect('/pos'); // Redirect after success
   });
 })
 
@@ -155,7 +162,7 @@ router.post('/forgot-password', async (req, res) => {
     // Check if user exists
     const user = await User.findOne({ emailAddress: email });
     if (!user) {
-        return res.render('index', {error_msg: 'The email does not exists' });
+        return res.render('index', {error_msg: 'User does not exists!' });
     }
 
     // Generate a reset token
@@ -167,7 +174,7 @@ router.post('/forgot-password', async (req, res) => {
 
     //https://kokapos.onrender.com
     // Send email with reset link
-    const resetUrl = `https://kokapos.onrender.com/reset-password/${resetToken}`;
+    const resetUrl = `http://localhost:5000/reset-password/${resetToken}`;
     const transporter = nodemailer.createTransport({
         service: 'gmail',
         auth: {
@@ -188,7 +195,7 @@ router.post('/forgot-password', async (req, res) => {
       if (err) {
         return res.render('index', {error_msg: 'Error sending email.' });
       }
-      return res.render('index', {success_msg: 'Email sent successfully.' });
+      return res.render('index', {success_msg: 'Email sent successfully, check your inbox.' });
     });
   } catch (error) {
     res.status(500).send('Server error');
@@ -205,12 +212,20 @@ router.post('/reset-password/:token', async (req, res) => {
       resetPasswordExpires: { $gt: Date.now() } 
     });
 
+    // check if user token valid or expired
     if (!user) {
-      return res.render('index', {error_msg: 'Password reset token is invalid or has expired.' });
+      // return res.render('reset-password', {token, error_msg: 'Password reset token is invalid or has expired.' });
+      return res.send('Password reset token is invalid or has expired.') 
     }
 
+    // check if passwords match
     if (newPassword !== confirmPassword) {
-      return res.render('index', {error_msg: 'Password do not match' });
+      return res.render('reset-password', {token, error_msg: 'Passwords do not match!' });
+    }
+
+    // Password length validation 
+    if (newPassword.length < 4) {
+      return res.render('reset-password', {token, error_msg: 'Password must be at least 4 characters long!' });
     }
 
     // Hash the new password
@@ -223,11 +238,10 @@ router.post('/reset-password/:token', async (req, res) => {
     user.resetPasswordExpires = undefined;
 
     await user.save();
-
-    res.send('Password has been reset successfully.');
+    return res.render('reset-password', {token, success_msg: 'Password successfully changed!'})
   } catch (error) {
     console.error('Server error:', error);
-    res.status(500).send('Server error');
+    return res.status(500).send('Server error');
   }
 });
 
@@ -251,6 +265,5 @@ router.get('/reset-password/:token', async (req, res) => {
     res.status(500).send('Server error');
   }
 });
-
 
 module.exports = router;
