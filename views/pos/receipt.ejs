@@ -80,6 +80,7 @@
           <!-- Order items will be dynamically inserted here -->
         </div>
         <hr>
+        <div id="createdAt"></div>
         <div id="orderType">Dine In</div>
         <h6>Total Amount: ₱<span id="receiptTotalAmount"></span></h6>
       </div>
@@ -93,7 +94,6 @@
 
 <!-- Function to show receipt modal -->
 <script>
-
 document.querySelectorAll('.view-receipt').forEach(button => {
   button.addEventListener('click', function () {
     const receipt = JSON.parse(this.getAttribute('data-receipt'));
