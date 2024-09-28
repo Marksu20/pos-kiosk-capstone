@@ -288,17 +288,25 @@ exports.viewProduct = async (req, res) => {
   const products = await Product.find({})
     .populate('category')
     .exec();
-  const categories = await Category.find({ _id: { $ne: product.category._id } })
+  const categories = await Category.find({ })
     .sort({ createdAt: -1 })
     .lean();
 
-    if(product) {
-
-      if(!product.category) {
+    if (product) {
+      // If the product has a category, find that category and move it to the top of the list
+      if (product.category && product.category._id) {
+        const categoryIndex = categories.findIndex(
+          (category) => category._id.equals(product.category._id)
+        );
+        if (categoryIndex !== -1) {
+          const [productCategory] = categories.splice(categoryIndex, 1); // Remove the category
+          categories.unshift(productCategory); // Add it at the top of the list
+        }
+      } else {
         product.category = {
           _id: null,
-          name: 'Uncategorized'
-        }
+          name: 'Uncategorized',
+        };
       }
 
       res.render('admin/view-product', {
@@ -415,11 +423,12 @@ exports.updateProduct = async (req, res) => {
         name: req.body.name,
         category: req.body.category,
         price: req.body.price,
-        quantity: req.body.quantity,
+        quantity: req.body.quantity || 0,
         image: updatedImage
       }
     ).where({ user: req.user.id });
 
+    req.flash('success_msg', `A product successfully updated!`);
     res.redirect('/pos/admin/product');
   } catch (error) {
     
@@ -767,7 +776,7 @@ exports.newProduct = async (req, res) => {
       name,
       category: categoryID,
       price,
-      quantity,
+      quantity: quantity || 0,
       image,
       sold,
     });
