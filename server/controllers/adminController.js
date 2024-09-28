@@ -285,8 +285,11 @@ exports.viewProduct = async (req, res) => {
     .where({ user: req.user.id })
     .populate('category')
     .lean();
-  const products = await Product.find({}).populate('category').exec();;
-  const categories = await Category.find({})
+  const products = await Product.find({})
+    .populate('category')
+    .exec();
+  const categories = await Category.find({ _id: { $ne: product.category._id } })
+    .sort({ createdAt: -1 })
     .lean();
 
     if(product) {
@@ -842,7 +845,6 @@ exports.newDiscount = async (req, res) => {
     req.flash('success_msg', `"${name}" successfully added!`);
     res.redirect('/pos/admin/discount'); 
   } catch (error) {
-    console.error(err);
     res.status(500).send('Server Error');
   }
 } 
