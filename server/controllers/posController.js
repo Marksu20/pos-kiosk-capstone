@@ -116,7 +116,7 @@ exports.order = async (req, res) => {
   try {
     const order = await Order.find({ }).sort({ createdAt: -1 });;
     const orders = await Order.find({ }).sort({ createdAt: -1 });
-    const discounts = await Discount.find({ }).sort({ createdAt: -1 });;
+    const discounts = await Discount.find({ user: req.user._id }).sort({ createdAt: -1 });;
     
     const user = await User.findOne();
     const isPinSet = user && user.adminPassword ? true : false;

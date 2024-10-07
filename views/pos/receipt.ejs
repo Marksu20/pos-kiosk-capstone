@@ -34,7 +34,7 @@
                   <% receipts.forEach( receipt => { %>
                     <tbody id="receipt-list">
                       <tr class="receipt-row">
-                        <td># <%= receipt.orderNumber %></td>
+                        <td><strong># <%= receipt.orderNumber %></strong></td>
                         <td><%= receipt.customerName %></td>
                         <td>
                           <% receipt.orderItems.forEach(item => { %>
@@ -80,8 +80,10 @@
           <!-- Order items will be dynamically inserted here -->
         </div>
         <hr>
-        <div id="createdAt"></div>
-        <div id="orderType">Dine In</div>
+        <div class="d-flex justify-content-between">
+          <div id="orderType"></div>
+          <div id="createdAt"></div>
+        </div>
         <h6>Total Amount: ₱<span id="receiptTotalAmount"></span></h6>
       </div>
       <div class="modal-footer">
@@ -109,6 +111,10 @@ document.querySelectorAll('.view-receipt').forEach(button => {
     `).join('');
     document.getElementById('receiptOrderSummary').innerHTML = receiptOrderSummary;
 
+    const createdAt = new Date(receipt.createdAt);
+    const formattedDate = createdAt.toLocaleString(); // Customize format if necessary
+    document.getElementById('createdAt').textContent = `${formattedDate}`;
+
     // Show modal
     const receiptModal = new bootstrap.Modal(document.getElementById('receipt-modal'));
     receiptModal.show();
@@ -126,8 +132,9 @@ document.querySelectorAll('.view-receipt').forEach(button => {
     receiptRows.forEach(row => {
       const orderNumber = row.querySelector('td:nth-child(1)').textContent.toLowerCase();
       const customerName = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
+      const totalAmount = row.querySelector('td:nth-child(6)').textContent.toLowerCase();
       
-      if (orderNumber.includes(searchQuery) || customerName.includes(searchQuery)) {
+      if (orderNumber.includes(searchQuery) || customerName.includes(searchQuery) || totalAmount.includes(searchQuery)) {
         row.style.display = '';
         hasResults = true;
       } else {

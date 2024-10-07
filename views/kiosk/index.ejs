@@ -9,34 +9,40 @@
 <section class="py-5">
   <div class="container px-4 px-lg-5 mt-5">
     <div class="row gx-4 gx-lg-5 row-cols-2 row-cols-md-3 row-cols-xl-4 justify-content-center">
-      <% productsSold.forEach(function(productSold){ %>
-        <% if(productSold.sold > 0 && productSold.quantity > 0) { %>
-          <div class="col mb-5">
-            <div class="card shadow">
-              <div class="img-container shadow-sm rounded">
-                <img class="card-img-top" src="<%= productSold.image %>" alt="<%= productSold.name %>" />
-              </div>
-              <div class="card-body p-4">
-                <div class="text-center">
-                  <h5 class="fw-bolder"><%= productSold.name %></h5>
-                  ₱ <%= productSold.price %>
+      <% if( productsSold && productsSold.length > 0 ) { %>
+        <% productsSold.forEach(function(productSold){ %>
+          <% if(productSold.sold > 0 && productSold.quantity > 0) { %>
+            <div class="col mb-5">
+              <div class="card shadow">
+                <div class="img-container shadow-sm rounded">
+                  <img class="card-img-top" src="<%= productSold.image %>" alt="<%= productSold.name %>" />
                 </div>
-              </div>
-              <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
-                <div class="text-center">
-                  <button class="btn btn-outline-dark mt-auto add-to-order"
-                      data-id="<%= productSold._id %>"
-                      data-name="<%= productSold.name %>"
-                      data-price="<%= productSold.price %>"
-                      data-image="<%= productSold.image %>">
-                    Add to Order
-                  </button>
+                <div class="card-body p-4">
+                  <div class="text-center">
+                    <h5 class="fw-bolder"><%= productSold.name %></h5>
+                    ₱ <%= productSold.price %>
+                  </div>
+                </div>
+                <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
+                  <div class="text-center">
+                    <button class="btn btn-outline-dark mt-auto add-to-order"
+                        data-id="<%= productSold._id %>"
+                        data-name="<%= productSold.name %>"
+                        data-price="<%= productSold.price %>"
+                        data-image="<%= productSold.image %>">
+                      Add to Order
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        <% } %>
-      <% }); %>
+          <% } %>
+        <% }) %>
+      <% } else { %>
+        <div class="col-12" style="height: 30vh;">
+          <strong class="text-danger">Don't have a best sellers yet.</strong>
+        </div>
+      <% } %>
     </div>
   </div>
 </section>

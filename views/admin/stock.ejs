@@ -27,7 +27,7 @@
               <div class="modal-body">
                 <div class="input-group mb-3">
                   <span class="input-group-text">Item</span>
-                  <input name="item" id="item" type="text" class="form-control" placeholder="Item name" >
+                  <input name="item" id="item" type="text" class="form-control" placeholder="Item name" required>
                 </div>
 
                 <div class="input-group mb-3">
@@ -125,8 +125,9 @@
 
     stockRows.forEach(row => {
       const stockName = row.querySelector('td:nth-child(1)').textContent.toLowerCase();
+      const cost = row.querySelector('td:nth-child(3)').textContent.toLocaleLowerCase();
       
-      if (stockName.includes(searchQuery)) {
+      if (stockName.includes(searchQuery) || cost.includes(searchQuery)) {
         row.style.display = '';
         hasResults = true;
       } else {
