@@ -44,12 +44,24 @@ exports.dashboard = async (req, res) => {
     description: "koka POS web application"
   }
   
+  const { startDate, endDate } = req.query;
+
   async function calculateDashboardMetrics() { 
     try {
-      const totalCustomers = await Receipt.distinct('customerName').countDocuments();
-      const totalSales = await Receipt.countDocuments();
+      const filter = {};
+
+      if(startDate && endDate) {
+        filter.createdAt = {
+          $gte: new Date(startDate),
+          $lte: new Date(endDate)
+        };
+      }
+
+      const totalCustomers = await Receipt.distinct('customerName', filter).countDocuments();
+      const totalSales = await Receipt.countDocuments(filter);
   
-      totalRevenue = await Receipt.aggregate([
+      const totalRevenue = await Receipt.aggregate([
+        { $match: filter },
         {
           $group: {
             _id: null,
@@ -59,15 +71,17 @@ exports.dashboard = async (req, res) => {
       ]);
   
       const totalExpenses = await Stock.aggregate([
+        { $match: filter },
         {
           $group: {
             _id: null,
-            total: { $sum: { $multiply: ["$quantity", "$cost"]}}
+            total: { $sum: "$cost" }
           }
         }
       ]);
 
       const totalQuantitySold = await Product.aggregate([
+        { $match: filter },
         {
           $group: {
             _id: null,
@@ -77,6 +91,7 @@ exports.dashboard = async (req, res) => {
       ]);
 
       const topSellingProducts = await Product.aggregate([
+        { $match: filter },
         {
           $project : {
             name: 1,
@@ -217,7 +232,7 @@ exports.receipt = async (req, res) => {
   }
 
   try {
-    const receipts = await Receipt.find({ user: req.user.id })
+    const receipts = await Receipt.find({ })
       .sort({ createdAt: -1 })
       .lean();
 
