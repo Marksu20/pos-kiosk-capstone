@@ -21,3 +21,12 @@ exports.signup = async (req, res) => {
 exports.forgotPassword = async (req, res) => {
   res.redirect('/forgotPassword')
 }
+
+exports.staffLogin = async (req, res) => {
+  const locals = {
+    title: "koka POS",
+    description: "koka POS web application"
+  }
+
+  res.render('staffLogin', locals);
+}
