@@ -11,6 +11,4 @@ router.post('/kiosk/orders', kioskController.orders);
 
 router.get('/kiosk/orders/generate-order-number', kioskController.generateOrderNumber);
 
-
-
 module.exports = router;

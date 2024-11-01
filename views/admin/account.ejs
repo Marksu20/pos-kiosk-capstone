@@ -3,6 +3,82 @@
     <%- include('../partials/admin_sidebar.ejs') %>
 
     <main class="col-md-9 ml-sm-auto col-lg-10 px-md-4 py-4">
+      
+      <!-- User Table Section -->
+      <div class="container mt-5">
+        <div class="d-flex justify-content-start mb-1">
+          <div class="dropdown">
+            <select class="form-select" aria-label="Default select example">
+              <option selected>All Users</option>
+              <option value="1">Sub-Admin</option>
+              <option value="2">Staff</option>
+            </select>          
+          </div>
+
+          <div class="mx-2">
+            <div class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newUserModal">
+              + Add User
+            </div>
+          </div>
+        </div>
+        
+        <div class="card">
+          <div class="card-header">
+            <h4>Manage Users</h4>
+          </div>
+          <div class="card-body">
+            <!-- Table -->
+            <div class="table-responsive">
+              <table class="table table-hover">
+                <thead>
+                  <tr>
+                    <th scope="col">Email</th>
+                    <th scope="col">Username</th>
+                    <th scope="col">Role</th>
+                    <th scope="col">Date Added</th>
+                    <th scope="col">User Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% users.forEach(user => { %>
+                    <tr>
+                      <td>test@sample</td>
+                      <td><%= user.username %></td>
+                      <td><%= user.role %></td>
+                      <td><%= new Date(user.createdAt).toLocaleDateString() %></td>
+                      <td>
+                        <button class="btn btn-sm btn-primary">Edit</button>
+                        <button class="btn btn-sm btn-danger">Delete</button>
+                      </td>
+                    </tr>
+                  <% }) %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+       <!-- Account Kiosk Section -->
+       <div class="container mt-5">
+        <div class="card text-center">
+          <div class="card-header">
+            <h4>Account Kiosk</h4>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-12">
+                <a id="kioskLink" target="_blank"></a>
+                <div id="qrcode" class="mt-3 mb-5">
+                  <!-- QR Code -->
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- User Account Information Section -->
       <div class="container mt-5">
         <div class="card">
           <div class="card-header">
@@ -19,13 +95,6 @@
                 <h5 class="card-title mb-4"><%= displayname %></h5>
                 <p class="card-text"><strong>Email:</strong> <%= emailaddress %></p>
                 <p class="card-text"><strong>Company Name:</strong> <%= companyname %></p>
-                <p class="card-text"><strong>Admin PIN:</strong>
-                  <% if(adminpassword){ %>
-                    ****
-                  <% } else { %>
-                    
-                  <% } %>
-                </p>
               </div>
             </div>
           </div>
@@ -35,29 +104,12 @@
             </button>
           </div>
         </div>
-      </div>
-      <div class="container mt-5">
-        <div class="card text-center">
-          <div class="card-header">
-            <h4>Account Kiosk</h4>
-          </div>
-          <div class="card-body">
-            <div class="row">
-              <div class="col-md-12">
-                <a id="kioskLink" target="_blank"></a>
-                
-                <div id="qrcode" class="mt-3 mb-5">
-                  <!-- QR Code -->
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      </div>  
     </main>
   </div>
 </div>
-<!-- update account modal -->
+
+<!-- Update Account Modal -->
 <div class="modal fade" id="accountModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
@@ -74,49 +126,6 @@
             <span class="input-group-text">New Company Name</span>
             <input id="companyname" name="companyName" value="<%= companyname %>" type="text" class="form-control">
           </div>
-
-          <div class="input-group mb-3">
-            <span class="input-group-text">Admin PIN</span>
-            <input id="adminpassword" name="adminPassword" type="password" maxlength="4" class="form-control" placeholder="****" 
-              oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 4);">
-            <span class="input-group-text" id="passEye">
-              <a class="pe-auto link-success" href="javascript:void(0);">
-                <i id="js-eyeicon" class="js-password bi bi-eye-slash-fill"></i>
-              </a>
-            </span>
-          </div>
-
-          <% if(adminpassword){ %>
-            <div class="input-group mb-3">
-              <span class="input-group-text">New PIN</span>
-              <input id="newpassword" name="newPassword" type="password" maxlength="4" class="form-control" placeholder="****"
-                oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 4);">
-              <span class="input-group-text">
-                <a class="pe-auto link-success" href="javascript:void(0);" id="newPassEye">
-                  <i class="js-password bi bi-eye-slash-fill"></i>
-                </a>
-              </span>
-            </div>
-
-            <div class="input-group mb-3">
-              <span class="input-group-text">Confirm New PIN</span>
-              <input id="confirmpassword" name="confirmPassword" type="password" maxlength="4" class="form-control" placeholder="****"
-                oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 4);">
-              <span class="input-group-text">
-                <a class="pe-auto link-success" href="javascript:void(0);" id="confirmPassEye">
-                  <i class="js-password bi bi-eye-slash-fill"></i>
-                </a>
-              </span>
-            </div>
-
-            <div class="form-check">
-              <input id="removepassword" name="removePassword" class="form-check-input" type="checkbox" value="true">
-              <label class="form-check-label" for="removepassword">
-                Remove PIN
-              </label>
-            </div>
-
-          <% } %>
           
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -125,6 +134,45 @@
         </div>
       </form>
     </div>
+  </div>
+</div>
+
+<!-- Modal Form for Adding New User -->
+<div class="modal fade" id="newUserModal" tabindex="-1" aria-labelledby="newUserModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <form action="/newUser" method="POST">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="newUserModalLabel">Create New User</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="emailaddress" class="form-label">Email</label>
+            <input type="text" class="form-control" id="emailaddress" name="emailAddress" required>
+          </div>
+          <div class="mb-3">
+            <label for="username" class="form-label">Username</label>
+            <input type="text" class="form-control" id="username" name="username" required>
+          </div>
+          <div class="mb-3">
+            <label for="password" class="form-label">Password</label>
+            <input type="password" class="form-control" id="password" name="password" required>
+          </div>
+          <div class="mb-3">
+            <label for="role" class="form-label">Role</label>
+            <select class="form-control" id="role" name="role" required>
+              <option value="staff">Staff</option>
+              <option value="sub-admin">Sub-Admin</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-primary">Create User</button>
+        </div>
+      </div>
+    </form>
   </div>
 </div>
 
@@ -206,7 +254,6 @@ document.getElementById('accountModal').addEventListener('hidden.bs.modal', func
 });
 </script>
 
-// HIDE PASSWORD FUNCTION
 <script>
   document.addEventListener('DOMContentLoaded', () => {
   function togglePasswordVisibility(inputId, iconId) {
