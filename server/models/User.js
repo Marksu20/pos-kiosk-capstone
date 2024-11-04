@@ -8,7 +8,8 @@ const UserSchema = new Schema({
   },
   emailAddress: {
     type: String,
-    required: true
+    required: true,
+    unique: true,
   },
   displayName: {
     type: String,
@@ -52,7 +53,13 @@ const UserSchema = new Schema({
   },
   resetPasswordExpires: {
     type: Date
+  },
+  role: {
+    type: String,
+    enum: ['admin', 'sub-admin', 'staff'],
+    default: 'staff'
   }
 });
 
+UserSchema.index({ emailAddress: 1}, {unique: true});
 module.exports = mongoose.model('User', UserSchema);

@@ -558,146 +558,6 @@ exports.updateAccount = async (req, res) => {
   }
 }
 
-exports.adminLogin = async (req, res) => {
-  const locals = {
-    title: "Enter Password",
-    description: "koka POS web application",
-  }
-
-
-  res.render('admin/admin-login', {
-    username: req.user.firstName,
-    currentPath: req.path,
-    companyname: req.user.companyName,
-    locals,
-    showNavbar: true,
-    layout: '../views/layouts/admin'
-  });
-}
-
-exports.sendRemovePIN = async (req, res) => {
-  try {
-    const { emailAddress } = req.body;
-    console.log(emailAddress);
-
-    // Generate a unique token
-    const token = crypto.randomBytes(32).toString('hex');
-
-    // Find user by email
-    const user = await User.findOne({ emailAddress: { $regex: new RegExp(`^${emailAddress}$`, 'i') } });
-
-    if (!user) {
-      console.error(`User with email ${emailAddress} not found`);
-      req.flash('error_msg', 'User not found');
-      return res.redirect('/pos/admin/admin-login');
-    }
-
-    // Save token and expiration time
-    user.pinResetToken = token;
-    user.pinResetExpires = Date.now() + 3600000; // 1 hour expiration
-    await user.save();
-
-    // Create reset link
-    const resetLink = `https://kokapos.onrender.com/reset-pin/${token}`;
-
-    // Send email
-    const mailOptions = {
-      from: 'markjoshuadlcrz@gmail.com',
-      to: emailAddress,
-      subject: 'Admin PIN Reset',
-      text: `Click the following link to remove your admin PIN: ${resetLink}`,
-      html: `<p>Click <a href="${resetLink}">here</a> to remove your admin PIN.</p>`
-    };
-
-    transporter.sendMail(mailOptions, (error, info) => {
-      if (error) {
-        req.flash('error_msg', 'Error sending email.');
-
-        return res.redirect('/pos/admin/admin-login');
-      }
-      req.flash('success_msg', 'Email sent successfully. Please check your inbox.');
-
-      return res.redirect('/pos/admin/admin-login');
-    });
-  } catch (err) {
-    req.flash('error_msg', 'Server error.');
-    return res.redirect('/pos/admin/admin-login');
-  }
-}
-
-exports.adminEntry = async (req, res) => {
-  const user = await User.findById(req.user.id);
-
-  const isMatch = await bcrypt.compare(req.body.password, user.adminPassword);
-  if (isMatch) {
-    req.session.adminAuthenticated = true;
-    req.session.lastActivity = Date.now(); // Reset the last activity time
-    res.redirect('/pos/admin/dashboard');
-  } else {
-    res.render('admin/admin-login', {
-      username: req.user.firstName,
-      currentPath: req.path,
-      companyname: req.user.companyName,
-      error: 'Incorrect Password.',
-      showNavbar: true,
-      layout: '../views/layouts/admin'
-    });
-  }
-};
-
-exports.resetPIN = async (req, res) => {
-  const locals = {
-    title: "Enter Password",
-    description: "koka POS web application",
-  }
-
-  try {
-    const user = await User.findOne({
-      pinResetToken: req.params.token,
-      pinResetExpires: { $gt: Date.now() } // Token is valid if expiration is in the future
-    });
-
-    if (!user) {
-      return res.status(400).send('Invalid or expired token');
-    }
-
-    res.render('admin/remove-pin', {
-      user,
-      username: req.user.firstName,
-      currentPath: req.path,
-      companyname: req.user.companyName,
-      locals,
-      showNavbar: false,
-      layout: '../views/layouts/admin' 
-    });
-  } catch (err) {
-    console.error('Error in resetPIN:', err);
-    return res.status(500).send('Server error');
-  }
-}
-
-exports.removePIN = async (req, res) => {
-  try {
-    const { userId } = req.body;
-
-    // Find the user and remove the admin PIN
-    const user = await User.findById(userId);
-    if (!user) {
-      return res.status(400).send('User not found');
-    }
-
-    user.adminPassword = null; // Remove the admin PIN
-    await user.save();
-
-    res.status(200).send('PIN removed! :)');
-    // res.redirect('/pos/admin/dashboard'); // Redirect to the admin dashboard
-  } catch (err) {
-    console.error('Error in removePIN:', err);
-    res.status(500).send('Server error');
-  }
-}
-
-
 // DELETE
 exports.deleteProduct = async (req, res) => {
   try {
@@ -871,4 +731,15 @@ exports.newDiscount = async (req, res) => {
   } catch (error) {
     res.status(500).send('Server Error');
   }
-} 
+}
+
+exports.createUser = async (req, res) => {
+  try {
+    const { displayName, password, role } = req.body;
+    const newUser = new User({ displayName, password, role });
+    await newUser.save();
+    res.status(201).send('User created successfully');
+  } catch (error) {
+    res.status(500).send('Error creating user');
+  }
+}
