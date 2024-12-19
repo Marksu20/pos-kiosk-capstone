@@ -28,5 +28,5 @@ exports.staffLogin = async (req, res) => {
     description: "koka POS web application"
   }
 
-  res.render('staffLogin', locals);
+  res.render('staff-login', locals);
 }
