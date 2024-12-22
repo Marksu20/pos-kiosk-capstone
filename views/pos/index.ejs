@@ -58,12 +58,16 @@
                     </div>
                     <div class="card-body">
                       <h6 class="card-title"><%= product.name %> <br> ₱ <%= product.price %></h6>
-                      <% if(product.quantity == 0){ %>
-                        <p>x<strong class="text-danger"><%= product.quantity %></strong> <span class="badge bg-danger rounded-pill">no stock</span></p>
-                      <% } else if (product.quantity >= 0 && product.quantity <= 5) { %>
-                        <p>x<strong class="text-warning"><%= product.quantity %></strong> <span class="badge rounded-pill bg-warning">low stock</span></p>
+                      <% if(product.quantity != null){ %>
+                        <% if(product.quantity == 0){ %>
+                          <p>x<strong class="text-danger"><%= product.quantity %></strong> <span class="badge bg-danger rounded-pill">no stock</span></p>
+                        <% } else if (product.quantity >= 0 && product.quantity <= 5) { %>
+                          <p>x<strong class="text-warning"><%= product.quantity %></strong> <span class="badge rounded-pill bg-warning">low stock</span></p>
+                        <% } else { %>
+                          <p>x<strong><%= product.quantity %></strong></p>
+                        <% } %>
                       <% } else { %>
-                        <p>x<strong><%= product.quantity %></strong></p>
+                            <p>&nbsp;</p>
                       <% } %>
                     </div>
                   </div>
@@ -229,38 +233,40 @@
     // Save updated order and discount to localStorage
     localStorage.setItem('order', JSON.stringify(order));
     localStorage.setItem('discountValue', discountValue.toString());
-
   }
 
-   // handle add to order
+   // HANDLE ADD TO ORDER
   document.querySelectorAll('.add-to-order').forEach((button) => {
     button.addEventListener('click', () => {
       const product = {
-      id: button.getAttribute('data-id'),
-      name: button.getAttribute('data-name'),
-      price: parseFloat(button.getAttribute('data-price')),
-      quantity: 1,
-    };
+        id: button.getAttribute('data-id'),
+        name: button.getAttribute('data-name'),
+        price: parseFloat(button.getAttribute('data-price')),
+        quantity: 1, // default quantity for adding a order
+      };
 
-    //product quantity
-    const productQuantity = parseInt(button.querySelector('strong').textContent);
+      // Product quantity
+      // const productQuantity = parseInt(button.querySelector('strong').textContent);
+      const productQuantityText = button.querySelector('strong')?.textContent; // Check if null/undefined
+      const productQuantity = productQuantityText ? parseInt(productQuantityText) : null;
 
-    if (productQuantity === 0) {
-      const proceed = confirm(`The product "${product.name}" is out of stock. Do you still want to add it to the order?`);
-      if (!proceed) {
-        return; // If the user cancels, don't add the product to the order
-      }
-    }
+      // If the product quantity is 0 warn the user
+      if (productQuantity === 0) {
+        const proceed = confirm(`The product "${product.name}" is out of stock. Do you still want to add it to the order?`);
+        if (!proceed) {
+          return; // If the user cancels, don't add the product to the order
+        };
+      };
     
-    // Check if the product is already in the order
-    const existingProduct = order.find(item => item.id === product.id);
-    if (existingProduct) {
-      existingProduct.quantity += 1; // Increment quantity if product is already in the order
-    } else {
-      order.push(product); // Add new product to the order
-    }
-    updateOrderSummary(); // Update the order summary
-  });
+      // Check if the product is already in the order
+      const existingProduct = order.find(item => item.id === product.id);
+      if (existingProduct) {
+        existingProduct.quantity += 1; // Increment quantity if product is already in the order
+      } else {
+        order.push(product); // Add new product to the order
+      }
+      updateOrderSummary(); // Update the order summary
+    });
   });
 
   // handle discount
@@ -290,7 +296,7 @@
     }
    });
 
-  // if order void clear order summary
+  // if order void, clear order summary
   document.getElementById('cancel-order').addEventListener('click', () => {
       order.length = 0; // Clear the order array
       updateOrderSummary(); // Update the order summary to reflect the cleared order

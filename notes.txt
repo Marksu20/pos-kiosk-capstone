@@ -7,7 +7,13 @@
 //continue watch tut 209am / create more dummy data
 //handle pages 1258am
 //add product (repeat to all)
-//post methods 628pm 
+//post methods 628pm
+
+play with creating sub-admin
+
+pos acc:
+marky, 1234
+kelly, kelly123
 
 features:
 track stocks
@@ -37,6 +43,7 @@ handle forgot password
 
 show only items accustomed each account
 
+allow a username or email login✔
 
 mongodb:
 kC4W2GSwwiuGmtFx

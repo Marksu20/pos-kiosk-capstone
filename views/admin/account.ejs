@@ -16,9 +16,9 @@
           </div>
 
           <div class="mx-2">
-            <div class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newUserModal">
-              + Add User
-            </div>
+            <a href="/add-user-details" class="btn btn-primary px-3">
+              + Create User
+            </a>
           </div>
         </div>
         
@@ -40,18 +40,7 @@
                   </tr>
                 </thead>
                 <tbody>
-                  <% users.forEach(user => { %>
-                    <tr>
-                      <td>test@sample</td>
-                      <td><%= user.username %></td>
-                      <td><%= user.role %></td>
-                      <td><%= new Date(user.createdAt).toLocaleDateString() %></td>
-                      <td>
-                        <button class="btn btn-sm btn-primary">Edit</button>
-                        <button class="btn btn-sm btn-danger">Delete</button>
-                      </td>
-                    </tr>
-                  <% }) %>
+ 
                 </tbody>
               </table>
             </div>
@@ -82,7 +71,7 @@
       <div class="container mt-5">
         <div class="card">
           <div class="card-header">
-            <h4>User Account Information</h4>
+            <h4>Admin Account Information</h4>
           </div>
           <div class="card-body">
             <div class="row">
@@ -134,45 +123,6 @@
         </div>
       </form>
     </div>
-  </div>
-</div>
-
-<!-- Modal Form for Adding New User -->
-<div class="modal fade" id="newUserModal" tabindex="-1" aria-labelledby="newUserModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <form action="/newUser" method="POST">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="newUserModalLabel">Create New User</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <div class="mb-3">
-            <label for="emailaddress" class="form-label">Email</label>
-            <input type="text" class="form-control" id="emailaddress" name="emailAddress" required>
-          </div>
-          <div class="mb-3">
-            <label for="username" class="form-label">Username</label>
-            <input type="text" class="form-control" id="username" name="username" required>
-          </div>
-          <div class="mb-3">
-            <label for="password" class="form-label">Password</label>
-            <input type="password" class="form-control" id="password" name="password" required>
-          </div>
-          <div class="mb-3">
-            <label for="role" class="form-label">Role</label>
-            <select class="form-control" id="role" name="role" required>
-              <option value="staff">Staff</option>
-              <option value="sub-admin">Sub-Admin</option>
-            </select>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-          <button type="submit" class="btn btn-primary">Create User</button>
-        </div>
-      </div>
-    </form>
   </div>
 </div>
 

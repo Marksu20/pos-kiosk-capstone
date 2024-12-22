@@ -7,7 +7,7 @@ const Order = require('../models/Order');
 const mongoose = require('mongoose');
 const { query } = require('express');
 
-// GET: pos
+// GET: POS
 exports.pos = async (req, res) => {
   const locals = {
     title: "koka POS",
@@ -18,21 +18,48 @@ exports.pos = async (req, res) => {
     const currentCategory = req.query.category || null;
     const { category, searchTerm } = req.query;
 
-    const categories = await Category.find({ user: req.user._id });
-    const discounts = await Discount.find({ user: req.user._id });
+    const categories = await Category.find({ 
+      $or: [
+        { user: req.user._id },
+        { user: req.user.adminId }, 
+      ]
+    });
 
-    let query = { user: req.user._id };
+    const discounts = await Discount.find({ 
+      $or: [
+        { user: req.user._id },
+        { user: req.user.adminId }, 
+      ]
+    });
+
+    let query = {
+      $or: [
+        { user: req.user._id },
+        { user: req.user.adminId },
+      ]
+    };
+
     let products;
 
+    // filter by category
     if(req.query.category) {
-      const selectedCategory = await Category.findOne({ name: req.query.category, user: req.user._id });
+      const selectedCategory = await Category.findOne({ 
+        name: req.query.category,
+        $or: [
+          { user: req.user._id },
+          { user: req.user.adminId },
+        ]  
+      });
       if (selectedCategory) {
-        products = await Product.find({ category: selectedCategory._id, user: req.user._id }).populate('category');
+        products = await Product.find({ 
+          ...query, 
+          category: selectedCategory._id 
+        }).populate('category');
       } else {
         products = [];
       }
     } else {
-      products = await Product.find({ user: req.user._id }).populate('category');
+      products = await Product.find(query).populate('category');
     }
 
     // Set a default value if price is missing
@@ -43,7 +70,13 @@ exports.pos = async (req, res) => {
     });
 
     if(category) {
-      const selectedCategory = await Category.findOne({ name: category, user: req.user._id });
+      const selectedCategory = await Category.findOne({ 
+        name: category, 
+        $or: [
+          { user: req.user._id },
+          { user: req.user.adminId },
+        ] 
+      });
       if (selectedCategory) {
         query.category = selectedCategory._id;
       }
@@ -53,13 +86,14 @@ exports.pos = async (req, res) => {
     if (searchTerm) {
       query.name = { $regex: searchTerm, $options: 'i' }; // Case-insensitive search
     }
+
     products = await Product.find(query).populate('category');
+
     if(req.xhr) {
       return res.json(products); //Respond with JSON if it's an AJAX request
     }
 
     const user = await User.findOne();
-    const isPinSet = user && user.adminPassword ? true : false;
 
     res.render('pos/index', {
       username: req.user.firstName,
@@ -72,7 +106,8 @@ exports.pos = async (req, res) => {
       currentCategory: currentCategory || '',
       searchTerm: searchTerm || '',
       companyname: req.user.companyName,
-      isPinSet,
+      username: req.user.displayName,
+      role: req.user.role,
       layout: '../views/layouts/pos'
     });
   } catch (error) {
@@ -105,7 +140,7 @@ exports.orderNotif = async (req, res) => {
     console.error('Error fetching latest order:', error);
     res.status(500).json({ success: false, message: 'Failed to fetch latest order.' });
   }
-}
+};
 
 exports.order = async (req, res) => {
   const locals = {
@@ -136,7 +171,7 @@ exports.order = async (req, res) => {
   } catch (error) {
     console.log("error", + error);
   }  
-}
+};
 
 exports.orderCount = async (req, res) => {
   try {
@@ -145,7 +180,7 @@ exports.orderCount = async (req, res) => {
   } catch (error) {
       res.status(500).json({ error: 'Failed to fetch order count' });
   }
-}
+};
 
 exports.orderLatest = async (req, res) => {
   try {
@@ -165,7 +200,7 @@ exports.orderLatest = async (req, res) => {
     console.error('Error fetching latest order:', error);
     res.status(500).json({ success: false, message: 'Failed to fetch latest order.' });
   }
-}
+};
 
 exports.receipt = async (req, res) => {
   const locals = {
@@ -178,7 +213,6 @@ exports.receipt = async (req, res) => {
       .sort({ createdAt: -1});
 
     const user = await User.findOne();
-    const isPinSet = user && user.adminPassword ? true : false;
 
     res.render('pos/receipt', {
       username: req.user.firstName,
@@ -186,7 +220,8 @@ exports.receipt = async (req, res) => {
       receipts,
       currentPath: req.path,
       companyname: req.user.companyName,
-      isPinSet,
+      username: req.user.displayName,
+      role: req.user.role,
       layout: '../views/layouts/pos'
     });
   } catch (error) {
@@ -304,7 +339,7 @@ exports.updateOrder = async (req, res) => {
     console.error('Error updating order:', error);
     res.status(500).json({ error: 'Failed to update the order' });
   }
-}
+};
 
 exports.served = async (req, res) => {
   try {
@@ -322,7 +357,7 @@ exports.served = async (req, res) => {
     console.error('Error updating order status:', error);
     res.status(500).json({ error: 'Failed to update order status' });
   }
-}
+};
 
 exports.viewOrder = async (req, res) => {
   try {
@@ -334,7 +369,7 @@ exports.viewOrder = async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: 'Failed to fetch order' });
   }
-}
+};
 
 //DELETE
 exports.deleteOrder = async (req, res) => {
@@ -371,7 +406,7 @@ exports.deleteOrder = async (req, res) => {
     console.error('Error deleting order:', error);
     res.status(500).json({ success: false, message: 'Failed to delete order.' });
   }
-}
+};
 
 exports.deleteReceipt = async (req, res) => {
   try {
@@ -402,4 +437,4 @@ exports.deleteReceipt = async (req, res) => {
     console.error('Error deleting order:', error);
     res.status(500).json({ success: false, message: 'Failed to delete receipt.' });
   }
-}
+};

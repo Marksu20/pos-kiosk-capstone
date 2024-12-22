@@ -1,0 +1,55 @@
+<div class="container-fluid w-75">
+  <div class="row">
+
+    <%- include('../partials/admin_sidebar.ejs') %>
+
+    <main class="col-md-9 ml-sm-5 col-lg-10 px-md-4 py-4">
+      <div class="col-12 col-xl-8 mb-4 mb-lg-0">
+        <div class="card">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="card-title">Add User Details</h5>
+          </div>
+        <form action="/create-user" method="POST">
+          <div class="card-body">
+              <div class="input-group mb-3">
+                <span class="input-group-text">Email</span>
+                <input id="email-address" name="emailAddress" type="text" class="form-control" placeholder="test@sample.gg" required>
+              </div>
+
+              <div class="input-group mb-3">
+                <span class="input-group-text">Username</span>
+                <input id="display-name" name="displayName" type="text" class="form-control" placeholder="markgg" required>
+              </div>
+
+              <div class="input-group mb-3">
+                <span class="input-group-text">Password</span>
+                <input id="password" name="password" type="text" class="form-control" required>
+              </div>
+
+              <div class="input-group mb-3">
+                <span class="input-group-text">Confirm Password</span>
+                <input id="confirm-password" name="confirmPassword" type="text" class="form-control" required>
+              </div>
+  
+              <div class="input-group mb-3">
+                <span class="input-group-text">Role</span>
+                <select id="role" name="role" class="form-select" placeholder="markgg" required>
+                  <option value="staff">Staff</option>
+                  <option value="sub-admin">Sub-admin</option>
+                </select>
+              </div>
+          </div>
+          
+          <div class="card-footer text-start">
+            <button type="submit" class="btn btn-primary px-5">Create User</button>
+            <button type="button" class="btn btn-danger px-5">
+              <a href="/pos/admin/account" style="text-decoration: none; color: #fff;">Cancel</a>
+            </button>
+          </div>
+        </form>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+

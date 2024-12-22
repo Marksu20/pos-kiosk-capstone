@@ -13,7 +13,8 @@ const UserSchema = new Schema({
   },
   displayName: {
     type: String,
-    required: false
+    required: false,
+    unique: true
   },
   firstName: {
     type: String,
@@ -58,8 +59,14 @@ const UserSchema = new Schema({
     type: String,
     enum: ['admin', 'sub-admin', 'staff'],
     default: 'staff'
+  },
+  adminId: {
+    type: Schema.Types.ObjectId,
+    ref: 'User',
+    required: false,
+    
   }
-});
+}, { autoIndex: false});
 
 UserSchema.index({ emailAddress: 1}, {unique: true});
 module.exports = mongoose.model('User', UserSchema);

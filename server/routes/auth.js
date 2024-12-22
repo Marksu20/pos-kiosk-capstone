@@ -68,7 +68,17 @@ router.get('/logout', (req, res) => {
       res.redirect('/')
     }
   })
-})
+});
+router.get('/staff-logout', (req, res) => {
+  req.session.destroy(error => {
+    if(error) {
+      console.log(error);
+      res.send('Error logging out');
+    } else {
+      res.redirect('/staff-login')
+    }
+  })
+});
 
 // presist user data after succesful authentication
 passport.serializeUser(function(user, done) {
@@ -88,72 +98,144 @@ passport.deserializeUser(async (id, done) => {
 router.post('/signup', async (req, res) => {
   const { companyName, email, password, confirmPassword } = req.body;
 
+  // Normalize email to lowercase
+  const normalizedEmail = email.toLowerCase();
+
   // Email validation 
   function isValidEmail(email) {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
   }
 
-  // Check email validation
-  if (!isValidEmail(email)) {
-    return res.render('signup', { companyName, email, error_msg: 'Invalid email format!' });
+  // Validate fields and show errors
+  if (!isValidEmail(normalizedEmail)) {
+    return res.render('signup', { companyName, email: normalizedEmail, error_msg: 'Invalid email format!' });
   }
-
-  // require company name
-  if(!companyName) {
-    return res.render('signup', { companyName, email, error_msg: 'Company Name is required!'})
+  if (!companyName) {
+    return res.render('signup', { companyName, email: normalizedEmail, error_msg: 'Company Name is required!' });
   }
-
-  // Check if passwords match
   if (password !== confirmPassword) {
-    return res.render('signup', { companyName, email, error_msg: 'Passwords do not match!' });
+    return res.render('signup', { companyName, email: normalizedEmail, error_msg: 'Passwords do not match!' });
   }
-
-  // Password length validation 
   if (password.length < 4) {
-    return res.render('signup', { companyName, email, error_msg: 'Password must be at least 4 characters long!' });
+    return res.render('signup', { companyName, email: normalizedEmail, error_msg: 'Password must be at least 4 characters long!' });
   }
 
-  // if user exists
-  const existingUser = await User.findOne({ emailAddress: email });
-  if (existingUser) {
-    return res.render('signup', { companyName, email, error_msg: 'User already exists!' });
+  try {
+    // Check if user already exists
+    const existingUser = await User.findOne({ emailAddress: normalizedEmail });
+    if (existingUser) {
+      return res.render('signup', { companyName, email: normalizedEmail, error_msg: 'User already exists!' });
+    }
+
+    // Hash the password and create a new user
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const newUser = new User({
+      companyName,
+      emailAddress: normalizedEmail,
+      password: hashedPassword,
+      role: 'admin'
+    });
+
+    await newUser.save();
+    return res.render('index', { success_msg: 'Registered Successfully! You can Sign In now' });
+  } catch (error) {
+    // Handle duplicate key error or other errors
+    if (error.code === 11000) {
+      return res.render('signup', { companyName, email: normalizedEmail, error_msg: 'Email already registered. Please use a different email.' });
+    }
+    return res.render('signup', { companyName, email: normalizedEmail, error_msg: 'An error occurred during registration. Please try again.' });
   }
-
-  const hashedPassword = await bcrypt.hash(password, 10);
-
-  const newUser = new User({
-    companyName,
-    emailAddress: email,
-    password: hashedPassword
-  });
-
-  await newUser.save();
-  return res.render('index', {success_msg: 'Registered Successfully! You can Sign In now' });
 });
-
 
 router.post('/login', async (req, res) => {
   const { email, password } = req.body;
 
-  const user = await User.findOne({ emailAddress: email });
-  if(!user) {
-    return res.render('index', { email, password, error_msg: 'Invalid email or password' });
-  }
+  try {
+    const user = await User.findOne({ emailAddress: email });
 
-  const isPasswordValid = await bcrypt.compare(password, user.password);
-  if (!isPasswordValid) {
-    return res.render('index', { email, password, error_msg: 'Invalid email or password' });
-  }
+    if(!user) {
+      return res.render('index', { email, password, error_msg: 'Invalid email or password' });
+    };
 
-  // Use req.login to ensure the user is stored in session
-  req.login(user, (err) => {
-    if (err) {
-      return next(err);
-    }
-    return res.redirect('/pos'); // Redirect after success
-  });
-})
+    if (user.role === 'sub-admin' || user.role === 'staff'){
+      return res.render('index', {
+        email,
+        password,
+        error_msg: 'You are not authorized to access this portal',
+      });
+    };
+
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      return res.render('index', { 
+        email, 
+        password, 
+        error_msg: 'Invalid email or password' });
+    };
+
+    // Use req.login to ensure the user is stored in session
+    req.login(user, (err) => {
+      if (err) {
+        return next(err);
+      }
+      return res.redirect('/pos'); // Redirect after success
+    });
+  } catch (error) {
+      console.log("error",  error);
+      return res.render('index', { 
+        email, 
+        password, 
+        error_msg: 'An error occurred while logging in.' });
+      };
+});
+
+router.post('/staff-login', async (req, res) => {
+  const { username, password } = req.body;
+
+  try {
+    const user = await User.findOne({ 
+      $or: [{ emailAddress: username }, { displayName: username }]
+     });
+
+    if(!user) {
+      return res.render('staff-login', { 
+        username, 
+        password, 
+        error_msg: 'Invalid email or password' });
+    };
+
+    if (user.role === 'admin'){
+      return res.render('staff-login', {
+        username,
+        password,
+        error_msg: 'You are not authorized to access this portal',
+      });
+    };
+
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      return res.render('staff-login', { 
+        username, 
+        password, 
+        error_msg: 'Invalid email or password' });
+    };
+
+     // Use req.login to ensure the user is stored in session
+    req.login(user, (err) => {
+      if (err) {
+        return next(err);
+      }
+      return res.redirect('/pos'); // Redirect after success
+    });
+  } catch (error) {
+    console.log("error during staff login: ",  error);
+    return res.render('staff-login', { 
+      username,
+      password,
+      error_msg: 'An error occured while logging in' });
+  }
+});
 
 router.post('/forgot-password', async (req, res) => {
   const { email } = req.body;

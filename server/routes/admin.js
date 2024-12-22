@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const { isLoggedIn } = require('../middleware/checkAuth');
-const { isAdmin } = require('../middleware/isAdmin');
-const  adminController = require('../controllers/adminController');
+const { checkRole } = require('../middleware/checkRole');
+const adminController = require('../controllers/adminController');
 const multer = require('multer');
 const path = require('path');
 const uploads = multer({ dest: 'public/uploads/' });
@@ -26,6 +26,7 @@ router.get('/pos/admin/discount', isLoggedIn, adminController.discount);
 router.get('/pos/admin/discount/:id', isLoggedIn, adminController.viewDiscount);
 
 router.get('/pos/admin/account', isLoggedIn, adminController.account);
+router.get('/add-user-details', isLoggedIn, adminController.addUserDetails);
 
 // POST
 var storage = multer.diskStorage({
@@ -45,7 +46,7 @@ router.post('/pos/admin/newStock', isLoggedIn, adminController.newStock);
 
 router.post('/pos/admin/newDiscount', isLoggedIn, adminController.newDiscount);
 
-router.post('/newUser', isLoggedIn, isAdmin, adminController.newUser);
+router.post('/create-user', isLoggedIn, adminController.createUser);
 
 // PUT
 router.put('/pos/admin/product/:id', uploads.single('image'), isLoggedIn, adminController.updateProduct);

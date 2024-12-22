@@ -16,7 +16,7 @@
         </button>
       </div>
       
-      <!-- new product modal -->
+      <!-- NEW PRODUCT MODAL -->
       <div class="modal" id="productModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
           <div class="modal-content">
@@ -60,10 +60,15 @@
                   <input name="price" id="price" type="number" class="form-control" placeholder="Price" min="0" step="0.01" required>
                   <span class="input-group-text">.00</span>
                 </div>
-        
-                <div class="input-group mb-3">
-                  <span class="input-group-text">Quantity</span>
-                  <input name="quantity" id="quantity" type="number" class="form-control" min="1" step="0">
+
+                <div class="form-check form-switch mb-3">
+                  <input type="checkbox" class="form-check-input" id="trackQuantity" name="trackQuantity" value="on">
+                  <label for="trackQuantity" class="form-check-label">Track Quantity</label>
+                </div>
+
+                <div class="mb-3" id="quantityField" style="display: none;">
+                  <label for="quantity" class="form-label">Quantity</label>
+                  <input name="quantity" id="quantity" type="number" class="form-control" min="1" step="1">
                 </div>
         
                 <div class="input-group mb-3">
@@ -131,7 +136,13 @@
                             <td>Uncategorized</td>
                           <% } %>
                           <td>₱ <%= product.price %></td>
-                          <td><%= product.quantity %></td>
+                          <td>
+                            <% if(product.quantity == null){ %>
+                              null
+                            <% } else { %>
+                              <%= product.quantity %>
+                            <% } %>
+                          </td>
                           <td><%= product.sold %></td>
                           <td><%= new Date( product.createdAt ).toLocaleString() %></td>
                           <td>  
@@ -184,4 +195,23 @@
   })
 </script>
 
+<!-- toggle function -->
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const trackQuantitySwitch = document.getElementById('trackQuantity');
+    const quantityField = document.getElementById('quantityField');
+
+    // Hide or show the quantity field based on toggle state
+    trackQuantitySwitch.addEventListener('change', function () {
+      if (this.checked) {
+        quantityField.style.display = 'block'; // Show the quantity field
+      } else {
+        quantityField.style.display = 'none'; // Hide the quantity field
+      }
+    });
+
+    // Ensure quantity field is hidden by default on page load
+    quantityField.style.display = 'none';
+  });
+</script>
 

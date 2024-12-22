@@ -17,11 +17,19 @@
   <div class="col-12 col-md-5 col-lg-8 d-flex align-items-center justify-content-md-end mt-3 mt-md-0 mx-5">
     <div class="dropdown">
       <button class="btn btn-outline-secondary rounded-pill dropdown-toggle border" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-expanded="false">
-        <%= companyname %>
+        <% if(role === 'admin') { %>
+          <%= companyname %>
+        <% } else { %>
+          <%= username %>
+        <% } %>
       </button>
       <!-- sign out -->
       <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-        <li><a class="dropdown-item" href="/logout">Sign out</a></li>
+        <% if(role === 'admin') { %>
+          <li><a class="dropdown-item" href="/logout">Sign out</a></li>
+        <% } else { %>
+          <li><a class="dropdown-item" href="/staff-logout">Sign out</a></li>
+        <% } %>
       </ul>
     </div>
   </div>
