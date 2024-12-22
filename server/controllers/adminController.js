@@ -158,11 +158,21 @@ exports.product = async (req, res) => {
   }
 
   try {
-    const products = await Product.find({ user: req.user._id })
-      .sort({ createdAt: -1 })
+    const products = await Product.find({ 
+      $or: [
+        { user: req.user._id },
+        { user: req.user.adminId}
+      ] 
+    }).sort({ createdAt: -1 })
       .populate('category')
-      .exec()
-    const categories = await Category.find({ user: req.user._id }); 
+      .exec();
+      
+    const categories = await Category.find({ 
+      $or: [
+        { user: req.user._id },
+        { user: req.user.adminId }
+      ]
+     }); 
 
     res.render('admin/product', {
       username: req.user.firstName,
@@ -175,7 +185,8 @@ exports.product = async (req, res) => {
       layout: '../views/layouts/admin'
     });
   } catch (error) {
-    console.log("error", error)
+    console.log("error", error);
+    res.status(500).send("An error occurred while fetching products.");
   }
 }
 
@@ -186,7 +197,12 @@ exports.category = async (req, res) => {
   }
   
   try {
-    const categories = await Category.find({ user: req.user._id }).sort({ createdAt: -1 });
+    const categories = await Category.find({ 
+      $or : [
+        { user: req.user._id },
+        { user: req.user.adminId },
+      ]
+     }).sort({ createdAt: -1 });
 
     res.render('admin/category', {
       username: req.user.firstName,
@@ -198,8 +214,9 @@ exports.category = async (req, res) => {
       layout: '../views/layouts/admin'
     });
   } catch (error) {
-    console.log("err", + error)
-  }
+    console.log("err", + error);
+    res.status(500).send("An error occurred while fetching categories.");
+  };
 }
 
 exports.stock = async (req, res) => {
@@ -209,7 +226,12 @@ exports.stock = async (req, res) => {
   }
 
   try {
-    const stocks = await Stock.find({ user: req.user._id }).sort({ createdAt: -1});
+    const stocks = await Stock.find({ 
+      $or : [
+        { user: req.user._id },
+        { user: req.user.adminId },
+      ]
+     }).sort({ createdAt: -1});
 
     res.render('admin/stock', {
       username: req.user.firstName,
@@ -222,6 +244,7 @@ exports.stock = async (req, res) => {
     });
   } catch (error) {
     console.log("err", + error);
+    res.status(500).send("An error occurred while fetching stocks.");
   }
 }
 
@@ -257,7 +280,12 @@ exports.discount = async (req, res) => {
   }
 
   try {
-    const discounts = await Discount.find({ user: req.user._id }).sort({ createdAt: -1 });
+    const discounts = await Discount.find({ 
+      $or: [
+        { user: req.user._id },
+        { user: req.user.adminId }
+      ]
+     }).sort({ createdAt: -1 });
 
     res.render('admin/discount', {
       username: req.user.firstName,
@@ -269,9 +297,9 @@ exports.discount = async (req, res) => {
       layout: '../views/layouts/admin'
     });
   } catch (error) {
-    console.log("error", error)
-  }
-  
+    console.log("error", error);
+    res.status(500).send("An error occurred while fetching discounts.");
+  };
 }
 
 exports.account = async (req, res) => {
@@ -337,7 +365,7 @@ exports.viewProduct = async (req, res) => {
       });
     } else {
       res.send("cannot find product")
-    }
+    };
 }
 
 exports.viewCategory = async (req, res) => {
@@ -411,6 +439,16 @@ exports.viewDiscount = async (req, res) => {
   }
 }
 
+exports.addUserDetails = async (req, res) => {
+  res.render('admin/create-user', {
+    username: req.user.displayName,
+    currentPath: req.path,
+    companyname: req.user.companyName,
+    showNavbar: true,
+    layout: '../views/layouts/admin'
+  });
+}
+
 // PUT/UPDATE
 exports.updateProduct = async (req, res) => {
   try {
@@ -438,7 +476,7 @@ exports.updateProduct = async (req, res) => {
         name: req.body.name,
         category: req.body.category,
         price: req.body.price,
-        quantity: req.body.quantity || 0,
+        quantity: req.body.quantity || null,
         image: updatedImage
       }
     ).where({ user: req.user.id });
@@ -629,7 +667,7 @@ exports.deleteReceipt = async (req, res) => {
 
 // POST / ADD
 exports.newProduct = async (req, res) => {
-  const { name, category, price, quantity, newCategory, categoryDescription } = req.body;
+  const { name, category, price, quantity, newCategory, categoryDescription, trackQuantity } = req.body;
   const image = req.file ? `/uploads/${req.file.filename}` : '/img/cafe-latter.jpg';
 
   try {
@@ -651,7 +689,7 @@ exports.newProduct = async (req, res) => {
       name,
       category: categoryID,
       price,
-      quantity: quantity || 0,
+      quantity: trackQuantity === "on" ? quantity || 0 : null, // If tracking is off, set quantity to null
       image,
       sold,
     });
@@ -734,12 +772,44 @@ exports.newDiscount = async (req, res) => {
 }
 
 exports.createUser = async (req, res) => {
-  try {
-    const { displayName, password, role } = req.body;
-    const newUser = new User({ displayName, password, role });
-    await newUser.save();
-    res.status(201).send('User created successfully');
-  } catch (error) {
-    res.status(500).send('Error creating user');
+  const { emailAddress, displayName, password, confirmPassword, role } = req.body;
+
+  if (!emailAddress || !displayName || !password || !confirmPassword || !role) {
+    return res.status(400).send('All fields are required.');
   }
-}
+
+  if (password !== confirmPassword) {
+    return res.status(400).send('Passwords do not match.');
+  }
+
+  try {
+    const existingUser = await User.findOne({
+      $or: [
+        { emailAddress: { $regex: `^${emailAddress}$`, $options: 'i' } },
+        { displayName: { $regex: `^${displayName}$`, $options: 'i' } }
+      ]
+    });
+
+    if (existingUser) {
+      return res.status(400).send('Email or username already in use');
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const newUser = new User({
+      emailAddress,
+      displayName,
+      password: hashedPassword,
+      role,
+      companyName: req.user.companyName,
+      adminId: req.user._id
+    });
+
+    await newUser.save();
+
+    res.redirect('/pos/admin/account');
+  } catch (error) {
+    console.error('error creating user:', error);
+    res.status(500).send('an errror occured while creating the user.');
+  }
+};
