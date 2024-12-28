@@ -1,2 +1,2 @@
-restrict staff(user) to see admin display
+admin, sub-admin and staff routes
  

@@ -141,6 +141,8 @@ exports.dashboard = async (req, res) => {
       topSellingProducts: metrics.topSellingProducts,
       recentOrders,
       companyname: req.user.companyName,
+      username: req.user.displayName,
+      role: req.user.role,
       currentPath: req.path,
       showNavbar: true,
       layout: '../views/layouts/admin'
@@ -180,6 +182,8 @@ exports.product = async (req, res) => {
       products,
       categories,
       companyname: req.user.companyName,
+      username: req.user.displayName,
+      role: req.user.role,
       currentPath: req.path,
       showNavbar: true,
       layout: '../views/layouts/admin'
@@ -209,6 +213,8 @@ exports.category = async (req, res) => {
       locals,
       categories,
       companyname: req.user.companyName,
+      username: req.user.displayName,
+      role: req.user.role,
       currentPath: req.path,
       showNavbar: true,
       layout: '../views/layouts/admin'
@@ -238,6 +244,8 @@ exports.stock = async (req, res) => {
       locals,
       stocks,
       companyname: req.user.companyName,
+      username: req.user.displayName,
+      role: req.user.role,
       currentPath: req.path,
       showNavbar: true,
       layout: '../views/layouts/admin'
@@ -263,6 +271,8 @@ exports.receipt = async (req, res) => {
       username: req.user.firstName,
       receipts,
       companyname: req.user.companyName,
+      username: req.user.displayName,
+      role: req.user.role,
       currentPath: req.path,
       locals,
       showNavbar: true,
@@ -292,6 +302,8 @@ exports.discount = async (req, res) => {
       locals,
       discounts,
       companyname: req.user.companyName,
+      username: req.user.displayName,
+      role: req.user.role,
       currentPath: req.path,
       showNavbar: true,
       layout: '../views/layouts/admin'
@@ -314,6 +326,8 @@ exports.account = async (req, res) => {
     emailaddress: req.user.emailAddress,
     profileimage: req.user.profileImage,
     companyname: req.user.companyName,
+    username: req.user.displayName,
+    role: req.user.role,
     adminpassword: req.user.adminPassword,
     accountID: req.user._id,
     locals,
@@ -360,6 +374,8 @@ exports.viewProduct = async (req, res) => {
         categories,
         currentPath: req.path,
         companyname: req.user.companyName,
+        username: req.user.displayName,
+        role: req.user.role,
         showNavbar: true,
         layout: '../views/layouts/admin'
       });
@@ -380,6 +396,8 @@ exports.viewCategory = async (req, res) => {
       categories,
       currentPath: req.path,
       companyname: req.user.companyName,
+      username: req.user.displayName,
+      role: req.user.role,
       showNavbar: true,
       layout: '../views/layouts/admin'
     });
@@ -403,6 +421,8 @@ exports.viewStock = async (req, res) => {
         stocks,
         currentPath: req.path,
         companyname: req.user.companyName,
+        username: req.user.displayName,
+        role: req.user.role,
         showNavbar: true,
         layout: '../views/layouts/admin'
       });
@@ -428,6 +448,8 @@ exports.viewDiscount = async (req, res) => {
         discounts,
         currentPath: req.path,
         companyname: req.user.companyName,
+        username: req.user.displayName,
+        role: req.user.role,
         showNavbar: true,
         layout: '../views/layouts/admin'
       });
@@ -439,11 +461,13 @@ exports.viewDiscount = async (req, res) => {
   }
 }
 
-exports.addUserDetails = async (req, res) => {
+exports.addUserDetails = async (req, res) => {a
   res.render('admin/create-user', {
     username: req.user.displayName,
     currentPath: req.path,
     companyname: req.user.companyName,
+    username: req.user.displayName,
+    role: req.user.role,
     showNavbar: true,
     layout: '../views/layouts/admin'
   });

@@ -113,7 +113,7 @@ exports.pos = async (req, res) => {
   } catch (error) {
     console.log("error:", error)
   }
-};
+}
 
 exports.orderNotif = async (req, res) => {
   try {
@@ -140,7 +140,7 @@ exports.orderNotif = async (req, res) => {
     console.error('Error fetching latest order:', error);
     res.status(500).json({ success: false, message: 'Failed to fetch latest order.' });
   }
-};
+}
 
 exports.order = async (req, res) => {
   const locals = {
@@ -171,7 +171,7 @@ exports.order = async (req, res) => {
   } catch (error) {
     console.log("error", + error);
   }  
-};
+}
 
 exports.orderCount = async (req, res) => {
   try {
@@ -180,7 +180,7 @@ exports.orderCount = async (req, res) => {
   } catch (error) {
       res.status(500).json({ error: 'Failed to fetch order count' });
   }
-};
+}
 
 exports.orderLatest = async (req, res) => {
   try {
@@ -200,7 +200,7 @@ exports.orderLatest = async (req, res) => {
     console.error('Error fetching latest order:', error);
     res.status(500).json({ success: false, message: 'Failed to fetch latest order.' });
   }
-};
+}
 
 exports.receipt = async (req, res) => {
   const locals = {
@@ -227,7 +227,7 @@ exports.receipt = async (req, res) => {
   } catch (error) {
     console.log("err", + error);
   }
-};
+}
 
 exports.confirmPayment = async (req, res) => {
   try {
@@ -296,7 +296,7 @@ exports.confirmPayment = async (req, res) => {
     res.status(500).send('Server Error');
   }
   
-};
+}
 
 exports.updateOrder = async (req, res) => {
   try {
@@ -339,7 +339,7 @@ exports.updateOrder = async (req, res) => {
     console.error('Error updating order:', error);
     res.status(500).json({ error: 'Failed to update the order' });
   }
-};
+}
 
 exports.served = async (req, res) => {
   try {
@@ -357,7 +357,7 @@ exports.served = async (req, res) => {
     console.error('Error updating order status:', error);
     res.status(500).json({ error: 'Failed to update order status' });
   }
-};
+}
 
 exports.viewOrder = async (req, res) => {
   try {
@@ -369,7 +369,7 @@ exports.viewOrder = async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: 'Failed to fetch order' });
   }
-};
+}
 
 //DELETE
 exports.deleteOrder = async (req, res) => {
@@ -406,7 +406,7 @@ exports.deleteOrder = async (req, res) => {
     console.error('Error deleting order:', error);
     res.status(500).json({ success: false, message: 'Failed to delete order.' });
   }
-};
+}
 
 exports.deleteReceipt = async (req, res) => {
   try {
@@ -437,4 +437,4 @@ exports.deleteReceipt = async (req, res) => {
     console.error('Error deleting order:', error);
     res.status(500).json({ success: false, message: 'Failed to delete receipt.' });
   }
-};
+}
