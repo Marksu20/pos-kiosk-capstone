@@ -9,24 +9,24 @@ const uploads = multer({ dest: 'public/uploads/' });
 
 // admin routes
 // GET
-router.get('/pos/admin/dashboard', isLoggedIn, adminController.dashboard);
+router.get('/pos/admin/dashboard', isLoggedIn, checkRole(['admin', 'sub-admin']), adminController.dashboard);
 
-router.get('/pos/admin/product', isLoggedIn, adminController.product);
-router.get('/pos/admin/product/:id', isLoggedIn, adminController.viewProduct);
+router.get('/pos/admin/product', isLoggedIn, checkRole(['admin', 'sub-admin']), adminController.product);
+router.get('/pos/admin/product/:id', isLoggedIn, checkRole(['admin', 'sub-admin']), adminController.viewProduct);
 
-router.get('/pos/admin/category', isLoggedIn, adminController.category);
-router.get('/pos/admin/category/:id', isLoggedIn, adminController.viewCategory);
+router.get('/pos/admin/category', isLoggedIn, checkRole(['admin', 'sub-admin']), adminController.category);
+router.get('/pos/admin/category/:id', isLoggedIn, checkRole(['admin', 'sub-admin']), adminController.viewCategory);
 
-router.get('/pos/admin/stock', isLoggedIn, adminController.stock);
-router.get('/pos/admin/stock/:id', isLoggedIn, adminController.viewStock);
+router.get('/pos/admin/stock', isLoggedIn, checkRole(['admin', 'sub-admin']), adminController.stock);
+router.get('/pos/admin/stock/:id', isLoggedIn, checkRole(['admin', 'sub-admin']), adminController.viewStock);
 
-router.get('/pos/admin/receipt', isLoggedIn, adminController.receipt);
+router.get('/pos/admin/receipt', isLoggedIn, checkRole(['admin', 'sub-admin']), adminController.receipt);
 
-router.get('/pos/admin/discount', isLoggedIn, adminController.discount);
-router.get('/pos/admin/discount/:id', isLoggedIn, adminController.viewDiscount);
+router.get('/pos/admin/discount', isLoggedIn, checkRole(['admin', 'sub-admin']), adminController.discount);
+router.get('/pos/admin/discount/:id', isLoggedIn, checkRole(['admin', 'sub-admin']), adminController.viewDiscount);
 
-router.get('/pos/admin/account', isLoggedIn, adminController.account);
-router.get('/add-user-details', isLoggedIn, adminController.addUserDetails);
+router.get('/pos/admin/account', isLoggedIn, checkRole(['admin']), adminController.account);
+router.get('/add-user-details', isLoggedIn, checkRole(['admin']), adminController.addUserDetails);
 
 // POST
 var storage = multer.diskStorage({

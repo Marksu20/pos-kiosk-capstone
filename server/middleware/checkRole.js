@@ -1,8 +1,14 @@
-exports.checkRole = (requiredRoles) => {
+exports.checkRole = (allowedRoles) => {
     return (req, res, next) => {
-        if(requiredRoles.includes(req.user.role)) {
+        try {
+            if(!allowedRoles.includes(req.user.role)) {
+                return res.status(401).send('Access Denied');
+            }
+
             next();
-        } else {
-            res.status(403).send('Access Denied');        }
-    }
-}
+        } catch(error) {
+            console.error('Error in role check middleware:', error);
+            return res.status(500).send('Internal server error.');
+        }
+    };
+};
