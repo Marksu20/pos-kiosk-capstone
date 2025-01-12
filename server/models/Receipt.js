@@ -35,6 +35,10 @@ const receiptSchema = new Schema({
     type: Number, 
     default: 0 
   },
+  cashier: {
+    type: String,
+    required: false
+  },
   createdAt: { 
     type: Date, 
     default: Date.now 

@@ -26,6 +26,7 @@
                     <th scope="col">Order Type</th>
                     <th scope="col">Discount</th>
                     <th scope="col">Total</th>
+                    <th scope="col">Cashier</th>
                     <th scope="col">Created</th>
                     <th scope="col">Action</th>
                   </tr>
@@ -46,9 +47,11 @@
                         <td><%= receipt.orderType %></td>
                         <td>₱ <%= receipt.discount %></td>
                         <td>₱ <%= receipt.totalAmount %></td>
+                        <td><%= receipt.cashier %></td>
                         <td><%= new Date( receipt.createdAt ).toLocaleString() %></td>
                         <td>
                           <button class="btn btn-sm btn-primary px-3 view-receipt" data-receipt='<%= JSON.stringify(receipt) %>'>view</button>
+                          <button class="btn btn-sm btn-outline-secondary px-3">print</button>
                         </td>
                       </tr>
                     </tbody>
@@ -84,7 +87,11 @@
           <div id="orderType"></div>
           <div id="createdAt"></div>
         </div>
-        <h6>Total Amount: ₱<span id="receiptTotalAmount"></span></h6>
+        <div class="d-flex justify-content-between">
+          <h6>Total Amount: ₱<span id="receiptTotalAmount"></span></h6>
+          <h6>Cashier: <span id="cashier"></span></h6>
+        </div>
+        
       </div>
       <div class="modal-footer">
         <button type="submit" class="btn btn-primary">Print</button>
@@ -105,6 +112,7 @@ document.querySelectorAll('.view-receipt').forEach(button => {
     document.getElementById('orderNumber').textContent = receipt.orderNumber;
     document.getElementById('orderType').textContent = receipt.orderType;
     document.getElementById('receiptTotalAmount').textContent = receipt.totalAmount;
+    document.getElementById('cashier').textContent = receipt.cashier;
 
     const receiptOrderSummary = receipt.orderItems.map(item => `
       <p>${item.name} - ₱${item.price} (x${item.quantity})</p>
