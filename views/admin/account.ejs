@@ -8,11 +8,11 @@
       <div class="container mt-5">
         <div class="d-flex justify-content-start mb-1">
           <div class="dropdown">
-            <select class="form-select" aria-label="Default select example">
-              <option selected>All Users</option>
-              <option value="1">Sub-Admin</option>
-              <option value="2">Staff</option>
-            </select>          
+            <select id="roleFilter" class="form-select" aria-label="Filter by role">
+              <option value="All Users" <%= selectedRole === 'All Users' ? 'selected' : '' %>>All Users</option>
+              <option value="sub-admin" <%= selectedRole === 'sub-admin' ? 'selected' : '' %>>Sub-Admin</option>
+              <option value="staff" <%= selectedRole === 'staff' ? 'selected' : '' %>>Staff</option>
+            </select>
           </div>
 
           <div class="mx-2">
@@ -40,7 +40,24 @@
                   </tr>
                 </thead>
                 <tbody>
- 
+                  <% if (users && users.length > 0) { %>
+                    <% users.forEach(user => { %>
+                      <tr>
+                        <td><%= user.emailAddress %></td>
+                        <td><%= user.displayName %></td>
+                        <td><%= user.role %></td>
+                        <td><%= user.createdAt.toLocaleString() %></td>
+                        <td>
+                          <a href="/admin/users/edit/<%= user._id %>" class="btn btn-sm btn-primary">Edit</a>
+                          <a href="/admin/users/delete/<%= user._id %>" class="btn btn-sm btn-danger">Delete</a>
+                        </td>
+                      </tr>
+                    <% }) %>
+                  <% } else { %>
+                    <tr>
+                      <td colspan="5" class="text-center">No users found</td>
+                    </tr>
+                  <% } %>
                 </tbody>
               </table>
             </div>
@@ -234,6 +251,17 @@ document.getElementById('accountModal').addEventListener('hidden.bs.modal', func
 });
 
 </script>
+
+<!-- FILTER USER -->
+<script>
+  document.getElementById('roleFilter').addEventListener('change', function () {
+    const selectedRole = this.value;
+    const url = new URL(window.location.href);
+    url.searchParams.set('role', selectedRole); // Update the query parameter
+    window.location.href = url; // Redirect with the updated query
+  });
+</script>
+
 
 
 

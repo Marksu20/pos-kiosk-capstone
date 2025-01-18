@@ -315,26 +315,42 @@ exports.discount = async (req, res) => {
 }
 
 exports.account = async (req, res) => {
-  const locals = {
-    title: "Account",
-    description: "koka POS web application"
-  }
+  try {
+    const locals = {
+      title: "Account",
+      description: "koka POS web application"
+    };
 
-  res.render('admin/account', {
-    username: req.user.firstName,
-    displayname: req.user.displayName,
-    emailaddress: req.user.emailAddress,
-    profileimage: req.user.profileImage,
-    companyname: req.user.companyName,
-    username: req.user.displayName,
-    role: req.user.role,
-    adminpassword: req.user.adminPassword,
-    accountID: req.user._id,
-    locals,
-    currentPath: req.path,
-    showNavbar: true,
-    layout: '../views/layouts/admin'
-  });
+    const { role } = req.query;
+
+    const query = { adminId: req.user._id };
+    if (role && role !== 'All Users') {
+      query.role = role;
+    }
+  
+    const users = await User.find(query).sort({ createdAt: -1 });
+
+    res.render('admin/account', {
+      username: req.user.firstName,
+      displayname: req.user.displayName,
+      emailaddress: req.user.emailAddress,
+      profileimage: req.user.profileImage,
+      companyname: req.user.companyName,
+      username: req.user.displayName,
+      role: req.user.role,
+      adminpassword: req.user.adminPassword,
+      accountID: req.user._id,
+      locals,
+      currentPath: req.path,
+      showNavbar: true,
+      users,
+      selectedRole: role || 'All Users',
+      layout: '../views/layouts/admin'
+    });
+  } catch(error) {
+    console.error(error);
+    res.status(500).send('Server Error');
+  } 
 }
 
 exports.viewProduct = async (req, res) => {
@@ -461,7 +477,7 @@ exports.viewDiscount = async (req, res) => {
   }
 }
 
-exports.addUserDetails = async (req, res) => {a
+exports.addUserDetails = async (req, res) => {
   res.render('admin/create-user', {
     username: req.user.displayName,
     currentPath: req.path,
