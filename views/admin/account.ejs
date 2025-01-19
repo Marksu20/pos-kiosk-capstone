@@ -6,6 +6,9 @@
       
       <!-- User Table Section -->
       <div class="container mt-5">
+        <div>
+          <h2>Manage Users</h2>
+        </div>
         <div class="d-flex justify-content-start mb-1">
           <div class="dropdown">
             <select id="roleFilter" class="form-select" aria-label="Filter by role">
@@ -20,12 +23,14 @@
               + Create User
             </a>
           </div>
+
         </div>
         
-        <div class="card">
-          <div class="card-header">
-            <h4>Manage Users</h4>
+        <div class="card">   
+          <div class="card-header d-flex">
+            <input id="user-search" class="w-25 form-control form-control-dark" type="text" placeholder="Search..." aria-label="Search">
           </div>
+          
           <div class="card-body">
             <!-- Table -->
             <div class="table-responsive">
@@ -42,7 +47,7 @@
                 <tbody>
                   <% if (users && users.length > 0) { %>
                     <% users.forEach(user => { %>
-                      <tr>
+                      <tr class="user-row">
                         <td><%= user.emailAddress %></td>
                         <td><%= user.displayName %></td>
                         <td><%= user.role %></td>
@@ -60,6 +65,9 @@
                   <% } %>
                 </tbody>
               </table>
+              <div id="no-results" class="text-center" style="display: none;">
+                No results found.
+              </div>
             </div>
           </div>
         </div>
@@ -260,6 +268,29 @@ document.getElementById('accountModal').addEventListener('hidden.bs.modal', func
     url.searchParams.set('role', selectedRole); // Update the query parameter
     window.location.href = url; // Redirect with the updated query
   });
+</script>
+
+<!-- search function -->
+<script>
+  document.getElementById('user-search').addEventListener('input', function () {
+    const searchQuery = this.value.toLowerCase();
+    const userRows = document.querySelectorAll('.user-row');
+    let hasResults = false;
+
+    userRows.forEach(row => {
+      const userEmail = row.querySelector('td:nth-child(1)').textContent.toLowerCase();
+      const username = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
+
+      if (userEmail.includes(searchQuery) || username.includes(searchQuery)) {
+        row.style.display = '';
+        hasResults = true;
+      } else {
+        row.style.display = 'none';
+      }
+    });
+    // Show "No results" message if no rows match the search query
+    document.getElementById('no-results').style.display = hasResults ? 'none' : 'block';
+  })
 </script>
 
 
