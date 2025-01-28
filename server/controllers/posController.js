@@ -165,6 +165,8 @@ exports.order = async (req, res) => {
       discounts,
       currentPath: req.path,
       companyname: req.user.companyName,
+      username: req.user.displayName,
+      role: req.user.role,
       isPinSet,
       layout: '../views/layouts/pos'
     });
@@ -254,6 +256,7 @@ exports.confirmPayment = async (req, res) => {
 
     const newReceipt = new Receipt({
       user: req.user._id,
+      cashier: req.user.displayName || req.user.companyName,
       orderNumber: newOrderNumber, // Set the order number 
       customerName: customerName || `Guest ${String(lastOrderNumber + 1).padStart(4, '0')}`,
       orderItems: orderItemsArray,
@@ -295,7 +298,6 @@ exports.confirmPayment = async (req, res) => {
     console.error('Error saving order:', error);
     res.status(500).send('Server Error');
   }
-  
 }
 
 exports.updateOrder = async (req, res) => {

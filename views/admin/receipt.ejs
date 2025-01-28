@@ -1,5 +1,3 @@
-
-
 <main class="col-md-9 ml-sm-auto col-lg-10 px-md-4 py-4">
   <nav aria-label="breadcrumb">
     <ol class="breadcrumb">
@@ -27,6 +25,7 @@
                   <th scope="col">Order Type</th>
                   <th scope="col">Discount</th>
                   <th scope="col">Total</th>
+                  <th scope="col">Cashier</th>
                   <th scope="col">Created</th>
                   <th scope="col">Actions</th>
                 </tr>
@@ -47,6 +46,7 @@
                       <td><%= receipt.orderType %></td>
                       <td><%= receipt.discount %> %</td>
                       <td>₱ <%= receipt.totalAmount %></td>
+                      <td><%= receipt.cashier %></td>
                       <td><%= new Date( receipt.createdAt ).toLocaleString() %></td>
                       <td>
                         <button class="btn btn-sm btn-danger btn-delete-receipt" 

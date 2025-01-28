@@ -1,2 +1,5 @@
-admin, sub-admin and staff routes
- 
+restriction of access to each routes on each roles - 12/28 ✔
+put the name of the user who proccess the order in the receipt - 12/28 ✔
+show all the users in the account 1/19 ✔
+add a search function to users 1/19 ✔
+add a edit and delete user function 
