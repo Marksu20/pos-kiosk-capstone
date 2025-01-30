@@ -477,6 +477,32 @@ exports.viewDiscount = async (req, res) => {
   }
 }
 
+exports.viewAccount = async (req, res) => {
+  try {
+    // Fetch the specific user by ID
+    const user = await User.findById(req.params.id);
+
+    if (!user) {
+      return res.status(404).send('User not found');
+    }
+
+    res.render('admin/view-user', {
+      username: req.user.firstName,
+      userID: req.params.id, // Ensure this is passed correctly
+      user, // Pass the specific user object
+      currentPath: req.path,
+      companyname: req.user.companyName,
+      username: req.user.username,
+      role: req.user.role,
+      showNavbar: true,
+      layout: '../views/layouts/admin'
+    });
+  } catch (error) {
+    console.log("error:", error);
+    return res.status(500).send("Error fetching user details");
+  }
+}
+
 exports.addUserDetails = async (req, res) => {
   res.render('admin/create-user', {
     username: req.user.displayName,
@@ -524,7 +550,7 @@ exports.updateProduct = async (req, res) => {
     req.flash('success_msg', `A product successfully updated!`);
     res.redirect('/pos/admin/product');
   } catch (error) {
-    
+    console.log("error", error)
   }
 }
 
@@ -573,66 +599,21 @@ exports.updateDiscount = async (req, res) => {
 }
 
 exports.updateAccount = async (req, res) => {
-  const { companyName, adminPassword, newPassword, confirmPassword, removePassword } = req.body;
-  const accountID = req.params.id;
-
-  try {
-    // Find the account by ID
-    const user = await User.findById(accountID);
-
-    //check if the user exist
-    if (!user) {
-      return res.status(404).json({ success: false, message: 'User not found!' });
-    }
-
-    // Update the company name
-    if (companyName) {
-      user.companyName = companyName;
-    }
-    
-    // If adminPassword is provided and there is no password set, create the first password
-    if(adminPassword && !user.adminPassword) {
-      const hashedPassword = await bcrypt.hash(adminPassword, 10);
-      user.adminPassword = hashedPassword;
-      await user.save();
-      return res.status(200).json({ success: true, message: 'Admin PIN created successfully!' });
-    }
-
-     // If a new password is being set, validate and update
-    if(newPassword && confirmPassword) {
-      const isMatch = await bcrypt.compare(adminPassword, user.adminPassword);
-
-      if (newPassword !== confirmPassword) {
-        return res.status(400).json({ success: false, message: 'New PIN and confirm PIN do not match!' });
-      } else if (!isMatch){
-        return res.status(400).json({ success: false, message: 'Current admin PIN is incorrect!' });
+  try{
+    await User.findOneAndUpdate(
+      { _id: req.params.id },
+      {
+        emailAddress: req.body.emailAddress,
+        displayName: req.body.displayName,
+        role: req.body.role
       }
+    )
 
-      const hashedNewPassword = await bcrypt.hash(newPassword, 10);
-      user.adminPassword = hashedNewPassword;
-    }
-
-    // If remove password checkbox is checked, remove the password
-    if (removePassword) {
-      const isMatch = await bcrypt.compare(adminPassword, user.adminPassword);
-
-      if(isMatch){
-        user.adminPassword = null;
-        await user.save();
-        return res.status(200).json({ success: true, message: 'Admin PIN remove successfully!' });
-      } else {
-        return res.status(400).json({ success: false, message: 'Current admin PIN is incorrect!' });
-      }
-    }
-
-    // Save changes to the account
-    await user.save();
-    // Send success response
-    res.status(200).json({ success: true, message: 'Account updated successfully!' });
+    req.flash('success_msg', `Account successfully updated!`);
+    res.redirect('/pos/admin/account');
   } catch (error) {
-    console.error(error);
-    // Send error response
-    res.status(500).json({ success: false, message: 'An error occurred while updating the account.' });
+    console.log("error", error)
+    res.render('error in update account')
   }
 }
 

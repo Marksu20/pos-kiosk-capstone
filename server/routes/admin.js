@@ -26,6 +26,7 @@ router.get('/pos/admin/discount', isLoggedIn, checkRole(['admin', 'sub-admin']),
 router.get('/pos/admin/discount/:id', isLoggedIn, checkRole(['admin', 'sub-admin']), adminController.viewDiscount);
 
 router.get('/pos/admin/account', isLoggedIn, checkRole(['admin']), adminController.account);
+router.get('/pos/admin/account/:id', isLoggedIn, checkRole(['admin']), adminController.viewAccount);
 router.get('/add-user-details', isLoggedIn, checkRole(['admin']), adminController.addUserDetails);
 
 // POST
