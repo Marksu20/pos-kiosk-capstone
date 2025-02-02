@@ -68,7 +68,14 @@
                         <td><%= user.createdAt.toLocaleString() %></td>
                         <td>
                           <a href="/pos/admin/account/<%= user._id %>" class="btn btn-sm btn-primary">Edit</a>
-                          <a class="btn btn-sm btn-danger">Delete</a>
+                          <a class="btn btn-sm btn-danger btn-delete-user"
+                            data-user-id="<%= user._id %>"
+                            data-user-emailAddress="<%= user.emailAddress %>"
+                            data-user-name="<%= user.displayName %>"
+                            data-user-role="<%= user.role %>"
+                            data-bs-toggle="modal" data-bs-target="#deleteUserModal"
+                            >Delete
+                          </a>
                         </td>
                       </tr>
                     <% }) %>
@@ -165,6 +172,36 @@
   </div>
 </div>
 
+<!-- delete modal -->
+<div class="modal" id="deleteUserModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      
+      <div class="modal-header">
+        <h5 class="modal-title">
+          You are about to delete a <b class="fw-bold text-warning" id="modal-user-role"></b>
+        </h5>
+      </div>
+      
+      <div class="modal-body">
+        <p>
+          This will delete the user <b class="fw-bold text-danger" id="modal-user-emailAddress"></b><br/>
+          with username '<strong id="modal-user-name">user_name</strong>'.  Are you sure?
+        </p>
+      </div>
+
+      <!-- footer -->
+      <form id="delete-user-form">
+        <input type="hidden" id="delete-user-id" name="userId" />
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-danger">Delete</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>  
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
 <!-- generate qr code -->
@@ -243,37 +280,6 @@ document.getElementById('accountModal').addEventListener('hidden.bs.modal', func
 });
 </script>
 
-<script>
-  document.addEventListener('DOMContentLoaded', () => {
-  function togglePasswordVisibility(inputId, iconId) {
-    let inputField = document.getElementById(inputId);
-    let iconElement = document.getElementById(iconId);
-
-    // Check if the elements exist before proceeding
-    if (inputField && iconElement) {
-      let icon = iconElement.querySelector('i');
-      icon.addEventListener("click", () => {
-        if (inputField.type === "password") {
-          inputField.type = "text";
-          icon.classList.remove("bi-eye-slash-fill");
-          icon.classList.add("bi-eye-fill");
-        } else {
-          inputField.type = "password";
-          icon.classList.remove("bi-eye-fill");
-          icon.classList.add("bi-eye-slash-fill");
-        }
-      });
-    }
-  }
-
-  // Apply toggle function to each password field only if the elements exist
-  togglePasswordVisibility('adminpassword', 'passEye');
-  togglePasswordVisibility('newpassword', 'newPassEye');
-  togglePasswordVisibility('confirmpassword', 'confirmPassEye');
-});
-
-</script>
-
 <!-- FILTER USER -->
 <script>
   document.getElementById('roleFilter').addEventListener('change', function () {
@@ -306,6 +312,65 @@ document.getElementById('accountModal').addEventListener('hidden.bs.modal', func
     document.getElementById('no-results').style.display = hasResults ? 'none' : 'block';
   })
 </script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const deleteButtons = document.querySelectorAll('.btn-delete-user');
+    const deleteForm = document.getElementById('delete-user-form');
+    const modalElement = document.getElementById('deleteUserModal');
+  
+    deleteButtons.forEach(button => {
+      button.addEventListener('click', function() {
+        const userId = this.getAttribute('data-user-id');
+        const emailAddress = this.getAttribute('data-user-emailAddress');
+        const userName = this.getAttribute('data-user-name');
+        const userRole = this.getAttribute('data-user-role');
+
+        // Set the modal text with the receipt number and customer name
+        document.getElementById('modal-user-emailAddress').textContent = emailAddress;
+        document.getElementById('modal-user-name').textContent = userName;
+        document.getElementById('modal-user-role').textContent = userRole;
+  
+        // Set the form's hidden input with the receipt ID for deletion
+        document.getElementById('delete-user-id').value = userId;
+      });
+    });
+  
+    deleteForm.addEventListener('submit', function(event) {
+      event.preventDefault();
+  
+      const userId = document.getElementById('delete-user-id').value;
+  
+      fetch(`/delete-user/${userId}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`Server error: ${response.statusText}`);
+        }
+  
+        return response.json();
+      })
+      .then(data => {
+        if (data.success) {
+          // Refresh the page after successful deletion
+          window.location.reload();
+        } else {
+          alert('Error deleting the receipt.');
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred. Please try again.');
+      });
+    });
+  });
+</script>
+
+
 
 
 

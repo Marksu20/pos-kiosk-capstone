@@ -58,7 +58,6 @@ router.put('/pos/admin/stock/:id', isLoggedIn, adminController.updateStock);
 
 router.put('/pos/admin/discount/:id', isLoggedIn, adminController.updateDiscount);
 
-router.put('/pos/admin/account/:id', isLoggedIn, adminController.updateAccount);
 
 // DELETE
 router.delete('/pos/admin/delete-product/:id', isLoggedIn, adminController.deleteProduct);
@@ -70,5 +69,7 @@ router.delete('/pos/admin/delete-stock/:id', isLoggedIn, adminController.deleteS
 router.delete('/pos/admin/delete-discount/:id', isLoggedIn, adminController.deleteDiscount);
 
 router.delete('/delete-receipt/:id', isLoggedIn, adminController.deleteReceipt);
+
+router.delete('/delete-user/:id', isLoggedIn, adminController.deleteUser);
 
 module.exports = router;
