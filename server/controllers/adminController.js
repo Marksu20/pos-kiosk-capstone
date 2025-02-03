@@ -592,6 +592,8 @@ exports.updateDiscount = async (req, res) => {
         description: req.body.description
       }
     ).where({ user: req.user.id });
+
+    req.flash('success_msg', `Discount successfully updated!`);
     res.redirect('/pos/admin/discount');
   } catch (error) {
     console.log("error", error)
