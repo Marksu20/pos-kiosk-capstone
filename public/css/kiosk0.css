@@ -8,3 +8,14 @@
   height: 100%;
   object-fit: cover; /* Ensures the image covers the container while maintaining aspect ratio */
 }
+
+/* Custom Toastr Styles */
+.toast-success {
+  background-color: #28a745; /* Green background */
+  color: #fff; /* White text */
+}
+
+.toast-top-right {
+  top: 70px; /* Adjust position */
+  right: 20px;
+}
