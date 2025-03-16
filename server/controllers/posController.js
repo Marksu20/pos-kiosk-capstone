@@ -149,12 +149,26 @@ exports.order = async (req, res) => {
   }
   
   try {
-    const order = await Order.find({ }).sort({ createdAt: -1 });;
-    const orders = await Order.find({ }).sort({ createdAt: -1 });
-    const discounts = await Discount.find({ user: req.user._id }).sort({ createdAt: -1 });;
+    const order = await Order.find({ 
+      $or: [
+        { user: req.user._id },
+        { user: req.user.adminId }
+      ]
+     }).sort({ createdAt: -1 });;
+    const orders = await Order.find({ 
+      $or: [
+        { user: req.user._id },
+        { user: req.user.adminId }
+      ]
+     }).sort({ createdAt: -1 });
+    const discounts = await Discount.find({ 
+      $or: [
+        { user: req.user._id },
+        { user: req.user.adminId }
+      ]
+      }).sort({ createdAt: -1 });;
     
     const user = await User.findOne();
-    const isPinSet = user && user.adminPassword ? true : false;
     
     res.render('pos/order', {
       username: req.user.firstName,
@@ -167,7 +181,6 @@ exports.order = async (req, res) => {
       companyname: req.user.companyName,
       username: req.user.displayName,
       role: req.user.role,
-      isPinSet,
       layout: '../views/layouts/pos'
     });
   } catch (error) {
@@ -211,8 +224,14 @@ exports.receipt = async (req, res) => {
   }
 
   try {
-    const receipts = await Receipt.find({ })
-      .sort({ createdAt: -1});
+    const receipts = await Receipt.find({
+      $or: [
+        { user: req.user._id },
+        { user: req.user.adminId }
+      ]
+     })
+      .sort({ createdAt: -1})
+      .lean();
 
     const user = await User.findOne();
 
@@ -316,7 +335,7 @@ exports.updateOrder = async (req, res) => {
       return res.status(404).json({ error: 'Order not found' });
     }
 
-    if(order.status === "To Serve") {
+    if(order.status === "In Process") {
       const receiptData = {
         user: order.user,
         orderNumber: order.orderNumber,

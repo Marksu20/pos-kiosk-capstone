@@ -8,17 +8,17 @@
       <ul class="nav nav-tabs mb-3" id="queueTab" role="tablist">
         <li class="nav-item" role="presentation">
           <button class="nav-link active" id="in-process-tab" data-bs-toggle="tab" data-bs-target="#inProcess" type="button" role="tab" aria-controls="inProcess" aria-selected="true">
-            In Process
+            Waiting. . .
           </button>
         </li>
         <li class="nav-item" role="presentation">
           <button class="nav-link" id="to-serve-tab" data-bs-toggle="tab" data-bs-target="#toServe" type="button" role="tab" aria-controls="toServe" aria-selected="false">
-            To Serve
+            In Process. . .
           </button>
         </li>
         <li class="nav-item" role="presentation">
           <button class="nav-link" id="served-tab" data-bs-toggle="tab" data-bs-target="#served" type="button" role="tab" aria-controls="served" aria-selected="false">
-            Served
+            To serve
           </button>
         </li>
         <li class="nav-item" role="presentation">
@@ -41,7 +41,7 @@
     <!-- queue -->
     <div class="row tab-content" id="queueTabContent">
 
-      <!-------------------------------- in process ------------------------------------------>
+      <!-------------------------------- waiting ------------------------------------------>
       <div class="col-12 col-xl-12 mb-4 mb-lg-0 tab-pane fade show active" id="inProcess" role="tabpanel" aria-labelledby="in-process-tab">
         <div class="card">
           <div class="card-header">
@@ -75,7 +75,7 @@
                       <% }) %>
                     </td>
                     <td><%= order.orderType %></td>
-                    <td>₱<%= order.discount %></td>
+                    <td>%<%= order.discount %></td>
                     <td>₱<%= order.totalAmount %></td>
                     <td><%= new Date(order.createdAt).toLocaleString() %></td>
                     <td><p class="text-primary"><%= order.status %></p></td>
@@ -100,7 +100,7 @@
         </div>
       </div>
 
-      <!-------------------------------- to serve ------------------------------------------>
+      <!-------------------------------- in process ------------------------------------------>
       <div class="col-12 col-xl-12 mb-4 mb-lg-0 tab-pane fade" id="toServe" role="tabpanel" aria-labelledby="to-serve-tab">
         <div class="card">
           <div class="card-header">
@@ -134,7 +134,7 @@
                           <% }) %>
                         </th>
                         <td><%= order.orderType %></td>
-                        <td>₱ <%= order.discount %></td>
+                        <td>% <%= order.discount %></td>
                         <td>₱ <%= order.totalAmount %></td>
                         <td><%= new Date(order.createdAt).toLocaleString() %></td>
                         <td><p class="text-warning"><%= order.status %></p></td>
@@ -190,7 +190,7 @@
                           <% }) %>
                         </th>
                         <td><%= order.orderType %></td>
-                        <td>₱ <%= order.discount %></td>
+                        <td>% <%= order.discount %></td>
                         <td>₱ <%= order.totalAmount %></td>
                         <td><%= new Date(order.createdAt).toLocaleString() %></td>
                         <td><p class="text-success"><%= order.status %></p></td>
@@ -257,8 +257,8 @@
           <div class="mb-3">
             <label for="status" class="form-label">Status</label>
             <select id="status" name="status" class="form-select">
-              <option value="In Process">In Process</option>
-              <option value="To Serve">To Serve</option>
+              <option value="In Process">Waiting</option>
+              <option value="To Serve">In Process</option>
             </select>
           </div>
 

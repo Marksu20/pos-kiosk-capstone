@@ -126,7 +126,12 @@ exports.dashboard = async (req, res) => {
   }
 
   try {
-    const recentOrders = await Receipt.find({ }).sort({ createdAt: -1}).limit(10);
+    const recentOrders = await Receipt.find({
+      $or: [
+        { user: req.user._id },
+        { user: req.user.adminId }
+      ]
+     }).sort({ createdAt: -1}).limit(10);
     const metrics = await calculateDashboardMetrics();
 
 
@@ -263,9 +268,15 @@ exports.receipt = async (req, res) => {
   }
 
   try {
-    const receipts = await Receipt.find({ })
+    const receipts = await Receipt.find({
+      $or: [
+        { user: req.user._id },
+        { user: req.user.adminId }
+      ]
+     })
       .sort({ createdAt: -1 })
       .lean();
+      
 
     res.render('admin/receipt', {
       username: req.user.firstName,

@@ -35,7 +35,7 @@ exports.kiosk = async (req, res) => {
     const products = await Product.find({ user: userId });
     const productsSold = await Product.find({ user: userId })
       .sort({ sold: -1, createdAt: -1 })
-      .limit(9);
+      .limit(9); // higest sold product, limit to 9 products 
     const categories = await Category.find({ user: userId });
     
     res.render('kiosk/index', {
@@ -181,7 +181,7 @@ exports.orders = async (req, res) => {
     }
 
     // Count the number of 'In Process' orders
-    const countQuery = { status: 'In Process' };
+    const countQuery = { status: 'Waiting' };
     if (userId) {
       countQuery.user = userId;
     }
