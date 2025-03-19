@@ -87,6 +87,129 @@ body{
 .product-container{
   box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;
 }
+.modal-dialog {
+  background-color: #f8f9fa;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.modal-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+.receipt {
+  width: 350px;
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  width: 100%;
+  max-width: 500; /* Adjust the width as needed */
+}
+.receipt h5 {
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+.receipt p {
+  margin: 0;
+  font-size: 14px;
+}
+.line {
+  border-bottom: 1px dashed #000;
+  margin: 10px 0;
+}
+.order-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 5px 0;
+}
+.total {
+  font-weight: bold;
+  font-size: 18px;
+}
+.footer {
+  margin-top: 15px;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+/* Print-specific styles */
+@media print {
+  /* Hide everything except the receipt modal */
+  body * {
+    visibility: hidden;
+  }
+
+  /* Ensure the receipt modal and its content are visible */
+  #receipt-modal,
+  #receipt-modal * {
+    visibility: visible;
+  }
+
+  /* Position the modal for printing */
+  #receipt-modal {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    border: none;
+    box-shadow: none;
+    background: white;
+  }
+
+  /* Hide modal header and footer in print view */
+  .modal-header,
+  .modal-footer {
+    display: none;
+  }
+
+  /* Ensure the receipt content is styled correctly */
+  .receipt {
+    width: 100%;
+    max-width: 500px; /* Adjust width as needed */
+    margin: 0 auto; /* Center the receipt */
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: none;
+    background: white;
+  }
+
+  /* Ensure text and layout are consistent */
+  .receipt h5,
+  .receipt p {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  .receipt .line {
+    border-bottom: 1px dashed #000;
+    margin: 10px 0;
+  }
+
+  .receipt .order-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 5px 0;
+  }
+
+  .receipt .total {
+    font-weight: bold;
+    font-size: 18px;
+  }
+
+  .receipt .footer {
+    margin-top: 15px;
+    font-size: 12px;
+    font-weight: bold;
+  }
+}
+
 
 
 

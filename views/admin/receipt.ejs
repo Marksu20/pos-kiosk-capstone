@@ -50,7 +50,7 @@
                       <td><%= new Date( receipt.createdAt ).toLocaleString() %></td>
                       <td>
                         <button class="btn btn-sm btn-primary px-3 view-receipt" data-receipt='<%= JSON.stringify(receipt) %>'>view</button>
-                        <!-- <button class="btn btn-sm btn-outline-secondary px-3" id="print-receipt-btn">print</button> -->
+                        
                         <button class="btn btn-sm btn-danger btn-delete-receipt" 
                           data-receipt-id="<%= receipt._id %>" 
                           data-receipt-number="<%= receipt.orderNumber %>"
@@ -77,8 +77,62 @@
   </div>
 </main>
 
-<!-- show receipt modal -->
 <div class="modal fade" id="receipt-modal" tabindex="-1" aria-labelledby="receiptModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Order Receipt</h5>
+      </div>
+      <div class="modal-body">
+        <div class="receipt">
+          <h1 class="mb-2">#<span id="orderNumber"></span></h1>
+          <div class="line"></div>
+          <p class="fw-bold mb-2" id="companyName"></p>
+          <div class="d-flex justify-content-between mb-2">
+            <p>Customer: <strong id="customerName"></strong></p>
+            <p>Cashier: <strong id="cashier"></strong></p>
+          </div>
+          <div class="d-flex justify-content-between mb-2">
+            <p>Date: <strong id="createdAt"></strong></p>
+            <p>At: <strong id="createdTime"></strong></p>
+          </div>
+          <div class="line"></div>
+          <div id="receiptOrderSummary">
+            
+          </div>
+          <div class="line"></div>
+
+          <div class="d-flex justify-content-between">
+            <p>Subtotal:</p>
+            <p>₱ <span id="subTotal"></span></p>
+          </div>
+
+          <div class="d-flex justify-content-between" id="discountContainer">
+            <p>Discount:</p>
+            <p><span id="discount"></span></p>
+          </div>
+
+          <div class="line"></div>
+          <div class="d-flex justify-content-between total">
+            <p>Total:</p>
+            <p>₱ <span id="receiptTotalAmount"></span></p> 
+          </div>
+          <div class="footer">
+            <p><span id="orderType"></span></p> 
+            <p>THANK YOU!</p>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="submit" class="btn btn-primary" id="print-receipt-btn">Print</button>
+        <button type="button" class="btn btn-secondary close-btn" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- show receipt modal -->
+<!-- <div class="modal fade" id="receipt-modal" tabindex="-1" aria-labelledby="receiptModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
@@ -88,7 +142,7 @@
         <h4><span id="customerName"></span></h4>
         <h5>Order Number: #<span id="orderNumber"></span></h5>
         <div id="receiptOrderSummary">
-          <!-- Order items will be dynamically inserted here -->
+          
         </div>
         <hr>
         <div class="d-flex justify-content-between">
@@ -110,7 +164,7 @@
       </div>
     </div>
   </div>
-</div>
+</div> -->
 
 <!-- show receipt function -->
 <script>
@@ -122,104 +176,53 @@
       document.getElementById('customerName').textContent = receipt.customerName;
       document.getElementById('orderNumber').textContent = receipt.orderNumber;
       document.getElementById('orderType').textContent = receipt.orderType;
+      document.getElementById('subTotal').textContent = receipt.subTotal;
       document.getElementById('receiptTotalAmount').textContent = receipt.totalAmount;
       document.getElementById('cashier').textContent = receipt.cashier;
+      document.getElementById('companyName').textContent = receipt.companyName;
+
   
       // Handle Discount Display
       const discountContainer = document.getElementById('discountContainer');
       if (receipt.discount > 0) {
-        document.getElementById('discount').textContent = `%${receipt.discount}`;
+        document.getElementById('discount').textContent = `% ${receipt.discount}`;
         discountContainer.style.display = 'block';
       } else {
         discountContainer.style.display = 'none';
       }
   
-      const receiptOrderSummary = receipt.orderItems.map(item => `
-        <p>${item.name} - ₱${item.price} (x${item.quantity})</p>
-      `).join('');
+      const receiptOrderSummary = receipt.orderItems.map(item => {
+        const totalPrice = item.quantity * item.price;
+          return `
+            <div class="order-item bg-light px-2 mb-2">
+              <span>${item.quantity}</span>
+              <span>${item.name}</span>
+              <p>₱ <span>${totalPrice.toFixed(2)}</span></p>
+            </div>
+          `;  
+        }).join('');
+      
       document.getElementById('receiptOrderSummary').innerHTML = receiptOrderSummary;
   
       const createdAt = new Date(receipt.createdAt);
-      const formattedDate = createdAt.toLocaleString(); // Customize format if necessary
-      document.getElementById('createdAt').textContent = `${formattedDate}`;
+      const formattedDate = createdAt.toLocaleDateString(); // Customize format if necessary
+      const formattedTime = createdAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+      document.getElementById('createdAt').textContent = formattedDate;
+      document.getElementById('createdTime').textContent = formattedTime;
   
       // Show modal
       const receiptModal = new bootstrap.Modal(document.getElementById('receipt-modal'));
       receiptModal.show();
     });
   });
+
+ // Add print functionality
+ document.getElementById('print-receipt-btn').addEventListener('click', function () {
+    window.print();
+  });
 </script>
 
-<!-- print receipt function -->
-<script>
-document.getElementById('print-receipt-btn').addEventListener('click', function () {
-  const receiptModalContent = document.getElementById('receipt-modal').innerHTML;
-
-  // Create a new window for printing
-  const printWindow = window.open('', '', 'height=600,width=800');
-  printWindow.document.write(`
-    <html>
-      <head>
-        <title>Print Receipt</title>
-        <style>
-          body { font-family: Arial, sans-serif; }
-          .receipt-container { width: 100%; max-width: 400px; margin: 0 auto; padding: 20px; border: 1px solid #ccc; }
-          .receipt-header { text-align: center; margin-bottom: 20px; }
-          .receipt-header h2 { margin: 0; }
-          .receipt-details { margin-bottom: 20px; }
-          .receipt-details p { margin: 5px 0; }
-          .receipt-footer { text-align: center; margin-top: 20px; }
-          .receipt-footer p { margin: 5px 0; }
-          @media print {
-            .modal-footer, .close-btn { display: none; }
-          }
-        </style>
-      </head>
-      <body>
-        <div class="receipt-container">
-          <div class="receipt-header">
-            <h2>Order Summary</h2>
-          </div>
-          <div class="receipt-details">
-            <h4><span id="customerName"></span></h4>
-            <h5>Order Number: #<span id="orderNumber"></span></h5>
-            <div id="receiptOrderSummary"></div>
-            <hr>
-            <div class="d-flex justify-content-between">
-              <div id="orderType"></div>
-              <div id="createdAt"></div>
-            </div>
-            <div id="discountContainer">
-              <p>Discount: <span id="discount"></span></p>
-            </div>
-            <div class="d-flex justify-content-between">
-              <h6>Total Amount: ₱<span id="receiptTotalAmount"></span></h6>
-              <h6>Cashier: <span id="cashier"></span></h6>
-            </div>
-          </div>
-          <div class="receipt-footer">
-            <p>Thank you for your purchase!</p>
-          </div>
-        </div>
-      </body>
-    </html>
-  `);
-
-  // Copy the content from the modal to the print window
-  printWindow.document.getElementById('customerName').textContent = document.getElementById('customerName').textContent;
-  printWindow.document.getElementById('orderNumber').textContent = document.getElementById('orderNumber').textContent;
-  printWindow.document.getElementById('receiptOrderSummary').innerHTML = document.getElementById('receiptOrderSummary').innerHTML;
-  printWindow.document.getElementById('orderType').textContent = document.getElementById('orderType').textContent;
-  printWindow.document.getElementById('createdAt').textContent = document.getElementById('createdAt').textContent;
-  printWindow.document.getElementById('discount').textContent = document.getElementById('discount').textContent;
-  printWindow.document.getElementById('receiptTotalAmount').textContent = document.getElementById('receiptTotalAmount').textContent;
-  printWindow.document.getElementById('cashier').textContent = document.getElementById('cashier').textContent;
-
-  // Trigger the print dialog
-  printWindow.document.close();
-  printWindow.print();
-});
-</script>
 
 <!-- delete modal -->
 <div class="modal" id="deleteReceiptModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">

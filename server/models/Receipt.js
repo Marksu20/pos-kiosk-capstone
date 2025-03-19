@@ -31,11 +31,18 @@ const receiptSchema = new Schema({
     type: Number, 
     required: true 
   },
+  subTotal: {
+    type: Number,
+  },
   discount: { 
     type: Number, 
     default: 0 
   },
   cashier: {
+    type: String,
+    required: false
+  },
+  companyName: {
     type: String,
     required: false
   },
