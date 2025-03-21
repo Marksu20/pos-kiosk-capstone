@@ -114,6 +114,7 @@
                     <!-- order subtotal -->
                   <tr>
                     <td colspan="1"><h6 class="font-size-14 m-0">Sub Total :</h6></td>
+                    <input type="hidden" name="Subtotal" id="hidden-subtotal"> 
                     <td colspan="2" class="text-start" id="sub-total">₱ 0.00</td>
                   </tr>
                   <!-- order discount (if have) -->
@@ -201,7 +202,7 @@
 
     orderSummary.innerHTML = ''; // Clear the order summary
 
-    let subTotal = 0;
+    let subTotal = 0; 
 
     // Loop through the order array and create table rows for each product
     order.forEach((item) => {
@@ -342,6 +343,7 @@
       document.getElementById('order-items').value = JSON.stringify(order);
       document.getElementById('hidden-total-amount').value = parseFloat(document.getElementById('total-amount').textContent.replace('₱', '').trim());
       document.getElementById('hidden-discount').value = discountValue;
+      document.getElementById('hidden-subtotal').value = parseFloat(document.getElementById('sub-total').textContent.replace('₱', '').trim());
       
       // Here, you could process the payment and then clear the order
       const changeEl = document.getElementById('change');

@@ -61,9 +61,6 @@
                     <div class="p-5">
                       <h3 class="fw-bold mb-5 mt-2 pt-1">Order Total</h3>
                       <hr class="my-4">
-                      <div class="d-flex justify-content-between mb-4">
-                        <h5 class="text-uppercase badgde">item(s) </h5>
-                      </div>
                       <input id="customer-name" type="text" class="customer-name form-control mb-3" placeholder="Customer Name" />
                       <div class="mb-4 pb-2">
                         <select class="form-select">
@@ -76,7 +73,7 @@
                         <h5 class="text-uppercase">Total price</h5>
                         <h5><span class="total-amount">0.00</span></h5>
                       </div>
-                      <button type="button" class="btn btn-dark btn-block btn-lg" id="checkOutButton">
+                      <button type="button" class="btn btn-checkout btn-dark btn-block btn-lg" id="checkOutButton" data-bs-dismiss="modal">
                         Checkout
                       </button>
                       <button type="button" class="btn btn-danger btn-block btn-lg" data-bs-dismiss="modal">
@@ -103,63 +100,97 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <!-- Payment options go here -->
+
+        <form action="/kiosk/orders" method="POST"  class="d-none">
+            <h4><span id="customerName"></span></h4>
+            <h5>Order Number: <span id="orderNumber"></span></h5>
+            <div id="receiptOrderSummary">
+            </div>
+            <div id="orderType">Dine In</div>
+            <h6>Total Amount: ₱<span id="receiptTotalAmount"></span></h6>
+        </form>
+        
         <p>Choose your payment method:</p>
-        <button type="button" class="btn btn-outline-primary mb-2">Credit Card</button>
-        <button type="button" class="btn btn-outline-primary mb-2">Debit Card</button>
-        <button type="button" class="btn btn-outline-primary mb-2">Cash</button>
+        <button type="submit" class="btn btn-cashpay btn-outline-primary mb-2" data-bs-dismiss="modal">Cash (Pay at the counter)</button>
+        <button type="button" class="btn btn-onlinepay btn-outline-primary mb-2">Online Payment</button>
       </div>
 
       <div class="modal-footer">
-        <!-- Replace "Close" button with "Return to Order Summary" button -->
-        <button type="button" class="btn btn-secondary" id="returnToOrderSummaryButton">Return to Order Summary</button>
+        <button type="button" class="btn btn-secondary" id="returnToOrderSummaryButton" aria-label="Close">Return to Order Summary</button>
       </div>
     </div>
   </div>
 </div>
 
-<!-- Receipt Modal -->
-<!-- <div class="modal fade" id="receiptModal" tabindex="-1" aria-labelledby="receiptModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
+<!-- receipt modal -->
+<!-- <div class="modal fade" id="receipt-modal" tabindex="-1" aria-labelledby="receiptModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="receiptModalLabel">Order Summary</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <h5 class="modal-title">Order Receipt</h5>
       </div>
-      <form action="/kiosk/orders" method="POST">
-        <div class="modal-body">
-          <h4><span id="customerName"></span></h4>
-          <h5>Order Number: <span id="orderNumber"></span></h5>
+      <div class="modal-body">
+        <div class="receipt">
+          <h1 class="mb-2">#<span id="receiptOrderNumber"></span></h1>
+          <div class="line"></div>
           <div id="receiptOrderSummary">
             
           </div>
-          <hr>
-          <div id="orderType">Dine In</div>
-          <h6>Total Amount: ₱<span id="receiptTotalAmount"></span></h6>
+
+          <div class="line"></div>
+          <div class="d-flex justify-content-between total">
+            <p>Total:</p>
+            <p>₱ <span id="receiptTotalAmount"></span></p> 
+          </div>
+          <div class="footer">
+            <p><span id="receiptOrderType"></span></p> 
+            <p>THANK YOU!</p>
+          </div>
         </div>
-      </form>
+      </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-success" data-bs-dismiss="modal">Confirm Order</button>
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="submit" class="btn btn-primary" id="print-receipt-btn">Print</button>
+        <button type="button" class="btn btn-secondary close-btn" data-bs-dismiss="modal">Close</button>
       </div>
     </div>
   </div>
 </div> -->
 
+<!-- Receipt Modal -->
+<<div class="modal fade" id="receipt-modal" tabindex="-1" aria-labelledby="receiptModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Order Receipt</h5>
+      </div>
+      <div class="modal-body">
+        <div class="receipt">
+          <!-- Receipt content will be dynamically inserted here -->
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="submit" class="btn btn-primary" id="print-receipt-btn">Get PDF Receipt</button>
+        <button type="button" class="btn btn-secondary close-btn" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
-  let orderItems = [];
+  let orderItems = JSON.parse(localStorage.getItem('orderItems')) || [];
 
-  document.addEventListener('DOMContentLoaded', function () {
-    loadOrderItems(); // Load previously saved order items from localStorage
+  document.addEventListener('DOMContentLoaded', () => {
+    const addToOrderButtons = document.querySelectorAll('.add-to-order');
 
-    document.querySelectorAll('.add-to-order').forEach(button => {
-      button.addEventListener('click', function () {
-        const productId = this.dataset.id;
-        const productName = this.dataset.name;
-        const productPrice = parseFloat(this.dataset.price);
-        const productImage = this.dataset.image;
-        
+    addToOrderButtons.forEach(button => {
+      button.addEventListener('click', (e) => {
+        const productId = button.getAttribute('data-id');
+        const productName = button.getAttribute('data-name');
+        const productPrice = parseFloat(button.getAttribute('data-price'));
+        const productImage = button.getAttribute('data-image');
+
         addToOrder(productId, productName, productPrice, productImage);
+        console.log(`${productName} added to order!`);
       });
     });
   });
@@ -296,36 +327,30 @@
   }
   // ------------------------------------------------------------------------
   
-  // RECEIPT MODAL 
-  // NOT NEED FOR A WHILE 3/10 - (missing) btn-checkout
-  document.querySelector('').addEventListener('click', async function() {
-  // Capture customer name and order type
+  document.querySelector('.btn-checkout').addEventListener('click', async function() {
   const customerName = document.querySelector('input.customer-name').value;
   const orderType = document.querySelector('.form-select').selectedOptions[0].text;
 
-  // Validate that there are items in the order
-  if (orderItems.length === 0) {
+  if (!orderItems || orderItems.length === 0) {
     alert('Your order is empty. Please add items to your order before confirming.');
-    return; // Stop further execution
+    return;
   }
 
-  // Validate that the customer name is provided
   if (!customerName) {
     alert('Please enter the customer name.');
-    return; // Stop further execution
+    return;
   }
 
-  // Fetch the new incremental order number from the server
   let orderNumber;
   try {
     const response = await fetch('/kiosk/orders/generate-order-number');
     const data = await response.json();
 
     if (data.success) {
-    orderNumber = data.orderNumber;
+      orderNumber = data.orderNumber;
     } else {
-    alert('Failed to generate order number.');
-    return;
+      alert('Failed to generate order number.');
+      return;
     }
   } catch (error) {
     console.error('Error fetching order number:', error);
@@ -333,21 +358,20 @@
     return;
   }
 
-  // Set the values in the receipt modal
   document.getElementById('orderNumber').textContent = orderNumber;
   document.getElementById('customerName').textContent = customerName;
   document.getElementById('orderType').textContent = orderType;
 
   let totalAmount = 0;
   const receiptSummaryContainer = document.getElementById('receiptOrderSummary');
-  receiptSummaryContainer.innerHTML = ''; // Clear previous summary
+  receiptSummaryContainer.innerHTML = ''; 
 
   orderItems.forEach(item => {
     const itemTotal = item.price * item.quantity;
     totalAmount += itemTotal;
 
     const receiptItemHTML = `
-    <div class="d-flex justify-content-between">
+      <div class="d-flex justify-content-between">
       <div>${item.name} (${item.quantity} x ₱${item.price.toFixed(2)})</div>
       <div>₱${itemTotal.toFixed(2)}</div>
     </div>
@@ -358,13 +382,59 @@
 
   document.getElementById('receiptTotalAmount').textContent = totalAmount.toFixed(2);
 
-  // Show the receipt modal
-  const receiptModal = new bootstrap.Modal(document.getElementById('receiptModal'));
-    receiptModal.show();
+  const paymentOptionsModal = new bootstrap.Modal(document.getElementById('paymentOptionsModal'));
+    paymentOptionsModal.show();
   });
 
-  // CONFIRM ORDER ----------------------------------------------------------
-  document.querySelector('.btn-success').addEventListener('click', function() {
+  document.getElementById('returnToOrderSummaryButton').addEventListener('click', function() {
+    var paymentOptionsModal = bootstrap.Modal.getInstance(document.getElementById('paymentOptionsModal'));
+    if (!paymentOptionsModal) {
+      paymentOptionsModal = new bootstrap.Modal(document.getElementById('paymentOptionsModal'));
+    }
+    paymentOptionsModal.hide();
+
+    var orderSummaryModal = new bootstrap.Modal(document.getElementById('orderSummary'));
+    orderSummaryModal.show();
+  });
+  
+  // Function to display the receipt in your desired format
+  function displayReceipt(orderData) {
+  const receiptContainer = document.querySelector('.receipt'); // Target the receipt container
+
+  receiptContainer.innerHTML = `
+    <h1 class="mb-2">#<span>${orderData.orderNumber}</span></h1>
+    <div class="d-flex justify-content-between mb-2">
+      <p>Customer: <strong>${orderData.customerName}</strong></p>
+      <p>Payment: <strong>${orderData.paymentMethod}</strong></p>
+    </div>
+    <div class="line"></div>
+    <div>
+      ${orderData.orderItems.map(item => `
+        <div class="order-item bg-light px-2 mb-2">
+          <span>${item.quantity}</span>
+          <span>${item.name}</span>
+          <p>₱ <span>${(item.price * item.quantity).toFixed(2)}</span></p>
+        </div>
+      `).join('')}
+    </div>
+    <div class="line"></div>
+    <div class="d-flex justify-content-between total">
+      <p>Total:</p>
+      <p>₱ <span>${orderData.totalAmount.toFixed(2)}</span></p> 
+    </div>
+    <div class="footer">
+      <p><span>${orderData.orderType}</span></p> 
+      <p>THANK YOU!</p>
+    </div>
+  `;
+
+  // Show the receipt modal
+  const receiptModal = new bootstrap.Modal(document.getElementById('receipt-modal'));
+  receiptModal.show();
+}
+
+  // CASH PAY ----------------------------------------------------------
+  document.querySelector('.btn-cashpay').addEventListener('click', function() {
     const orderNumber = document.getElementById('orderNumber').textContent;
     const customerName = document.getElementById('customerName').textContent;
     const orderType = document.getElementById('orderType').textContent;
@@ -376,7 +446,8 @@
       orderItems: orderItems,
       orderType: orderType,
       totalAmount: totalAmount,
-      status: 'In Process'
+      paymentMethod: 'Cash',
+      status: 'Waiting'
     };
 
     async function submitOrder() {
@@ -387,76 +458,48 @@
             body: JSON.stringify(orderData)
         });
 
+        if (response.ok) {
         const data = await response.json();
-
         if (data.success) {
-            alert('Order confirmed');
-            clearOrderSummary();
+          alert('Order successfully added!');
+          clearOrderSummary();
+          displayReceipt(orderData);
         } else {
-            alert('Failed to save the order. Please try again.');
+          alert('Failed to save the order. Please try again.');
         }
+      } else {
+        alert('Error: Unable to process the order.');
+      }
       } catch (error) {
-        console.error('Error details:', error);
         alert('An error occurred. Please try again.');
       }
     }
-
     submitOrder();
-
+    
     function clearOrderSummary() {
-      orderItems = []; // Clear the array holding the order items
+      orderItems = []; 
 
-      localStorage.removeItem('orderItems'); // Clear the items from localStorage
+      localStorage.removeItem('orderItems'); 
 
       const orderSummaryContainer = document.querySelector('.order-summary');
-      orderSummaryContainer.innerHTML = ''; // Clear the container
+      orderSummaryContainer.innerHTML = ''; 
 
       document.querySelector('input.customer-name').value = '';
       document.querySelector('.form-select').selectedIndex = 0;
       document.querySelector('.total-amount').textContent = '₱0.00';
 
-      updateOrderSummary(); // Re-render the summary with the cleared items
-      updateCartBadge(); // Reset the cart badge
+      updateOrderSummary(); 
+      updateCartBadge(); 
 
-      // Reset the receipt modal fields
-      document.getElementById('orderNumber').textContent = ''; // Clear order number
-      document.getElementById('customerName').textContent = ''; // Clear customer name
-      document.getElementById('orderType').textContent = ''; // Clear order type
-      document.getElementById('receiptTotalAmount').textContent = '0.00'; // Reset total amount
+      document.getElementById('orderNumber').textContent = ''; 
+      document.getElementById('customerName').textContent = ''; 
+      document.getElementById('orderType').textContent = ''; 
+      document.getElementById('receiptTotalAmount').textContent = '0.00'; 
     }	
-    
   });
 </script>
 
-<script>
-  // Handle Checkout button click
-  document.getElementById('checkOutButton').addEventListener('click', function() {
-    // Hide the order summary modal
-    var orderSummaryModal = bootstrap.Modal.getInstance(document.getElementById('orderSummary'));
-    if (!orderSummaryModal) {
-      orderSummaryModal = new bootstrap.Modal(document.getElementById('orderSummary'));
-    }
-    orderSummaryModal.hide();
 
-    // Show the payment options modal
-    var paymentOptionsModal = new bootstrap.Modal(document.getElementById('paymentOptionsModal'));
-    paymentOptionsModal.show();
-  });
-
-  // Handle Return to Order Summary button click
-  document.getElementById('returnToOrderSummaryButton').addEventListener('click', function() {
-    // Hide the payment options modal
-    var paymentOptionsModal = bootstrap.Modal.getInstance(document.getElementById('paymentOptionsModal'));
-    if (!paymentOptionsModal) {
-      paymentOptionsModal = new bootstrap.Modal(document.getElementById('paymentOptionsModal'));
-    }
-    paymentOptionsModal.hide();
-
-    // Show the order summary modal
-    var orderSummaryModal = new bootstrap.Modal(document.getElementById('orderSummary'));
-    orderSummaryModal.show();
-  });
-</script>
 
 
 
