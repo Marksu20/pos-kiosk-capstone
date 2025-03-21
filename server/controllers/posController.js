@@ -252,8 +252,8 @@ exports.receipt = async (req, res) => {
 
 exports.confirmPayment = async (req, res) => {
   try {
-    const { customerName, orderItems, TotalAmount, orderType, discount } = req.body;
-    
+    const { customerName, orderItems, TotalAmount, orderType, discount, Subtotal } = req.body;
+
     // Parse the orderItems JSON string to an array
     const orderItemsArray = JSON.parse(orderItems);
 
@@ -282,6 +282,8 @@ exports.confirmPayment = async (req, res) => {
       orderType,
       totalAmount: TotalAmount,
       discount,
+      subTotal: Subtotal,
+      companyName: req.user.companyName,
     });
 
     // Iterate over orderItems and update product's sold count and quantity in stock

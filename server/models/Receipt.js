@@ -25,11 +25,11 @@ const receiptSchema = new Schema({
   orderType: { 
     type: String, 
     enum: ['Dine In', 'Takeout'], 
-    required: true 
+    required: false 
   },
   totalAmount: { 
     type: Number, 
-    required: true 
+    required: false 
   },
   subTotal: {
     type: Number,
@@ -37,6 +37,9 @@ const receiptSchema = new Schema({
   discount: { 
     type: Number, 
     default: 0 
+  },
+  paymentMethod: {
+    type: String
   },
   cashier: {
     type: String,
