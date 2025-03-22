@@ -63,8 +63,6 @@ exports.allProducts = async (req, res) => {
         products = await Product.find({ category: selectedCategory._id, user: accountId })
           .sort({ createdAt: -1 })
           .populate('category');
-
-          console.log(req.query.category)
       } else {
         products = [];
       }

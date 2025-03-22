@@ -41,7 +41,7 @@
 <!-- Order Summary Modal -->
 <div class="modal fade" id="orderSummary" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
   <div class="modal-dialog modal-fullscreen" style="background-color: transparent;">
-    <div class="modal-content h-100 mb-5">
+    <div class="modal-content h-100 mb-5" style="background-color: transparent;">
       <div class="container py-5 h-100">
         <div class="row d-flex justify-content-center align-items-center h-100">
           <div class="col-12">
@@ -139,14 +139,15 @@
           <!-- Receipt content will be dynamically inserted here -->
         </div>
       </div>
-      <div class="modal-footer">
-        <button type="submit" class="btn btn-primary">Get PDF Receipt</button>
+      <div class="modal-footer">  
+        <button type="submit" class="btn btn-primary" id="download-pdf">Get PDF Receipt</button>
         <button type="button" class="btn btn-secondary close-btn" data-bs-dismiss="modal">Close</button>
       </div>
     </div>
   </div>
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>  
   let orderItems = JSON.parse(localStorage.getItem('orderItems')) || [];
 
@@ -298,6 +299,7 @@
   }
   // ------------------------------------------------------------------------
   
+  // checkout
   document.querySelector('.btn-checkout').addEventListener('click', async function() {
   const customerName = document.querySelector('input.customer-name').value;
   const orderType = document.querySelector('.form-select').selectedOptions[0].text;
@@ -375,43 +377,7 @@
     orderSummaryModal.show();
   });
   
-  // Function to display the receipt in your desired format
-  function displayReceipt(orderData) {
-  const receiptContainer = document.querySelector('.receipt'); // Target the receipt container
-
-  receiptContainer.innerHTML = `
-    <h1 class="mb-2">#<span>${orderData.orderNumber}</span></h1>
-    <div class="d-flex justify-content-between mb-2">
-      <p>Customer: <strong>${orderData.customerName}</strong></p>
-      <p>Payment: <strong>${orderData.paymentMethod}</strong></p>
-    </div>
-    <div class="line"></div>
-    <div>
-      ${orderData.orderItems.map(item => `
-        <div class="order-item bg-light px-2 mb-2">
-          <span>${item.quantity}</span>
-          <span>${item.name}</span>
-          <p>₱ <span>${(item.price * item.quantity).toFixed(2)}</span></p>
-        </div>
-      `).join('')}
-    </div>
-    <div class="line"></div>
-    <div class="d-flex justify-content-between total">
-      <p>Total:</p>
-      <p>₱ <span>${orderData.totalAmount.toFixed(2)}</span></p> 
-    </div>
-    <div class="footer">
-      <p><span>${orderData.orderType}</span></p> 
-      <p>THANK YOU!</p>
-    </div>
-  `;
-
-  // Show the receipt modal
-  const receiptModal = new bootstrap.Modal(document.getElementById('receipt-modal'));
-  receiptModal.show();
-}
-
-  // CASH PAY ----------------------------------------------------------
+  // cashpay
   document.querySelector('.btn-cashpay').addEventListener('click', function() {
     const orderNumber = document.getElementById('orderNumber').textContent;
     const customerName = document.getElementById('customerName').textContent;
@@ -477,6 +443,109 @@
     }	
   });
 
+  function displayReceipt(orderData) {
+  const receiptContainer = document.querySelector('.receipt'); // Target the receipt container
+
+  receiptContainer.innerHTML = `
+    <h1 class="mb-2">#<span>${orderData.orderNumber}</span></h1>
+    <div class="d-flex justify-content-between mb-2">
+      <p>Customer: <strong>${orderData.customerName}</strong></p>
+      <p>Payment: <b>${orderData.paymentMethod}</b></p>
+    </div>
+    <div class="line"></div>
+    <div>
+      ${orderData.orderItems.map(item => `
+        <div class="order-item bg-light px-2 mb-2">
+          <span>${item.quantity}</span>
+          <span>${item.name}</span>
+          <p>₱ <span>${(item.price * item.quantity).toFixed(2)}</span></p>
+        </div>
+      `).join('')}
+    </div>
+    <div class="line"></div>
+    <div class="d-flex justify-content-between total">
+      <p>Total:</p>
+      <p>₱ <span>${orderData.totalAmount.toFixed(2)}</span></p> 
+    </div>
+    <div class="footer">
+      <p><span>${orderData.orderType}</span></p> 
+      <p>THANK YOU!</p>
+    </div>
+  `;
+
+  const receiptModal = new bootstrap.Modal(document.getElementById('receipt-modal'));
+  receiptModal.show();
+  }
+
+  document.getElementById('download-pdf').addEventListener('click', function() {
+    if (window.jspdf) {
+      generatePDF();
+    } else {
+      console.error('jsPDF library is not loaded.');
+    }
+  });
+
+  function generatePDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+
+    // Get the receipt data
+    const orderNumber = document.querySelector('.receipt h1 span')?.textContent || 'N/A';
+    const customerName = document.querySelector('.receipt p strong')?.textContent || 'N/A';
+    const paymentMethod = document.querySelector('.receipt p b')?.textContent || 'N/A';
+    const orderItems = document.querySelectorAll('.receipt .order-item');
+    const totalAmount = document.querySelector('.receipt .total span')?.textContent || 'N/A';
+    const orderType = document.querySelector('.receipt .footer p span')?.textContent || 'N/A';
+
+    // Set font and size
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(12);
+
+    // Add order number
+    doc.text(`#${orderNumber}`, 10, 10);
+
+    // Add customer name and payment method
+    doc.text(`Customer: ${customerName}`, 10, 20);
+    doc.text(`Payment: ${paymentMethod}`, 10, 25);
+
+    // Add a line separator
+    doc.setLineWidth(0.5);
+    doc.line(10, 30, 200, 30);
+
+    // Add order items
+    let yPos = 40;
+    orderItems.forEach(item => {
+      const itemName = item.querySelector('span:nth-child(2)')?.textContent || 'N/A';
+      const itemQuantity = item.querySelector('span:nth-child(1)')?.textContent || 'N/A';
+      const itemPrice = item.querySelector('p span')?.textContent || 'N/A';
+
+      const itemText = `${itemQuantity}    ${itemName}    ₱${itemPrice}`;
+      doc.text(itemText, 10, yPos);
+      yPos += 10;
+    });
+
+    // Add another line separator
+    doc.line(10, yPos, 200, yPos);
+    yPos += 10;
+
+    // Add total amount
+    doc.setFontSize(14);
+    doc.text(`Total:`, 10, yPos);
+    doc.text(`₱${totalAmount}`, 50, yPos);
+
+    // Add order type
+    yPos += 10;
+    doc.setFontSize(12);
+    doc.text(`${orderType}`, 10, yPos);
+
+    // Add "THANK YOU!" message
+    yPos += 10;
+    doc.setFontSize(14);
+    doc.text(`THANK YOU!`, 10, yPos);
+
+    // Save the PDF
+    doc.save('receipt.pdf');
+  }
 </script>
 
 
