@@ -98,6 +98,7 @@ exports.pos = async (req, res) => {
     res.render('pos/index', {
       username: req.user.firstName,
       locals,
+      user,
       products,
       categories,
       discounts,

@@ -355,6 +355,7 @@ exports.account = async (req, res) => {
       currentPath: req.path,
       showNavbar: true,
       users,
+      user: req.user._id || req.user.adminId,
       selectedRole: role || 'All Users',
       layout: '../views/layouts/admin'
     });
