@@ -17,8 +17,10 @@ router.get('/pos/receipt', isLoggedIn, checkRole(['admin', 'sub-admin', 'staff']
 router.post('/pos/confirm-payment', isLoggedIn, posController.confirmPayment);
 
 router.get('/orders/:id', isLoggedIn, checkRole(['admin', 'sub-admin', 'staff']), posController.viewOrder);
+
 router.put('/orders/:id', isLoggedIn, checkRole(['admin', 'sub-admin', 'staff']), posController.updateOrder);
-router.put('/orders/:id/served', checkRole(['admin', 'sub-admin', 'staff']), isLoggedIn, posController.served);
+
+router.put('/orders/:id/to-serve', checkRole(['admin', 'sub-admin', 'staff']), isLoggedIn, posController.toServe);
 
 // DELETE
 router.delete('/delete-order/:id', isLoggedIn, posController.deleteOrder)

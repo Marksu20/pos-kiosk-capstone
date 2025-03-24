@@ -7,8 +7,9 @@ const receiptSchema = new Schema({
     ref: 'User'
   },
   orderNumber: { 
-    type: String, 
-    unique: true 
+    type: String,
+    required: true,
+    unique: false 
   },
   customerName: { 
     type: String, 
@@ -48,6 +49,9 @@ const receiptSchema = new Schema({
   companyName: {
     type: String,
     required: false
+  },
+  status: {
+    type: String
   },
   createdAt: { 
     type: Date, 

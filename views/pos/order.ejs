@@ -7,17 +7,17 @@
     <main class="col-md-10 ml-sm-auto col-lg-10 px-md-4 py-4">
       <ul class="nav nav-tabs mb-3" id="queueTab" role="tablist">
         <li class="nav-item" role="presentation">
-          <button class="nav-link active" id="in-process-tab" data-bs-toggle="tab" data-bs-target="#inProcess" type="button" role="tab" aria-controls="inProcess" aria-selected="true">
+          <button class="nav-link active" id="waiting-tab" data-bs-toggle="tab" data-bs-target="#waiting" type="button" role="tab" aria-controls="waiting" aria-selected="true">
             Waiting. . .
           </button>
         </li>
         <li class="nav-item" role="presentation">
-          <button class="nav-link" id="to-serve-tab" data-bs-toggle="tab" data-bs-target="#toServe" type="button" role="tab" aria-controls="toServe" aria-selected="false">
+          <button class="nav-link" id="in-process-tab" data-bs-toggle="tab" data-bs-target="#inProcess" type="button" role="tab" aria-controls="inProcess" aria-selected="false">
             In Process. . .
           </button>
         </li>
         <li class="nav-item" role="presentation">
-          <button class="nav-link" id="served-tab" data-bs-toggle="tab" data-bs-target="#served" type="button" role="tab" aria-controls="served" aria-selected="false">
+          <button class="nav-link" id="to-serve-tab" data-bs-toggle="tab" data-bs-target="#toServe" type="button" role="tab" aria-controls="toServe" aria-selected="false">
             To serve
           </button>
         </li>
@@ -42,10 +42,10 @@
     <div class="row tab-content" id="queueTabContent">
 
       <!-------------------------------- waiting ------------------------------------------>
-      <div class="col-12 col-xl-12 mb-4 mb-lg-0 tab-pane fade show active" id="inProcess" role="tabpanel" aria-labelledby="in-process-tab">
+      <div class="col-12 col-xl-12 mb-4 mb-lg-0 tab-pane fade show active" id="waiting" role="tabpanel" aria-labelledby="waiting-tab">
         <div class="card">
           <div class="card-header">
-            <input id="in-process-search" class="w-25 form-control form-control-dark" type="text" placeholder="Search Order No." aria-label="Search">
+            <input id="waiting-search" class="w-25 form-control form-control-dark" type="text" placeholder="Search Order No." aria-label="Search">
           </div>
           <div class="card-body">
             <div class="table-responsive">
@@ -64,9 +64,9 @@
                   </tr>
                 </thead>
                 <% orders.forEach(order => { %>
-                <% if (order.status === "In Process") { %>
-                <tbody id="in-process-list">
-                  <tr class="in-process-row">
+                <% if (order.status === "Waiting") { %>
+                <tbody id="waiting-list">
+                  <tr class="waiting-row">
                     <td><strong># <%= order.orderNumber %></strong></td>
                     <td><%= order.customerName %></td>
                     <td>
@@ -101,6 +101,65 @@
       </div>
 
       <!-------------------------------- in process ------------------------------------------>
+      <div class="col-12 col-xl-12 mb-4 mb-lg-0 tab-pane fade" id="inProcess" role="tabpanel" aria-labelledby="in-process-tab">
+        <div class="card">
+          <div class="card-header">
+            <input id="in-process-search" class="w-25 form-control form-control-dark" type="text" placeholder="Search Order No." aria-label="Search">
+          </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th scope="col">Order No.</th>
+                    <th scope="col">Customer</th>
+                    <th scope="col">Product(s)</th>
+                    <th scope="col">Order Type</th>
+                    <th scope="col">Discount</th>
+                    <th scope="col">Total</th>
+                    <th scope="col">Created</th>
+                    <th scope="col">Cashier</th>
+                    <th scope="col">Status</th>
+                    <th scope="col" class="text-center">Action</th>
+                  </tr>
+                </thead>
+                  <% orders.forEach(order => { %>
+                    <% if(order.status === "In Process"){ %>
+                    <tbody id="in-process-list">
+                      <tr class="in-process-row">
+                        <td><strong># <%= order.orderNumber %></strong></td>
+                        <td><%= order.customerName %></td>
+                        <td>
+                          <% order.orderItems.forEach(item => { %>
+                            <%= item.name %> - ₱<%= item.price %> (x<%= item.quantity %>),<br>
+                          <% }) %>
+                        </th>
+                        <td><%= order.orderType %></td>
+                        <td>% <%= order.discount %></td>
+                        <td>₱ <%= order.totalAmount %></td>
+                        <td><%= new Date(order.createdAt).toLocaleString() %></td>
+                        <td><%= order.cashier || 'N/A' %></td>
+                        <td><p class="text-warning"><%= order.status %></p></td>
+                        <td class="text-center">
+                          <button type="button" class="btn btn-sm btn-outline-success px-3 btn-to-serve" data-order-id="<%= order._id %>">
+                            To serve
+                          </button>
+                        </td>
+                      </tr>
+                    </tbody>
+                    <% } %>
+                  <% }) %>
+                </thead>
+              </table>
+              <div id="ts-no-results" class="text-center" style="display: none;">
+                No results found.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-------------------------------- to serve ------------------------------------------>
       <div class="col-12 col-xl-12 mb-4 mb-lg-0 tab-pane fade" id="toServe" role="tabpanel" aria-labelledby="to-serve-tab">
         <div class="card">
           <div class="card-header">
@@ -118,8 +177,8 @@
                     <th scope="col">Discount</th>
                     <th scope="col">Total</th>
                     <th scope="col">Created</th>
+                    <th scope="col">Cashier</th>
                     <th scope="col">Status</th>
-                    <th scope="col" class="text-center">Action</th>
                   </tr>
                 </thead>
                   <% orders.forEach(order => { %>
@@ -137,62 +196,7 @@
                         <td>% <%= order.discount %></td>
                         <td>₱ <%= order.totalAmount %></td>
                         <td><%= new Date(order.createdAt).toLocaleString() %></td>
-                        <td><p class="text-warning"><%= order.status %></p></td>
-                        <td class="text-center">
-                          <button type="button" class="btn btn-sm btn-outline-success px-3 btn-served" data-order-id="<%= order._id %>">
-                            Served
-                          </button>
-                        </td>
-                      </tr>
-                    </tbody>
-                    <% } %>
-                  <% }) %>
-                </thead>
-              </table>
-              <div id="ts-no-results" class="text-center" style="display: none;">
-                No results found.
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-------------------------------- served ------------------------------------------>
-      <div class="col-12 col-xl-12 mb-4 mb-lg-0 tab-pane fade" id="served" role="tabpanel" aria-labelledby="served-tab">
-        <div class="card">
-          <div class="card-header">
-            <input id="served-search" class="w-25 form-control form-control-dark" type="text" placeholder="Search Order No." aria-label="Search">
-          </div>
-          <div class="card-body">
-            <div class="table-responsive">
-              <table class="table">
-                <thead>
-                  <tr>
-                    <th scope="col">Order No.</th>
-                    <th scope="col">Customer</th>
-                    <th scope="col">Product(s)</th>
-                    <th scope="col">Order Type</th>
-                    <th scope="col">Discount</th>
-                    <th scope="col">Total</th>
-                    <th scope="col">Created</th>
-                    <th scope="col">Status</th>
-                  </tr>
-                </thead>
-                  <% orders.forEach(order => { %>
-                    <% if(order.status === "Served"){ %>
-                    <tbody id="served-list">
-                      <tr class="served-row">
-                        <td><strong># <%= order.orderNumber %></strong></td>
-                        <td><%= order.customerName %></td>
-                        <td>
-                          <% order.orderItems.forEach(item => { %>
-                            <%= item.name %> - ₱<%= item.price %> (x<%= item.quantity %>),<br>
-                          <% }) %>
-                        </th>
-                        <td><%= order.orderType %></td>
-                        <td>% <%= order.discount %></td>
-                        <td>₱ <%= order.totalAmount %></td>
-                        <td><%= new Date(order.createdAt).toLocaleString() %></td>
+                        <td><%= order.cashier %></td>
                         <td><p class="text-success"><%= order.status %></p></td>
                       </tr>
                     </tbody>
@@ -254,11 +258,14 @@
             <input type="text" class="form-control" id="totalAmount" name="totalAmount" readonly>
           </div>
           
+          <input type="hidden" id="cashierName" value="<%= cashier.displayName || cashier.companyName %>">
+
           <div class="mb-3">
             <label for="status" class="form-label">Status</label>
             <select id="status" name="status" class="form-select">
-              <option value="In Process">Waiting</option>
-              <option value="To Serve">In Process</option>
+              <option value="Waiting" selected>Waiting</option>
+              <option value="In Process">In Process</option>
+              <!-- <option value="To Serve">To Serve</option> -->
             </select>
           </div>
 
@@ -307,7 +314,6 @@ document.querySelectorAll('.btn-edit-order').forEach(button => {
     const orderId = button.getAttribute('data-order-id');
 
     let order;
-
     // Fetch the order details
     const response = await fetch(`/orders/${orderId}`);
     if (!response.ok) {
@@ -350,10 +356,9 @@ document.querySelectorAll('.btn-edit-order').forEach(button => {
 
 //handle delete
 document.getElementById('deleteOrderForm').addEventListener('submit', async function (e) {
-  e.preventDefault(); // Prevent form from submitting the traditional way
+  e.preventDefault();
 
   const orderId = document.getElementById('modal-order-id').value;
-
   try {
     const response = await fetch(`/delete-order/${orderId}`, {
       method: 'DELETE',
@@ -363,7 +368,6 @@ document.getElementById('deleteOrderForm').addEventListener('submit', async func
     });
 
     const data = await response.json();
-
     if (response.ok) {
       alert(data.message); // Show success message
       location.reload(); // Reload the page to reflect the changes
@@ -424,11 +428,13 @@ document.getElementById('saveOrderBtn').addEventListener('click', async () => {
   const discount = parseFloat(document.getElementById('discount').value) || 0;
   const totalAmount = parseFloat(document.getElementById('totalAmount').value);
   const status = document.getElementById('status').value;
+  const cashier = document.getElementById('cashierName').value;
 
   const updatedOrder = {
     discount: discount,
     totalAmount: totalAmount,
-    status: status
+    status: status,
+    cashier: cashier
   };
 
   try {
@@ -440,38 +446,48 @@ document.getElementById('saveOrderBtn').addEventListener('click', async () => {
       body: JSON.stringify(updatedOrder)
     });
 
-    const data = await updateResponse.json();
-
-    if (updateResponse.ok) {
-      // Close the modal and refresh the page or update the UI
-      document.getElementById('editOrderModal').classList.remove('show');
-      document.querySelector('.modal-backdrop').remove();
-      alert(data.message);
-
-      window.location.reload();
-    } else {
-      console.error('Failed to update the order');
-      alert(`Failed to update order: ${data.error}`);
+    let data;
+    try {
+      data = await updateResponse.json();
+    } catch (parseError) {
+      console.error('Failed to parse JSON:', parseError);
+      throw new Error('Invalid server response');
     }
+
+    if (!updateResponse.ok) {
+      console.error('Server returned error:', data);
+      throw new Error(data.error || 'Failed to update the order');
+    }
+
+    const editOrderModal = bootstrap.Modal.getInstance(document.getElementById('editOrderModal'));
+    editOrderModal.hide();
+    
+    alert(data.message || 'Order updated successfully');
+    window.location.reload();
+
   } catch (error) {
-    console.error('Error updating the order:', error);
-    alert('An error occurred while updating the order');
+    console.error('Full error details:', {
+      error: error,
+      message: error.message,
+      stack: error.stack
+    });
+    alert(error.message || 'An error occurred while updating the order');
   }
 });
 
 // Handle "Served" button click
-document.querySelectorAll('.btn-served').forEach(button => {
+document.querySelectorAll('.btn-to-serve').forEach(button => {
   button.addEventListener('click', async () => {
     const orderId = button.getAttribute('data-order-id');
 
     try {
       // Send a request to update the order status to "Served"
-      const response = await fetch(`/orders/${orderId}/served`, {
+      const response = await fetch(`/orders/${orderId}/to-serve`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ status: 'Served' })
+        body: JSON.stringify({ status: 'To Serve' })
       });
 
       if (response.ok) {
@@ -479,21 +495,21 @@ document.querySelectorAll('.btn-served').forEach(button => {
         const orderNumber = data.order.orderNumber;
         const customerName = data.order.customerName;
 
-        alert(`Order #${orderNumber} for ${customerName} has been updated to 'Served'.`);
+        alert(`Order #${orderNumber} for ${customerName} has been updated to 'To Serve'.`);
         window.location.reload();
 
         // Update the UI by moving the order to the "Served" tab
         const row = button.closest('tr');
-        const servedList = document.getElementById('served-list');
+        const toServeList = document.getElementById('to-serve-list');
         
-        if (servedList) {
+        if (toServeList) {
           // Append the row to the served list
-          servedList.appendChild(row);
+          toServeList.appendChild(row);
           
           // Change the status text to "Served"
-          row.querySelector('td:nth-child(8)').innerHTML = `<p class="text-success">Served</p>`;
+          row.querySelector('td:nth-child(8)').innerHTML = `<p class="text-success">To Serve</p>`;
         } else {
-          console.error("Served list does not exist.");
+          console.error("To Serve list does not exist.");
         }
       } else {
         const errorData = await response.json();
@@ -505,17 +521,16 @@ document.querySelectorAll('.btn-served').forEach(button => {
     }
   });
 });
-
 </script>
 
 <!-- search function -->
 <script>
-  document.getElementById('in-process-search').addEventListener('input', function () {
+  document.getElementById('waiting-search').addEventListener('input', function () {
     const searchQuery = this.value.toLowerCase();
-    const inProcessRows = document.querySelectorAll('.in-process-row');
+    const waitingRows = document.querySelectorAll('.waiting-row');
     let hasResults = false;
 
-    inProcessRows.forEach(row => { 
+    waitingRows.forEach(row => { 
       const orderNumber = row.querySelector('td:nth-child(1)').textContent.toLowerCase();
       const customerName = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
 
@@ -529,9 +544,9 @@ document.querySelectorAll('.btn-served').forEach(button => {
     document.getElementById('no-results').style.display = hasResults ? 'none' : 'block';
   })
 
-  document.getElementById('to-serve-search').addEventListener('input', function () {
+  document.getElementById('in-process-search').addEventListener('input', function () {
     const searchQuery = this.value.toLowerCase();
-    const toServeRows = document.querySelectorAll('.to-serve-row');
+    const inProcess = document.querySelectorAll('.in-process-row');
     let hasResults = false;
 
     toServeRows.forEach(row => { 

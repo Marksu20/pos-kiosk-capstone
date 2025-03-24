@@ -119,23 +119,21 @@ exports.pos = async (req, res) => {
 exports.orderNotif = async (req, res) => {
   try {
     const latestOrder = await Order.findOne({ 
-      status: { $ne: 'To Serve', $ne: 'Served' }, 
-    })
-    .sort({ createdAt: -1 })
-    .lean();
-
+      user: { $in: [req.user._id, req.user.adminId] }, // Filter by user/admin
+      status: { $nin: ['In Process', 'To Serve'] }, // Exclude 'In Process' & 'To Serve' 
+    }).sort({ createdAt: -1 })
+      .lean();
+    
     if (!latestOrder) {
       return res.json({ success: true, newOrder: null });
     }
 
-    // Compare with a timestamp stored in the session to check if this is a new order
-    if (latestOrder.createdAt > req.session.lastChecked && latestOrder.status !== 'To Serve') {
-      req.session.lastChecked = latestOrder.createdAt;
-      return res.json({ success: true, newOrder: null });
-    } else {
+    if (!req.session.lastChecked || latestOrder.createdAt > req.session.lastChecked) {
       req.session.lastChecked = latestOrder.createdAt;
       return res.json({ success: true, newOrder: latestOrder });
     }
+
+    return res.json({ success: true, newOrder: null });
 
   } catch (error) {
     console.error('Error fetching latest order:', error);
@@ -151,29 +149,24 @@ exports.order = async (req, res) => {
   
   try {
     const order = await Order.find({ 
-      $or: [
-        { user: req.user._id },
-        { user: req.user.adminId }
-      ]
-     }).sort({ createdAt: -1 });;
+      user: { $in: [req.user._id, req.user.adminId] },
+    }).sort({ createdAt: 1 })
+
     const orders = await Order.find({ 
-      $or: [
-        { user: req.user._id },
-        { user: req.user.adminId }
-      ]
-     }).sort({ createdAt: -1 });
+      user: { $in: [req.user._id, req.user.adminId] },
+    }).sort({ createdAt: 1 });
+
     const discounts = await Discount.find({ 
-      $or: [
-        { user: req.user._id },
-        { user: req.user.adminId }
-      ]
-      }).sort({ createdAt: -1 });;
+      user: { $in: [req.user._id, req.user.adminId] },
+    }).sort({ createdAt: -1 });
     
     const user = await User.findOne();
-    
+
     res.render('pos/order', {
       username: req.user.firstName,
       orderID: req.params._id,
+      cashier: req.user.displayName || req.user.companyName,
+      user,
       order,
       locals,
       orders,
@@ -185,33 +178,38 @@ exports.order = async (req, res) => {
       layout: '../views/layouts/pos'
     });
   } catch (error) {
-    console.log("error", + error);
+    console.log("error", error);
   }  
 }
 
 exports.orderCount = async (req, res) => {
   try {
-    const count = await Order.countDocuments({ status: 'In Process' });
+    const count = await Order.countDocuments({ 
+      user: { $in: [req.user._id, req.user.adminId] },
+      status: 'Waiting'
+    });
     res.json({ count });
   } catch (error) {
-      res.status(500).json({ error: 'Failed to fetch order count' });
+    console.error('Error fetching order count:', error);
+    res.status(500).json({ error: 'Failed to fetch order count' });
   }
 }
 
 exports.orderLatest = async (req, res) => {
   try {
-    const latestOrder = await Order.findOne({ })
-      .sort({ createdAt: -1 })
+    const latestOrder = await Order.findOne({
+      user: { $in: [req.user._id, req.user.adminId] },
+    }).sort({ createdAt: -1 })
       .lean();
-
-    // Compare with a timestamp stored in the session to check if this is a new order
-    if (req.session.lastChecked && latestOrder.createdAt > req.session.lastChecked) {
-      req.session.lastChecked = latestOrder.createdAt;
+      
+     // Compare with the last checked order to identify new orders
+    if (!req.session.lastChecked || (latestOrder && latestOrder.createdAt > req.session.lastChecked)) {
+      req.session.lastChecked = latestOrder?.createdAt || new Date();
       return res.json({ success: true, newOrder: latestOrder });
-    } else {
-      req.session.lastChecked = latestOrder.createdAt;
-      return res.json({ success: true, newOrder: null });
     }
+
+    return res.json({ success: true, newOrder: null });
+    
   } catch (error) {
     console.error('Error fetching latest order:', error);
     res.status(500).json({ success: false, message: 'Failed to fetch latest order.' });
@@ -327,6 +325,10 @@ exports.updateOrder = async (req, res) => {
     const orderId = req.params.id;
     const updatedOrder = req.body;
 
+    if (updatedOrder?.status === "In Process") {
+      updatedOrder.cashier = req.user.displayName || req.user.companyName;
+    }    
+
     const order = await Order.findByIdAndUpdate(
       orderId,
       updatedOrder, 
@@ -337,40 +339,53 @@ exports.updateOrder = async (req, res) => {
       console.log("order not found")
       return res.status(404).json({ error: 'Order not found' });
     }
-
-    if(order.status === "In Process") {
-      const receiptData = {
-        user: order.user,
-        orderNumber: order.orderNumber,
-        customerName: order.customerName,
-        orderItems: order.orderItems,
-        orderType: order.orderType,
-        totalAmount: order.totalAmount,
-        discount: order.discount,
-        createdAt: new Date(),
-      };
-      const newReceipt = new Receipt(receiptData);
-      await newReceipt.save();
-
-      // Respond with success and order info
+    
+    if(updatedOrder.status === "In Process") {
+      // Check if receipt already exists for this order
+      const existingReceipt = await Receipt.findOne({ orderNumber: order.orderNumber });
+      
+      if (!existingReceipt) {
+        const receiptData = {
+          user: order.user,
+          orderNumber: order.orderNumber,
+          customerName: order.customerName,
+          orderItems: order.orderItems,
+          orderType: order.orderType,
+          totalAmount: order.totalAmount,
+          discount: order.discount,
+          cashier: req.user.displayName || req.user.companyName,
+          createdAt: new Date(),
+        };
+        const newReceipt = new Receipt(receiptData);
+        await newReceipt.save();
+      } else {
+        console.log('Receipt already exists for this order');
+      }
+    
       return res.status(200).json({
-        message: `Order #${order.orderNumber} for ${order.customerName} has been updated to 'To Serve'`,
+        message: `Order #${order.orderNumber} for ${order.customerName} has been updated to 'In Process'`,
         order
       });
     }
-    res.status(200).json({ message: 'Order updated successfully' });
+
   } catch (error) {
     console.error('Error updating order:', error);
-    res.status(500).json({ error: 'Failed to update the order' });
+
+    return res.status(500).json({ 
+      error: 'Failed to update the order',
+      details: error.message 
+    });
   }
 }
 
-exports.served = async (req, res) => {
+exports.toServe = async (req, res) => {
   try {
     const orderId = req.params.id;
 
-    // Update the order's status to "Served"
-    const order = await Order.findByIdAndUpdate(orderId, { status: 'Served' }, { new: true });
+    // Update the order's status to "to Serve"
+    const order = await Order.findByIdAndUpdate(
+      orderId, 
+      { status: 'To Serve' }, { new: true });
 
     if (!order) {
       return res.status(404).json({ error: 'Order not found' });
@@ -385,10 +400,15 @@ exports.served = async (req, res) => {
 
 exports.viewOrder = async (req, res) => {
   try {
-    const order = await Order.findById(req.params.id);
+    const order = await Order.findById({
+      _id: req.params.id,
+      user: { $in: [req.user._id, req.user.adminId] },
+    });
+
     if (!order) {
       return res.status(404).json({ error: 'Order not found' });
     }
+
     res.status(200).json(order);
   } catch (error) {
     res.status(500).json({ error: 'Failed to fetch order' });

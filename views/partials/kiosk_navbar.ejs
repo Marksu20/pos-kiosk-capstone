@@ -12,12 +12,12 @@
           <input type="hidden" id="accountId" value="<%= accountId %>">
           <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="true">Select Category</a>
           <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-            <li><a class="dropdown-item" href="/<%= user._id %>/kiosk/allProducts">All Products</a></li>
+            <li><a class="dropdown-item" href="/<%= accountId %>/kiosk/allProducts">All Products</a></li>
             <li><hr class="dropdown-divider" /></li>
             <% if (categories && categories.length > 0) { %>
               <% categories.forEach(function (category) { %>
                 <li>
-                  <a class="dropdown-item" href="/<%= user._id %>/kiosk/allProducts?category=<%= encodeURIComponent(category.name) %>">
+                  <a class="dropdown-item" href="/<%= accountId %>/kiosk/allProducts?category=<%= encodeURIComponent(category.name) %>">
                     <%= category.name %>
                   </a>
                 </li>

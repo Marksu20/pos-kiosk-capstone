@@ -7,8 +7,9 @@ const orderSchema = new Schema({
     ref: 'User'
   },
   orderNumber: { 
-    type: String, 
-    unique: true 
+    type: String,
+    required: true, 
+    unique: false 
   },
   customerName: { 
     type: String, 
@@ -37,6 +38,9 @@ const orderSchema = new Schema({
   },
   paymentMethod: {
     type: String,
+  },
+  cashier:{
+    type: String
   },
   createdAt: { 
     type: Date, 

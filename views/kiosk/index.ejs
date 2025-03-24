@@ -25,7 +25,7 @@
                 </div>
                 <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
                   <div class="text-center">
-                    <% if (productSold.quantity === 0) { %>
+                    <% if (productSold.quantity === 0 || productSold.quantity < 0 ) { %>
                       <span class="text-danger btn">Not Available</span>
                     <% } else { %>
                       <button class="btn btn-outline-dark mt-auto add-to-order"
