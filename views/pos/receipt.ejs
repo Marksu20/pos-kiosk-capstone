@@ -137,6 +137,7 @@
       document.getElementById('orderType').textContent = receipt.orderType;
       document.getElementById('receiptTotalAmount').textContent = receipt.totalAmount;
       document.getElementById('cashier').textContent = receipt.cashier;
+      document.getElementById('companyName').textContent = receipt.companyName;
   
       // Handle Discount Display
       const discountContainer = document.getElementById('discountContainer');
@@ -147,18 +148,25 @@
         discountContainer.style.display = 'none';
       }
   
-      const receiptOrderSummary = receipt.orderItems.map(item => `
-        <div class="order-item bg-light px-2 mb-2">
-          <span>${item.quantity}</span>
-          <span>${item.name}</span>
-          <p>₱ <span>${(item.price * item.quantity).toFixed(2)}</span></p>
-        </div>
-      `).join('');
+      const receiptOrderSummary = receipt.orderItems.map(item => {
+        const totalPrice = item.quantity * item.price;
+          return `
+            <div class="order-item bg-light px-2 mb-2">
+              <span>${item.quantity}</span>
+              <span>${item.name}</span>
+              <p>₱ <span>${totalPrice.toFixed(2)}</span></p>
+            </div>
+          `;  
+        }).join('');
+
       document.getElementById('receiptOrderSummary').innerHTML = receiptOrderSummary;
   
       const createdAt = new Date(receipt.createdAt);
-      const formattedDate = createdAt.toLocaleString(); // Customize format if necessary
-      document.getElementById('createdAt').textContent = `${formattedDate}`;
+      const formattedDate = createdAt.toLocaleDateString(); // Customize format if necessary
+      const formattedTime = createdAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+      document.getElementById('createdAt').textContent = formattedDate;
+      document.getElementById('createdTime').textContent = formattedTime;
   
       // Show modal
       const receiptModal = new bootstrap.Modal(document.getElementById('receipt-modal'));
