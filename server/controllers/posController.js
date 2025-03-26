@@ -327,23 +327,32 @@ exports.updateOrder = async (req, res) => {
 
     if (updatedOrder?.status === "In Process") {
       updatedOrder.cashier = req.user.displayName || req.user.companyName;
-    }    
+    }
 
     const order = await Order.findByIdAndUpdate(
       orderId,
-      updatedOrder, 
+      updatedOrder,
       { new: true }
     );
 
     if (!order) {
-      console.log("order not found")
-      return res.status(404).json({ error: 'Order not found' });
+      console.log("order not found");
+      return res.status(404).json({ error: "Order not found" });
     }
-    
-    if(updatedOrder.status === "In Process") {
-      // Check if receipt already exists for this order
+
+    if (updatedOrder.status === "In Process") {
+      // ✅ Calculate subtotal correctly
+      const subTotal = order.orderItems.reduce((acc, item) => {
+        return acc + item.price * item.quantity;
+      }, 0);
+
+      // ✅ Save subtotal to order model
+      order.subTotal = subTotal;
+      await order.save();
+
+      // ✅ Check if receipt already exists
       const existingReceipt = await Receipt.findOne({ orderNumber: order.orderNumber });
-      
+
       if (!existingReceipt) {
         const receiptData = {
           user: order.user,
@@ -353,30 +362,39 @@ exports.updateOrder = async (req, res) => {
           orderType: order.orderType,
           totalAmount: order.totalAmount,
           discount: order.discount,
+          subTotal: subTotal, // ✅ Make sure the field name matches
           cashier: req.user.displayName || req.user.companyName,
           createdAt: new Date(),
         };
+
+        // ✅ Create a new receipt with subtotal
         const newReceipt = new Receipt(receiptData);
         await newReceipt.save();
       } else {
-        console.log('Receipt already exists for this order');
+        console.log("Receipt already exists for this order");
+
+        // ✅ Optional: Update existing receipt if needed
+        existingReceipt.subTotal = subTotal;
+        await existingReceipt.save();
       }
-    
+
       return res.status(200).json({
         message: `Order #${order.orderNumber} for ${order.customerName} has been updated to 'In Process'`,
-        order
+        order,
       });
     }
 
-  } catch (error) {
-    console.error('Error updating order:', error);
+    res.status(200).json({ message: "Order updated successfully", order });
 
-    return res.status(500).json({ 
-      error: 'Failed to update the order',
-      details: error.message 
+  } catch (error) {
+    console.error("Error updating order:", error);
+
+    return res.status(500).json({
+      error: "Failed to update the order",
+      details: error.message,
     });
   }
-}
+};
 
 exports.toServe = async (req, res) => {
   try {
