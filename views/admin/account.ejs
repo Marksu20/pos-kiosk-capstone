@@ -101,7 +101,6 @@
             <h4>Account Kiosk</h4>
           </div>
           <div class="card-body">
-            <p><a href="/<%= user._id %>/kiosk">Go to Kiosk</a></p>
             <div class="row">
               <div class="col-md-12">
                 <a id="kioskLink" target="_blank"></a>
@@ -205,11 +204,12 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
-<!-- generate qr code -->
+<!-- generate qr code --> 
 <script>
   function generateKioskDetails() {
-    const kioskPath = "/kiosk"; // Update this with your actual kiosk path
-    const baseUrl = "https://kokapos.onrender.com";
+    const userId = "<%= user %>";
+    const kioskPath = `/${userId}/kiosk`; // Update this with your actual kiosk path
+    const baseUrl =" http://localhost:5000";
     const kioskUrl = `${baseUrl}${kioskPath}`;
 
     // Set the kiosk link
