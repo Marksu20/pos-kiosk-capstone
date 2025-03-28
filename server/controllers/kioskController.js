@@ -130,6 +130,27 @@ exports.orders = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Account not found' });
     }
 
+    // First check all products have sufficient quantity
+    for (let item of orderItems) {
+      let productQuery = { _id: item.id, user: accountId };
+      const product = await Product.findOne(productQuery);
+
+      if (!product) {
+        return res.status(404).json({ 
+          success: false, 
+          message: `Product ${item.id} not found or not authorized.` 
+        });
+      }
+
+      // Check if quantity would go negative
+      if (product.quantity - item.quantity < 0) {
+        return res.status(400).json({ 
+          success: false, 
+          message: `Not enough stock for ${product.name}. Available: ${product.quantity}, Requested: ${item.quantity}` 
+        });
+      }
+    }
+
     const orderNumber = await generateUniqueOrderNumber(accountId);
 
     const newOrder = new Order({
@@ -146,20 +167,13 @@ exports.orders = async (req, res) => {
     // Process each item in the order
     for (let item of orderItems) {
       let productQuery = { _id: item.id, user: accountId };
-
       const product = await Product.findOne(productQuery);
 
-      if (product) {
-        product.sold += item.quantity;
-        product.quantity -= item.quantity;
-        
-        await product.save();
-      } else {
-        return res.status(404).json({ 
-          success: false, 
-          message: `Product ${item.id} not found or not authorized.` 
-        });
-      }
+      // We already checked product exists and has sufficient quantity
+      product.sold += item.quantity;
+      product.quantity -= item.quantity;
+      
+      await product.save();
     }
 
     const countQuery = { status: 'Waiting', user: accountId };

@@ -403,19 +403,23 @@
             body: JSON.stringify(orderData)
         });
 
+        const data = await response.json(); // Always parse the response JSON
+        
         if (response.ok) {
-        const data = await response.json();
-        if (data.success) {
-          alert('Order successfully added!');
-          clearOrderSummary();
-          displayReceipt(orderData);
+          if (data.success) {
+            alert('Order successfully added!');
+            clearOrderSummary();
+            displayReceipt(orderData);
+          } else {
+            // Show the actual error message from the server
+            alert(data.message || 'Failed to save the order. Please try again.');
+          }
         } else {
-          alert('Failed to save the order. Please try again.');
+          // Show the error message from the server for non-OK responses
+          alert(data.message || 'Error: Unable to process the order.');
         }
-      } else {
-        alert('Error: Unable to process the order.');
-      }
       } catch (error) {
+        console.error('Error submitting order:', error);
         alert('An error occurred. Please try again.');
       }
     }
@@ -423,26 +427,20 @@
     
     function clearOrderSummary() {
       orderItems = []; 
-
       localStorage.removeItem('orderItems'); 
-
       const orderSummaryContainer = document.querySelector('.order-summary');
       orderSummaryContainer.innerHTML = ''; 
-
       document.querySelector('input.customer-name').value = '';
       document.querySelector('.form-select').selectedIndex = 0;
       document.querySelector('.total-amount').textContent = '₱0.00';
-
       updateOrderSummary(); 
       updateCartBadge(); 
-
       document.getElementById('orderNumber').textContent = ''; 
       document.getElementById('customerName').textContent = ''; 
       document.getElementById('orderType').textContent = ''; 
       document.getElementById('receiptTotalAmount').textContent = '0.00'; 
     }	
-  });
-
+});
   function displayReceipt(orderData) {
   const receiptContainer = document.querySelector('.receipt'); // Target the receipt container
 
