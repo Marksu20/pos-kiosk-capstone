@@ -146,7 +146,7 @@ exports.orders = async (req, res) => {
       if (product.quantity - item.quantity < 0) {
         return res.status(400).json({ 
           success: false, 
-          message: `Not enough stock for ${product.name}. Available: ${product.quantity}, Requested: ${item.quantity}` 
+          message: `Not enough stock for ${product.name}! \nAvailable: ${product.quantity} \nRequested: ${item.quantity}` 
         });
       }
     }

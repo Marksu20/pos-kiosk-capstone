@@ -14,6 +14,8 @@ router.get('/pos/order/order-count', checkRole(['admin', 'sub-admin', 'staff']),
 
 router.get('/pos/receipt', isLoggedIn, checkRole(['admin', 'sub-admin', 'staff']), posController.receipt);
 
+router.get('/pos/check-quantities', isLoggedIn, posController.checkQuantities);
+
 router.post('/pos/confirm-payment', isLoggedIn, posController.confirmPayment);
 
 router.get('/orders/:id', isLoggedIn, checkRole(['admin', 'sub-admin', 'staff']), posController.viewOrder);

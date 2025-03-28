@@ -302,27 +302,63 @@
       order.length = 0; // Clear the order array
       updateOrderSummary(); // Update the order summary to reflect the cleared order
     });
-
+  
   // handle "null" order if confirm
-  document.getElementById('confirm-order').addEventListener('click', () => {
-      if (order.length === 0) {
-        alert("Please select at least one product before confirming the order.");
-        return; // Prevent showing the payment modal if no product is selected
+  // Add this function to check product quantities
+async function checkProductQuantities() {
+  try {
+    // Get all product IDs from the current order
+    const productIds = order.map(item => item.id);
+    
+    // Fetch current quantities from the server
+    const response = await fetch(`/pos/check-quantities?ids=${productIds.join(',')}`);
+    const products = await response.json();
+    
+    // Check each product in the order
+    for (const orderItem of order) {
+      const product = products.find(p => p._id === orderItem.id);
+      if (!product) {
+        alert(`Product "${orderItem.name}" not found in inventory!`);
+        return false;
       }
-
-      const totalAmountEl = document.getElementById('total-amount');
-      const cashReceivedEl = document.getElementById('cash-received');
-
-      // Set the default value of Cash Received to the total amount
-      cashReceivedEl.value = parseFloat(totalAmountEl.textContent.replace('₱', '').trim());
       
-      // Show the modal
-      const paymentModal = new bootstrap.Modal(document.getElementById('paymentModal'));
-      paymentModal.show();
+      if (orderItem.quantity > product.quantity) {
+        alert(`Not enough stock for "${orderItem.name}"!\nAvailable: ${product.quantity}\nOrdered: ${orderItem.quantity}`);
+        return false;
+      }
+    }
+    
+    return true; // All products have sufficient quantity
+  } catch (error) {
+    console.error('Error checking quantities:', error);
+    alert('Error checking product quantities. Please try again.');
+    return false;
+  }
+}
 
-      // Update change when Cash Received is edited
-      cashReceivedEl.addEventListener('input', handleCashReceivedInput);
-    });
+// Modify the confirm-order event listener to include quantity check
+document.getElementById('confirm-order').addEventListener('click', async () => {
+    if (order.length === 0) {
+      alert("Please select at least one product before confirming the order.");
+      return;
+    }
+
+    // Check quantities before proceeding
+    const quantitiesValid = await checkProductQuantities();
+    if (!quantitiesValid) {
+      return; // Stop if quantities are insufficient
+    }
+
+    const totalAmountEl = document.getElementById('total-amount');
+    const cashReceivedEl = document.getElementById('cash-received');
+
+    cashReceivedEl.value = parseFloat(totalAmountEl.textContent.replace('₱', '').trim());
+    
+    const paymentModal = new bootstrap.Modal(document.getElementById('paymentModal'));
+    paymentModal.show();
+
+    cashReceivedEl.addEventListener('input', handleCashReceivedInput);
+  });
 
   // Function to handle cash received input
   function handleCashReceivedInput() {

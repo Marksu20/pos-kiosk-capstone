@@ -116,6 +116,24 @@ exports.pos = async (req, res) => {
   }
 }
 
+exports.checkQuantities = async (req, res) => {
+  try {
+    const productIds = req.query.ids.split(',');
+    const products = await Product.find({
+      _id: { $in: productIds },
+      $or: [
+        { user: req.user._id },
+        { user: req.user.adminId },
+      ]
+    }).select('_id name quantity');
+    
+    res.json(products);
+  } catch (error) {
+    console.error('Error checking quantities:', error);
+    res.status(500).json({ error: 'Error checking quantities' });
+  }
+};
+
 exports.orderNotif = async (req, res) => {
   try {
     const latestOrder = await Order.findOne({ 
