@@ -303,9 +303,8 @@
       updateOrderSummary(); // Update the order summary to reflect the cleared order
     });
   
-  // handle "null" order if confirm
   // Add this function to check product quantities
-async function checkProductQuantities() {
+  async function checkProductQuantities() {
   try {
     // Get all product IDs from the current order
     const productIds = order.map(item => item.id);

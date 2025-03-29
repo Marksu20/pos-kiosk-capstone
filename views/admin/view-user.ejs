@@ -13,7 +13,7 @@
                 <div class="card-body">
                   <div class="input-group mb-3">
                     <span class="input-group-text">Email</span>
-                    <input id="email-address" name="emailAddress" value="<%= user.emailAddress %>" type="text" class="form-control" required>
+                    <input id="email-address" name="emailAddress" value="<%= user.emailAddress %>" type="text" class="form-control" required readonly>
                   </div>
               
                   <div class="input-group mb-3">
@@ -24,7 +24,7 @@
                   <div class="input-group mb-3">
                     <span class="input-group-text">Role</span>
                     <select id="role" name="role" class="form-select" required>
-                      <option value="staff" <%= user.role === 'staff' ? 'selected' : '' %>>Staff</option>
+                      <option value="cashier" <%= user.role === 'cashier' ? 'selected' : '' %>>Cashier</option>
                       <option value="sub-admin" <%= user.role === 'sub-admin' ? 'selected' : '' %>>Sub-admin</option>
                     </select>
                   </div>
