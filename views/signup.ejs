@@ -92,27 +92,42 @@
             <form action="/signup" method="POST">
               <div class="row gy-3 overflow-hidden">
                 <div class="col-12">
-                  <div class="form-floating mb-3">
-                    <input type="text" class="form-control" name="companyName" id="company-name" placeholder="koka Company" value="<%= typeof companyName !== 'undefined' ? companyName : '' %>" required>
-                    <label for="company-name" class="form-label">Company Name</label>
+                  <div class="mb-3">
+                    <label for="company-name" class="">Company Name</label>
+                    <input type="text" class="form-control" name="companyName" id="company-name" placeholder="ex. koka Coffee" value="<%= typeof companyName !== 'undefined' ? companyName : '' %>" required>
+                    
                   </div>
                 </div>
                 <div class="col-12">
-                  <div class="form-floating mb-3">
+                  <div class="mb-3">
+                    <label for="email" class="">Email</label>
                     <input type="email" class="form-control" name="email" id="email" placeholder="name@example.com" value="<%= typeof email !== 'undefined' ? email : '' %>" required>
-                    <label for="email" class="form-label">Email</label>
                   </div>
                 </div>
                 <div class="col-12">
-                  <div class="form-floating mb-3">
-                    <input type="password" class="form-control" name="password" id="password" value="" placeholder="Password" required>
-                    <label for="password" class="form-label">Password</label>
+                  <div class="mb-3">
+                    <label for="password" class="">Password</label>
+                    <div class="input-group mb-3">
+                      <input type="password" class="form-control" name="password" id="password" value="" placeholder="Password" required>
+                      <span class="input-group-text" id="passEye">
+                        <a class="pe-auto link-success" href="javascript:void(0);">
+                          <i id="js-eyeicon" class="js-password bi bi-eye-slash-fill"></i>
+                        </a>
+                      </span>
+                    </div>
                   </div>
                 </div>
                 <div class="col-12">
-                  <div class="form-floating mb-3">
-                    <input type="password" class="form-control" name="confirmPassword" id="confirm-password" value="" placeholder="Confirm Password" required>
-                    <label for="confirm-password" class="form-label">Confirm Password</label>
+                  <div class="mb-3">
+                    <label for="confirm-password" class="">Confirm Password</label>
+                    <div class="input-group mb-3">
+                      <input type="password" class="form-control" name="confirmPassword" id="confirm-password" value="" placeholder="Confirm Password" required>
+                      <span class="input-group-text" id="conpassEye">
+                        <a class="pe-auto link-success" href="javascript:void(0);">
+                          <i id="js-eyeicon" class="js-password bi bi-eye-slash-fill"></i>
+                        </a>
+                      </span>
+                    </div>
                   </div>
                 </div>
                 
@@ -123,7 +138,7 @@
                 </div>
               </div>
             </form>
-            <div class="row">
+            <!-- <div class="row">
               <div class="col-12">
                 <p class="mt-4 mb-4">Or continue with: </p>
                 <div class="d-flex gap-2 gap-sm-3 justify-content-center">
@@ -134,7 +149,7 @@
                   </a>
                 </div>
               </div>
-            </div>
+            </div> -->
           </div>
         </div>
       </div>
@@ -143,3 +158,29 @@
 </section>
 </body>
 </html>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    function togglePasswordVisibility(inputId, iconId) {
+      let inputField = document.getElementById(inputId);
+      let iconElement = document.getElementById(iconId);
+    
+      if (inputField && iconElement) {
+        iconElement.addEventListener("click", () => {
+          let icon = iconElement.querySelector('i');
+          if (inputField.type === "password") {
+            inputField.type = "text";
+            icon.classList.remove("bi-eye-slash-fill");
+            icon.classList.add("bi-eye-fill");
+          } else {
+            inputField.type = "password";
+            icon.classList.remove("bi-eye-fill");
+            icon.classList.add("bi-eye-slash-fill");
+          }
+        });
+      }
+    }
+      togglePasswordVisibility('password', 'passEye');
+      togglePasswordVisibility('confirm-password', 'conpassEye');
+  });
+</script>

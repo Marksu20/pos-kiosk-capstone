@@ -102,15 +102,22 @@
             <form action="/login" method="POST">
               <div class="row gy-3 overflow-hidden">
                 <div class="col-12">
-                  <div class="form-floating mb-3">
+                  <div class="mb-3">
+                    <label for="email">Email</label>
                     <input type="email" class="form-control" name="email" id="email" placeholder="name@example.com" value="<%= typeof email !== 'undefined' ? email : '' %>" required>
-                    <label for="email" class="form-label">Email</label>
                   </div>
                 </div>
                 <div class="col-12">
-                  <div class="form-floating mb-3">
-                    <input type="password" class="form-control" name="password" id="password" value="<%= typeof password !== 'undefined' ? password : '' %>" placeholder="Password" required>
-                    <label for="password" class="form-label">Password</label>
+                  <div class="mb-3">
+                    <label for="password">Password</label>
+                    <div class="input-group mb-3">
+                      <input type="password" class="form-control" name="password" id="password" value="<%= typeof password !== 'undefined' ? password : '' %>" placeholder="Password" required>
+                      <span class="input-group-text" id="passEye">
+                        <a class="pe-auto link-success" href="javascript:void(0);">
+                          <i id="js-eyeicon" class="js-password bi bi-eye-slash-fill"></i>
+                        </a>
+                      </span>
+                    </div>
                   </div>
                 </div>
                 <div class="col-12">
@@ -129,7 +136,7 @@
                 </div>
               </div>
             </div>
-            <div class="row">
+            <!-- <div class="row">
               <div class="col-12">
                 <p class="mt-4 mb-4">Or continue with:</p>
                 <div class="d-flex gap-2 gap-sm-3 justify-content-center">
@@ -140,7 +147,7 @@
                   </a>
                 </div>
               </div>
-            </div>
+            </div> -->
           </div>
         </div>
       </div>
@@ -176,3 +183,32 @@
     </div>
   </div>
 </div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    function togglePasswordVisibility(inputId, iconId) {
+      let inputField = document.getElementById(inputId);
+      let iconElement = document.getElementById(iconId);
+    
+      // Check if the elements exist before proceeding
+      if (inputField && iconElement) {
+        // Attach event listener to the <a> or <span>, not <i>
+        iconElement.addEventListener("click", () => {
+          let icon = iconElement.querySelector('i');
+          if (inputField.type === "password") {
+            inputField.type = "text";
+            icon.classList.remove("bi-eye-slash-fill");
+            icon.classList.add("bi-eye-fill");
+          } else {
+            inputField.type = "password";
+            icon.classList.remove("bi-eye-fill");
+            icon.classList.add("bi-eye-slash-fill");
+          }
+        });
+      }
+    }
+  
+    // Corrected ID for input field
+    togglePasswordVisibility('password', 'passEye');
+  });
+</script>
