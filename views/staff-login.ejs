@@ -142,6 +142,32 @@
 </body>
 </html>
 
+<div class="modal fade" id="forgotPassword" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+      <div class="card ">
+        <div class="card-header text-center">
+          <h5 class="card-title">Change Password</h5>
+        </div>
+        <div class="card-body text-center">
+          <p class="card-text">
+            Enter your email address and we'll send you an instructions to change your password
+          </p>
+          <form action="/staff-forgot-password" method="POST">
+            <div class="input-group flex-nowrap mb-3">
+              <input type="email" name="email" class="form-control" placeholder="Email input" aria-describedby="addon-wrapping" required>
+            </div>
+            <button type="submit" class="btn btn-outline-primary">Send</button>
+          </form>
+        </div>
+        <div class="card-footer text-muted">
+          <button type="button" class="btn btn-secondary text-start" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
 document.addEventListener('DOMContentLoaded', () => {
   function togglePasswordVisibility(inputId, iconId) {

@@ -305,6 +305,74 @@ router.post('/forgot-password', async (req, res) => {
   }
 });
 
+router.post('/staff-forgot-password', async (req, res) => {
+  const { email } = req.body;
+
+  try {
+
+    const user = await User.findOne({ emailAddress: email });
+    if (!user) {
+      req.flash('error_msg', 'User does not exist!');
+      return res.redirect('/staff-login');
+    }
+
+    // Generate a reset token
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    user.resetPasswordToken = resetToken;
+    user.resetPasswordExpires = Date.now() + 3600000; // 1 hour expiration
+    await user.save();
+
+    //https://kokapos.onrender.com
+    // Send email with reset link
+    const resetUrl = `http://localhost:5000/reset-password/${resetToken}`;
+    const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+            user: process.env.EMAIL_USER,
+            pass: process.env.EMAIL_PASS
+        }
+    });
+
+    const mailOptions = {
+      to: user.emailAddress,
+      from: process.env.EMAIL_USER,
+      subject: 'Password Reset Request',
+      html: `<!DOCTYPE html>
+      <html lang="en">
+      <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Password Reset</title>
+      </head>
+      <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; text-align: center; background-color: #f4f4f4;">
+          <div style="background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);">
+              <h1 style="font-size: 24px; color: #333; margin-bottom: 20px;">Password Reset</h1>
+              <p style="margin-bottom: 20px;">Seems like you forgot your password for <strong>KOKA POS</strong>. If this is true, click below to reset your password.</p>
+              
+              <a href="${resetUrl}" style="display: inline-block; background-color: #007bff; color: white; text-decoration: none; padding: 12px 20px; border-radius: 5px; font-weight: bold; font-size: 16px; margin-bottom: 20px;">Reset My Password</a>
+              
+              <p style="color: #666; font-size: 14px; margin-top: 20px;">If you did not request a password reset, you can safely ignore this email.</p>
+          </div>
+      </body>
+      </html>`
+    };
+    
+    
+
+    transporter.sendMail(mailOptions, (err) => {
+      if (err) {
+        req.flash('error_msg', 'Error sending email.');
+      } else {
+        req.flash('success_msg', 'Message sent successfully, check your inbox.');
+      }
+      return res.redirect('/staff-login');
+    });
+  } catch (error) {
+    req.flash('error_msg', 'Server error. Please try again.');
+    return res.redirect('/staff-login');
+  }
+});
+
 router.post('/reset-password/:token', async (req, res) => {
   const { token } = req.params;
   const { newPassword, confirmPassword } = req.body;
@@ -338,14 +406,14 @@ router.post('/reset-password/:token', async (req, res) => {
     // Set the new hashed password
     user.password = hashedPassword;
     user.resetPasswordToken = undefined;
-    user.resetPasswordExpires = Date.now() + 60 * 1000;
+    user.resetPasswordExpires = Date.now() + 5000;
 
     await user.save();
 
     setTimeout(async () => {
-      user.resetPasswordExpires = undefined; // Remove expiration field after 60 seconds
+      user.resetPasswordExpires = undefined;
       await user.save();
-    }, 60 * 1000); // 60 seconds timer
+    }, 5000); // 60 seconds timer
 
     return res.render('reset-password', {
       token, 
