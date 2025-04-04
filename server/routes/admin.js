@@ -58,6 +58,8 @@ router.put('/pos/admin/stock/:id', isLoggedIn, adminController.updateStock);
 
 router.put('/pos/admin/discount/:id', isLoggedIn, adminController.updateDiscount);
 
+router.put('/pos/admin/account/:id', isLoggedIn, adminController.updateAccount);
+
 
 // DELETE
 router.delete('/pos/admin/delete-product/:id', isLoggedIn, adminController.deleteProduct);
