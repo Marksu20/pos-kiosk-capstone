@@ -111,13 +111,14 @@
             <h5>Order Number: <span id="orderNumber"></span></h5>
             <div id="receiptOrderSummary">
             </div>
-            <div id="orderType">Dine In</div>
+            <div id="orderType"></div>
             <h6>Total Amount: ₱<span id="receiptTotalAmount"></span></h6>
         </form>
         
         <p>Choose your payment method:</p>
         <button type="submit" class="btn btn-cashpay btn-outline-primary mb-2" data-bs-dismiss="modal">Cash (Pay at the counter)</button>
-        <button type="button" class="btn btn-onlinepay btn-outline-primary mb-2">Online Payment</button>
+        <!-- <button type="button" class="btn btn-onlinepay btn-outline-primary mb-2">Online Payment</button> -->
+        <div id="paypal-button-container"></div>
       </div>
 
       <div class="modal-footer">
@@ -147,6 +148,8 @@
   </div>
 </div>
 
+<script src="https://www.paypal.com/sdk/js?client-id=AaHUI1oBcYpmEbVfxI8-1fIz4a6TCCvdCQOJjXB12xvNSBUi4MVbZ8r5wanc_j4QE6uNspi_zogTIA5g&currency=PHP"></script>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>  
   let orderItems = JSON.parse(localStorage.getItem('orderItems')) || [];
@@ -165,6 +168,72 @@
         console.log(`${productName} added to order!`);
       });
     });
+
+    paypal.Buttons({
+      createOrder: async function (data, actions) {
+        const rawAmount = document.querySelector('.total-amount').innerText;
+        const cleanAmount = rawAmount.replace(/[^\d.]/g, '');
+
+        const response = await fetch('/create-paypal-order', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            amount: cleanAmount,
+            accountId: "<%= accountId %>"
+          }),
+        })
+
+        const orderData = await response.json();
+        return orderData.id;
+      },
+
+      onApprove: async function (data, actions) {
+      const response = await fetch('/capture-paypal-order', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          orderID: data.orderID,
+          customerName: document.getElementById('customer-name').value,
+          totalAmount: document.querySelector('.total-amount').innerText,
+          orderType: document.querySelector('.form-select').value,
+          orderItems: JSON.parse(localStorage.getItem("orderItems")),
+          accountId: "<%= accountId %>",
+        }),
+      });
+
+      const result = await response.json();
+      if (result.success) {
+        alert('Payment Successful! Order placed.');
+
+        // Prepare the orderData object for the receipt
+        const orderData = {
+          orderNumber: result.orderNumber, // Ensure the server returns this
+          customerName: document.getElementById('customer-name').value,
+          orderItems: JSON.parse(localStorage.getItem('orderItems')),
+          orderType: document.querySelector('.form-select').value,
+          totalAmount: parseFloat(document.querySelector('.total-amount').innerText.replace(/[^\d.]/g, '')),
+          paymentMethod: 'PayPal',
+        };
+
+        // Display the receipt modal
+        displayReceipt(orderData);
+
+        // Clear the order summary and localStorage
+        localStorage.removeItem('orderItems');
+      } else {
+        alert('Something went wrong with the payment.');
+      }
+    },
+
+    onError: function (err) {
+      console.error('PayPal Checkout onError', err);
+      alert('An error occurred during the transaction. Please try again.');
+    },
+  }).render('#paypal-button-container');
   });
 
   function addToOrder(productId, productName, productPrice, productImage) {
@@ -441,6 +510,7 @@
       document.getElementById('receiptTotalAmount').textContent = '0.00'; 
     }	
 });
+  
   function displayReceipt(orderData) {
   const receiptContainer = document.querySelector('.receipt'); // Target the receipt container
 
@@ -544,6 +614,7 @@
     // Save the PDF
     doc.save('receipt.pdf');
   }
+
 </script>
 
 

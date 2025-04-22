@@ -11,4 +11,9 @@ router.post('/kiosk/orders/:accountId', kioskController.orders);
 
 router.get('/:accountId/kiosk/orders/generate-order-number', kioskController.generateOrderNumber);
 
+router.post('/create-paypal-order', kioskController.createPaypalOrder);
+
+router.post('/capture-paypal-order', kioskController.capturePaypalOrder);
+
+
 module.exports = router;

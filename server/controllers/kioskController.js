@@ -5,6 +5,30 @@ const Order = require('../models/Order');
 const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
 const { account } = require('./adminController');
+const axios = require('axios');
+
+const generateUniqueOrderNumber = async (accountId) => {
+  // Find the most recent order
+  const lastOrder = await Order.findOne({ user: accountId })
+    .sort({ createdAt: -1 })
+    .exec();
+
+  let newOrderNumber;
+
+  if (lastOrder) {
+    // Extract the numeric part of the order number
+    const lastOrderNumber = lastOrder.orderNumber;
+    const numericPart = parseInt(lastOrderNumber.replace(/\D/g, ''), 10); // Remove any non-digit characters
+
+    // Increment the numeric part
+    newOrderNumber = 'KOKA-' + (numericPart + 1).toString().padStart(4, '0'); // e.g., ORD1001
+  } else {
+    // If no order exists, start from 'ORD1001'
+    newOrderNumber = 'KOKA-0001';
+  }
+
+  return newOrderNumber;
+};
 
 // GET: kiosk
 exports.kiosk = async (req, res) => {
@@ -98,29 +122,6 @@ exports.allProducts = async (req, res) => {
 };
 
 exports.orders = async (req, res) => {
-  const generateUniqueOrderNumber = async (accountId) => {
-    // Find the most recent order
-    const lastOrder = await Order.findOne({ user: accountId })
-      .sort({ createdAt: -1 })
-      .exec();
-
-    let newOrderNumber;
-
-    if (lastOrder) {
-      // Extract the numeric part of the order number
-      const lastOrderNumber = lastOrder.orderNumber;
-      const numericPart = parseInt(lastOrderNumber.replace(/\D/g, ''), 10); // Remove any non-digit characters
-
-      // Increment the numeric part
-      newOrderNumber = 'KOKA-' + (numericPart + 1).toString().padStart(4, '0'); // e.g., ORD1001
-    } else {
-      // If no order exists, start from 'ORD1001'
-      newOrderNumber = 'KOKA-0001';
-    }
-
-    return newOrderNumber;
-  };
-
   try {
     const { accountId } = req.params;
     const { customerName, orderItems, orderType, totalAmount, status, paymentMethod } = req.body;
@@ -176,7 +177,7 @@ exports.orders = async (req, res) => {
       await product.save();
     }
 
-    const countQuery = { status: 'Waiting', user: accountId };
+    const countQuery = ({ status: 'Waiting', user: accountId });
     const count = await Order.countDocuments(countQuery);
 
     await newOrder.save();
@@ -207,7 +208,7 @@ exports.generateOrderNumber = async (req, res) => {
 
     let newOrderNumber;
     if (lastOrder) {
-      // Extract the numeric part of the order number
+      // E xtract the numeric part of the order number
       const lastOrderNumber = lastOrder.orderNumber;
       const numericPart = parseInt(lastOrderNumber.replace(/\D/g, ''), 10); // Remove any non-digit characters
 
@@ -225,6 +226,125 @@ exports.generateOrderNumber = async (req, res) => {
     res.status(500).json({ success: false, message: 'Failed to generate order number.' });
   }
 };
+
+exports.createPaypalOrder = async (req, res) => {
+  const { orderID, customerName, totalAmount, orderType, orderItems, accountId } = req.body;
+
+  try {
+    const auth = await axios({
+      method: 'post',
+      url: `${process.env.PAYPAL_API}/v1/oauth2/token`,
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      auth: {
+        username: process.env.PAYPAL_CLIENT_ID,
+        password: process.env.PAYPAL_CLIENT_SECRET,
+      },
+      data: 'grant_type=client_credentials',
+    });
+
+    const accessToken = auth.data.access_token;
+
+    const order = await axios.post(
+      `${process.env.PAYPAL_API}/v2/checkout/orders`,
+      {
+        intent: 'CAPTURE',
+        purchase_units: [
+          {
+            amount: {
+              currency_code: 'PHP',
+              value: req.body.amount,
+            },
+          },
+        ],
+        application_context: {
+          brand_name: 'Koka Kiosk',
+          return_url: 'http://localhost:5000/kiosk/thank-you', // ✅ Update to your landing page
+          cancel_url: `http://localhost:5000/${accountId}/kiosk`, // ✅ Or whatever page you want
+          user_action: 'PAY_NOW',
+          shipping_preference: 'NO_SHIPPING',
+        }
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+
+    res.json({ id: order.data.id });
+  } catch (err) {
+    console.error('PayPal create error:', err.response?.data || err.message);
+    res.status(500).json({ error: 'Failed to create PayPal order' });
+  }
+};
+
+exports.capturePaypalOrder = async (req, res) => {
+  const { orderID, customerName, totalAmount, orderType, orderItems, accountId } = req.body;
+
+  try {
+    // Get access token
+    const auth = await axios({
+      method: 'post',
+      url: 'https://api-m.sandbox.paypal.com/v1/oauth2/token',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      auth: {
+        username: process.env.PAYPAL_CLIENT_ID,
+        password: process.env.PAYPAL_CLIENT_SECRET,
+      },
+      data: 'grant_type=client_credentials',
+    });
+
+    const accessToken = auth.data.access_token;
+
+    // Capture order
+    const capture = await axios.post(
+      `https://api-m.sandbox.paypal.com/v2/checkout/orders/${orderID}/capture`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    );
+
+    // ✅ Now Save order in DB
+    const orderNumber = await generateUniqueOrderNumber(accountId);
+    const numericAmount = parseFloat(totalAmount.replace(/[^\d.-]/g, ''));
+
+    const newOrder = new Order({
+      user: accountId,
+      orderNumber,
+      customerName,
+      orderItems,
+      orderType,
+      totalAmount: numericAmount,
+      status: 'Waiting',
+      paymentMethod: 'PayPal'
+    });
+
+    for (let item of orderItems) {
+      const product = await Product.findOne({ _id: item.id, user: accountId });
+      product.sold += item.quantity;
+      product.quantity -= item.quantity;
+      await product.save();
+    }
+
+    await newOrder.save();
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Capture Error:', error.response?.data || error.message);
+    res.status(500).json({ success: false, message: 'Payment capture failed' });
+  }
+};
+
+
+
 
 
 
