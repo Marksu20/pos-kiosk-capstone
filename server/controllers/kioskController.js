@@ -282,7 +282,7 @@ exports.createPaypalOrder = async (req, res) => {
 };
 
 exports.capturePaypalOrder = async (req, res) => {
-  const { orderID, customerName, totalAmount, orderType, orderItems, accountId } = req.body;
+  const { orderID, customerName, totalAmount, orderType, orderItems, accountId, orderNumber } = req.body;
 
   try {
     // Get access token
@@ -336,7 +336,7 @@ exports.capturePaypalOrder = async (req, res) => {
 
     await newOrder.save();
 
-    res.json({ success: true });
+    res.json({ success: true, orderNumber: orderNumber, });
   } catch (error) {
     console.error('Capture Error:', error.response?.data || error.message);
     res.status(500).json({ success: false, message: 'Payment capture failed' });

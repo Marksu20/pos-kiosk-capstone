@@ -69,8 +69,8 @@
                       <input id="customer-name" type="text" class="customer-name form-control mb-3" placeholder="Customer Name" />
                       <div class="mb-4 pb-2">
                         <select class="form-select">
-                          <option selected>Dine In</option>
-                          <option value="1">Takeout</option>
+                          <option selected value="Dine In">Dine In</option>
+                          <option value="Takeout">Takeout</option>
                         </select>
                       </div>
                       <hr class="my-4">
@@ -118,7 +118,7 @@
         <p>Choose your payment method:</p>
         <button type="submit" class="btn btn-cashpay btn-outline-primary mb-2" data-bs-dismiss="modal">Cash (Pay at the counter)</button>
         <!-- <button type="button" class="btn btn-onlinepay btn-outline-primary mb-2">Online Payment</button> -->
-        <div id="paypal-button-container"></div>
+        <div id="paypal-button-container" data-bs-dismiss="modal"></div>
       </div>
 
       <div class="modal-footer">
@@ -142,7 +142,7 @@
       </div>
       <div class="modal-footer">  
         <button type="submit" class="btn btn-primary" id="download-pdf">Get PDF Receipt</button>
-        <button type="button" class="btn btn-secondary close-btn" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-secondary close-btn" data-bs-dismiss="modal" id="close-receipt-modal">Close</button>
       </div>
     </div>
   </div>
@@ -156,6 +156,12 @@
 
   document.addEventListener('DOMContentLoaded', () => {
     const addToOrderButtons = document.querySelectorAll('.add-to-order');
+    const closeReceiptButton = document.getElementById('close-receipt-modal');
+
+    closeReceiptButton.addEventListener('click', () => {
+      // Refresh the page when the close button is clicked
+      window.location.reload();
+    });
 
     addToOrderButtons.forEach(button => {
       button.addEventListener('click', (e) => {
@@ -174,6 +180,31 @@
         const rawAmount = document.querySelector('.total-amount').innerText;
         const cleanAmount = rawAmount.replace(/[^\d.]/g, '');
 
+        const accountId = document.getElementById('accountId').value;
+
+        let orderNumber = '';
+
+        try {
+          const orderNumberRes = await fetch(`/${accountId}/kiosk/orders/generate-order-number`, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          });
+          const orderNumberData = await orderNumberRes.json();
+          if (orderNumberData.success) {
+            orderNumber = orderNumberData.orderNumber;
+
+            sessionStorage.setItem('paypalOrderNumber', orderNumber);
+          } else {
+            alert('Failed to generate order number.');
+            throw new Error('Failed to generate order number.');
+          }
+        } catch (error) {
+          console.error('Error fetching order number:', error);
+          throw error; // Rethrow the error to prevent order creation
+        }
+
         const response = await fetch('/create-paypal-order', {
           method: 'POST',
           headers: {
@@ -190,43 +221,54 @@
       },
 
       onApprove: async function (data, actions) {
-      const response = await fetch('/capture-paypal-order', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          orderID: data.orderID,
-          customerName: document.getElementById('customer-name').value,
-          totalAmount: document.querySelector('.total-amount').innerText,
-          orderType: document.querySelector('.form-select').value,
-          orderItems: JSON.parse(localStorage.getItem("orderItems")),
-          accountId: "<%= accountId %>",
-        }),
-      });
+        const orderNumber = sessionStorage.getItem('paypalOrderNumber');
 
-      const result = await response.json();
-      if (result.success) {
-        alert('Payment Successful! Order placed.');
+        const response = await fetch('/capture-paypal-order', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            orderID: data.orderID,
+            customerName: document.getElementById('customer-name').value,
+            totalAmount: document.querySelector('.total-amount').innerText,
+            orderType: document.querySelector('.form-select').value,
+            orderItems: JSON.parse(localStorage.getItem("orderItems")),
+            accountId: "<%= accountId %>",
+            orderNumber: orderNumber,
+          }),
+        });
 
-        // Prepare the orderData object for the receipt
-        const orderData = {
-          orderNumber: result.orderNumber, // Ensure the server returns this
-          customerName: document.getElementById('customer-name').value,
-          orderItems: JSON.parse(localStorage.getItem('orderItems')),
-          orderType: document.querySelector('.form-select').value,
-          totalAmount: parseFloat(document.querySelector('.total-amount').innerText.replace(/[^\d.]/g, '')),
-          paymentMethod: 'PayPal',
-        };
+        const result = await response.json();
 
-        // Display the receipt modal
-        displayReceipt(orderData);
+        if (result.success) {
+          Swal.fire({
+            icon: 'success',
+            title: 'Payment Successful!',
+            text: 'Order placed successfully.',
+            confirmButtonText: 'OK!'
+          });
 
-        // Clear the order summary and localStorage
-        localStorage.removeItem('orderItems');
-      } else {
-        alert('Something went wrong with the payment.');
-      }
+          // Prepare the orderData object for the receipt
+          const orderData = {
+            orderNumber: result.orderNumber || orderNumber, // Ensure the server returns this
+            customerName: document.getElementById('customer-name').value,
+            orderItems: JSON.parse(localStorage.getItem('orderItems')),
+            orderType: document.querySelector('.form-select').value,
+            totalAmount: parseFloat(document.querySelector('.total-amount').innerText.replace(/[^\d.]/g, '')),
+            paymentMethod: 'PayPal',
+          };
+
+          displayReceipt(orderData);
+          localStorage.removeItem('orderItems');
+          sessionStorage.removeItem('paypalOrderNumber');
+        } else {
+          Swal.fire({
+            icon: 'error',
+            title: 'Payment Failed',
+            text: 'Something went wrong with the payment.',
+          });
+        }
     },
 
     onError: function (err) {
@@ -616,6 +658,7 @@
   }
 
 </script>
+
 
 
 
