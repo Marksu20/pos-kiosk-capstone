@@ -1,5 +1,5 @@
  <!-- main content -->
- <div class="container-fluid">
+<div class="container-fluid">
   <div class="row">
     <!-- sidebar -->
     <%- include('../partials/pos_sidebar.ejs') %>
@@ -39,12 +39,11 @@
         </li>
       </ul>
     <!-- queue -->
-    <div class="row tab-content" id="queueTabContent">
-
+    <div class="row tab-content overflow-auto" id="queueTabContent" style="max-height: 500px;">
       <!-------------------------------- waiting ------------------------------------------>
       <div class="col-12 col-xl-12 mb-4 mb-lg-0 tab-pane fade show active" id="waiting" role="tabpanel" aria-labelledby="waiting-tab">
         <div class="card">
-          <div class="card-header">
+          <div class="card-header sticky-top bg-light shadow-sm" style="z-index: 1020;">
             <input id="waiting-search" class="w-25 form-control form-control-dark" type="text" placeholder="Search Order No." aria-label="Search">
           </div>
           <div class="card-body">
@@ -103,7 +102,7 @@
       <!-------------------------------- in process ------------------------------------------>
       <div class="col-12 col-xl-12 mb-4 mb-lg-0 tab-pane fade" id="inProcess" role="tabpanel" aria-labelledby="in-process-tab">
         <div class="card">
-          <div class="card-header">
+          <div class="card-header sticky-top bg-light shadow-sm" style="z-index: 1020;">
             <input id="in-process-search" class="w-25 form-control form-control-dark" type="text" placeholder="Search Order No." aria-label="Search">
           </div>
           <div class="card-body">
@@ -162,7 +161,7 @@
       <!-------------------------------- to serve ------------------------------------------>
       <div class="col-12 col-xl-12 mb-4 mb-lg-0 tab-pane fade" id="toServe" role="tabpanel" aria-labelledby="to-serve-tab">
         <div class="card">
-          <div class="card-header">
+          <div class="card-header sticky-top bg-light shadow-sm" style="z-index: 1020;">
             <input id="to-serve-search" class="w-25 form-control form-control-dark" type="text" placeholder="Search Order No." aria-label="Search">
           </div>
           <div class="card-body">
