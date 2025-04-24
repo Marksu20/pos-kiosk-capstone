@@ -155,6 +155,12 @@
   let orderItems = JSON.parse(localStorage.getItem('orderItems')) || [];
 
   document.addEventListener('DOMContentLoaded', () => {
+    
+    localStorage.removeItem('orderItems');
+    orderItems = []; // Reset the orderItems array
+    updateOrderSummary(); // Clear the order summary UI
+    updateCartBadge(); // Reset the cart badge
+
     const addToOrderButtons = document.querySelectorAll('.add-to-order');
     const closeReceiptButton = document.getElementById('close-receipt-modal');
 
