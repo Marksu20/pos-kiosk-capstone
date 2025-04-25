@@ -381,6 +381,16 @@ document.getElementById('deleteOrderForm').addEventListener('submit', async func
 
 // modal order details
 document.addEventListener('DOMContentLoaded', function () {
+  const activeTab = localStorage.getItem('activeTab');
+    
+  if (activeTab) {
+    const tabButton = document.querySelector(`[data-bs-target="${activeTab}"]`);
+    if (tabButton) {
+      tabButton.click();
+    }
+    localStorage.removeItem('activeTab');
+  }
+
   const deleteOrderModal = document.getElementById('deleteOrderModal');
   const orderNumberElement = document.getElementById('modal-order-number');
   const customerNameElement = document.getElementById('modal-customer-name');
@@ -424,6 +434,7 @@ document.getElementById('discount').addEventListener('change', () => {
 // Handle save button click
 document.getElementById('saveOrderBtn').addEventListener('click', async () => {
   const orderId = document.getElementById('orderId').value;
+  const orderNumber = document.getElementById('orderNumber').value
   const discount = parseFloat(document.getElementById('discount').value) || 0;
   const totalAmount = parseFloat(document.getElementById('totalAmount').value);
   const status = document.getElementById('status').value;
@@ -461,8 +472,16 @@ document.getElementById('saveOrderBtn').addEventListener('click', async () => {
     const editOrderModal = bootstrap.Modal.getInstance(document.getElementById('editOrderModal'));
     editOrderModal.hide();
     
-    alert(data.message || 'Order updated successfully');
-    window.location.reload();
+    Swal.fire({
+      icon: 'success',
+      title: `${orderNumber}`,
+      text: `Order ${orderNumber} has been updated to 'In Process'`,
+      confirmButtonText: 'OK!'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        window.location.reload();
+      }
+    });
 
   } catch (error) {
     console.error('Full error details:', {
@@ -470,7 +489,11 @@ document.getElementById('saveOrderBtn').addEventListener('click', async () => {
       message: error.message,
       stack: error.stack
     });
-    alert(error.message || 'An error occurred while updating the order');
+    Swal.fire({
+      icon: 'error',
+      title: 'Updating Order Failed',
+      text: 'Something went wrong updating the order.',
+    });
   }
 });
 
@@ -480,7 +503,6 @@ document.querySelectorAll('.btn-to-serve').forEach(button => {
     const orderId = button.getAttribute('data-order-id');
 
     try {
-      // Send a request to update the order status to "Served"
       const response = await fetch(`/orders/${orderId}/to-serve`, {
         method: 'PUT',
         headers: {
@@ -492,27 +514,35 @@ document.querySelectorAll('.btn-to-serve').forEach(button => {
       if (response.ok) {
         const data = await response.json();
         const orderNumber = data.order.orderNumber;
-        const customerName = data.order.customerName;
 
-        alert(`Order #${orderNumber} for ${customerName} has been updated to 'To Serve'.`);
-        window.location.reload();
+        localStorage.setItem('activeTab', '#inProcess');
 
-        // Update the UI by moving the order to the "Served" tab
-        const row = button.closest('tr');
-        const toServeList = document.getElementById('to-serve-list');
-        
-        if (toServeList) {
-          // Append the row to the served list
-          toServeList.appendChild(row);
-          
-          // Change the status text to "Served"
-          row.querySelector('td:nth-child(8)').innerHTML = `<p class="text-success">To Serve</p>`;
-        } else {
-          console.error("To Serve list does not exist.");
-        }
+        Swal.fire({
+          icon: 'success',
+          title: `${orderNumber}`,
+          text: `Order has been updated to 'To Serve'`,
+          confirmButtonText: 'OK!'
+        }).then((result) => {
+          if (result.isConfirmed) {
+            const row = button.closest('tr');
+            const toServeList = document.getElementById('to-serve-list');
+
+            if (toServeList) {
+              toServeList.appendChild(row);
+
+              row.querySelector('td:nth-child(8)').innerHTML = `<p class="text-success">To Serve</p>`;
+            }
+
+            window.location.reload();
+          }
+        });
       } else {
         const errorData = await response.json();
-        alert(`Failed to update order: ${errorData.error}`);
+        Swal.fire({
+          icon: 'error',
+          title: 'Updating Order Failed',
+          text: 'Something went wrong updating the order.',
+        });
       }
     } catch (error) {
       console.error('Error:', error);
@@ -520,6 +550,25 @@ document.querySelectorAll('.btn-to-serve').forEach(button => {
     }
   });
 });
+
+</script>
+
+<script>
+  document.querySelectorAll('[data-bs-toggle="tab"]').forEach(tab => {
+    tab.addEventListener('shown.bs.tab', function (e) {
+      localStorage.setItem('activeTab', e.target.getAttribute('href'));
+    });
+  });
+
+  document.addEventListener('DOMContentLoaded', function () {
+    const activeTab = localStorage.getItem('activeTab');
+    if (activeTab) {
+      const tab = document.querySelector(`a[href="${activeTab}"]`);
+      if (tab) {
+        new bootstrap.Tab(tab).show();
+      }
+    }
+  });
 </script>
 
 <!-- search function -->
@@ -562,6 +611,9 @@ document.querySelectorAll('.btn-to-serve').forEach(button => {
     document.getElementById('ts-no-results').style.display = hasResults ? 'none' : 'block';
   })
 </script>
+
+
+
 
 
  
