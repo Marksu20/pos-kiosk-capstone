@@ -200,6 +200,28 @@ exports.order = async (req, res) => {
   }  
 }
 
+exports.markOrderAsDone = async (req, res) => {
+  try {
+    const orderId = req.params.id;
+
+    // Update the order's status to "Done"
+    const order = await Order.findByIdAndUpdate(
+      orderId,
+      { status: 'Done' },
+      { new: true }
+    );
+
+    if (!order) {
+      return res.status(404).json({ error: 'Order not found' });
+    }
+
+    res.status(200).json({ message: 'Order marked as done', order });
+  } catch (error) {
+    console.error('Error marking order as done:', error);
+    res.status(500).json({ error: 'Failed to mark order as done' });
+  }
+}
+
 exports.orderCount = async (req, res) => {
   try {
     const count = await Order.countDocuments({ 

@@ -18,11 +18,13 @@ router.get('/pos/check-quantities', isLoggedIn, posController.checkQuantities);
 
 router.post('/pos/confirm-payment', isLoggedIn, posController.confirmPayment);
 
-router.get('/orders/:id', isLoggedIn, checkRole(['admin', 'sub-admin', 'cashier']), posController.viewOrder);
+router.get('/orders/:id', isLoggedIn, checkRole(['admin', 'sub-admin', 'cashier']), isLoggedIn, posController.viewOrder);
 
-router.put('/orders/:id', isLoggedIn, checkRole(['admin', 'sub-admin', 'cashier']), posController.updateOrder);
+router.put('/orders/:id', isLoggedIn, checkRole(['admin', 'sub-admin', 'cashier']), isLoggedIn, posController.updateOrder);
 
 router.put('/orders/:id/to-serve', checkRole(['admin', 'sub-admin', 'cashier']), isLoggedIn, posController.toServe);
+
+router.put('/orders/:id/mark-done', checkRole(['admin', 'sub-admin', 'cashier']), isLoggedIn, posController.markOrderAsDone);
 
 // DELETE
 router.delete('/delete-order/:id', isLoggedIn, posController.deleteOrder)

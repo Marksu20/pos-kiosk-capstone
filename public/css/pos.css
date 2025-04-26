@@ -7,6 +7,9 @@ body{
 }
 .navbar{
   background-color: rgb(255, 255, 255);
+  position: sticky;
+  top: 0;
+  z-index: 1030;
 }
 .navbar-brand{
   font-family: "Rubik Mono One", monospace;
@@ -54,6 +57,23 @@ body{
       z-index: 999;
   }
 }
+
+.right-sidebar {
+  position: sticky;
+  top: 80px; /* Adjust this to match your navbar's height */
+  height: calc(100vh - 80px); /* Also subtract navbar height */
+  overflow-y: auto;
+  z-index: 1;
+}
+.sticky-search-nav {
+  position: sticky;
+  top: 80px; /* Adjust to match navbar height */
+  z-index: 10;
+  padding-top: 1rem;
+  padding-bottom: 0.5rem;
+}
+
+
 .sidebar .nav-link {
   color: #333;
 }

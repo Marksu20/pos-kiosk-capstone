@@ -178,6 +178,7 @@
                     <th scope="col">Created</th>
                     <th scope="col">Cashier</th>
                     <th scope="col">Status</th>
+                    <th scope="col">Action</th>
                   </tr>
                 </thead>
                   <% orders.forEach(order => { %>
@@ -197,6 +198,11 @@
                         <td><%= new Date(order.createdAt).toLocaleString() %></td>
                         <td><%= order.cashier %></td>
                         <td><p class="text-success"><%= order.status %></p></td>
+                        <td class="text-center">
+                          <button type="button" class="btn btn-sm btn-outline-success px-3 btn-done" data-order-id="<%= order._id %>">
+                            Done
+                          </button>
+                        </td>
                       </tr>
                     </tbody>
                     <% } %>
@@ -551,6 +557,57 @@ document.querySelectorAll('.btn-to-serve').forEach(button => {
   });
 });
 
+document.querySelectorAll('.btn-done').forEach(button => {
+  button.addEventListener('click', async () => {
+      const row = button.closest('tr'); // Get the row containing the button
+      const orderId = button.getAttribute('data-order-id'); // Get the order ID
+
+      try {
+        // Optionally, send a request to update the order status in the backend
+        const response = await fetch(`/orders/${orderId}/mark-done`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ status: 'Done' }) // Update the status to "Done"
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          const orderNumber = data.order.orderNumber;
+          
+          row.remove();
+
+          // Check if there are any remaining rows in the table
+          const toServeRows = document.querySelectorAll('.to-serve-row');
+          if (toServeRows.length === 0) {
+            document.getElementById('ts-no-results').style.display = 'block'; // Show "No results found" message
+          }
+          Swal.fire({
+            icon: 'success',
+            title: `Order ${orderNumber} Done!`,
+            text: 'The order has been Served',
+            confirmButtonText: 'OK'
+          });
+        } else {
+          const errorData = await response.json();
+          Swal.fire({
+            icon: 'error',
+            title: 'Failed to Mark as Done',
+            text: errorData.message || 'Something went wrong.',
+          });
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'An error occurred while marking the order as done.',
+        });
+      }
+    });
+})
+
 </script>
 
 <script>
@@ -594,10 +651,10 @@ document.querySelectorAll('.btn-to-serve').forEach(button => {
 
   document.getElementById('in-process-search').addEventListener('input', function () {
     const searchQuery = this.value.toLowerCase();
-    const inProcess = document.querySelectorAll('.in-process-row');
+    const inProcessRows = document.querySelectorAll('.in-process-row'); // Correct variable name
     let hasResults = false;
 
-    toServeRows.forEach(row => { 
+    inProcessRows.forEach(row => {
       const orderNumber = row.querySelector('td:nth-child(1)').textContent.toLowerCase();
       const customerName = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
 
@@ -608,8 +665,29 @@ document.querySelectorAll('.btn-to-serve').forEach(button => {
         row.style.display = 'none';
       }
     });
+
     document.getElementById('ts-no-results').style.display = hasResults ? 'none' : 'block';
-  })
+  });
+
+  document.getElementById('to-serve-search').addEventListener('input', function () {
+    const searchQuery = this.value.toLowerCase();
+    const toServeRows = document.querySelectorAll('.to-serve-row'); // Correct variable name
+    let hasResults = false;
+
+    toServeRows.forEach(row => {
+      const orderNumber = row.querySelector('td:nth-child(1)').textContent.toLowerCase();
+      const customerName = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
+
+      if (orderNumber.includes(searchQuery) || customerName.includes(searchQuery)) {
+        row.style.display = '';
+        hasResults = true;
+      } else {
+        row.style.display = 'none';
+      }
+    });
+
+    document.getElementById('ts-no-results').style.display = hasResults ? 'none' : 'block';
+  });
 </script>
 
 
