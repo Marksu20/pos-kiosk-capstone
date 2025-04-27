@@ -721,7 +721,9 @@ exports.deleteUser = async (req, res) => {
 // POST / ADD
 exports.newProduct = async (req, res) => {
   const { name, category, price, quantity, newCategory, categoryDescription, trackQuantity } = req.body;
-  const image = req.file ? `/uploads/${req.file.filename}` : '/img/cafe-latter.jpg';
+
+  const defaultImage = '/img/default-image.jpg';
+  const image = req.file ? `/uploads/${req.file.filename}` : defaultImage;
 
   try {
     let categoryID = category;

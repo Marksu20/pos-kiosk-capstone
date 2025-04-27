@@ -236,56 +236,55 @@
   }
 
    // HANDLE ADD TO ORDER
-   document.querySelectorAll('.add-to-order').forEach((button) => {
-  button.addEventListener('click', () => {
-    const product = {
-      id: button.getAttribute('data-id'),
-      name: button.getAttribute('data-name'),
-      price: parseFloat(button.getAttribute('data-price')),
-      quantity: 1, // default quantity for adding an order
-    };
+  document.querySelectorAll('.add-to-order').forEach((button) => {
+    button.addEventListener('click', () => {
+      const product = {
+        id: button.getAttribute('data-id'),
+        name: button.getAttribute('data-name'),
+        price: parseFloat(button.getAttribute('data-price')),
+        quantity: 1, // default quantity for adding an order
+      };
 
-    const productQuantityText = button.querySelector('strong')?.textContent; // Check if null/undefined
-    const productQuantity = productQuantityText ? parseInt(productQuantityText) : null;
+      const productQuantityText = button.querySelector('strong')?.textContent; // Check if null/undefined
+      const productQuantity = productQuantityText ? parseInt(productQuantityText) : null;
 
-    if (productQuantity === 0) {
-      // Use SweetAlert for confirmation
-      Swal.fire({
-        title: `${product.name} is out of stock`,
-        text: `Do you still want to add the ${product.name}?`,
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonColor: "#3085d6",
-        cancelButtonColor: "#d33",
-        confirmButtonText: "Add"
-      }).then((result) => {
-        if (result.isConfirmed) {
-          // Add the product to the order
-          addProductToOrder(product);
-          Swal.fire({
-            title: `'${product.name}' has been added.`,
-            icon: "success"
-          });
-        }
-      });
-    } else {
-      // Add the product to the order directly if quantity is not 0
-      addProductToOrder(product);
-    }
+      if (productQuantity === 0) {
+        // Use SweetAlert for confirmation
+        Swal.fire({
+          title: `${product.name} is out of stock`,
+          text: `Do you still want to add the ${product.name}?`,
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonColor: "#3085d6",
+          cancelButtonColor: "#d33",
+          confirmButtonText: "Add"
+        }).then((result) => {
+          if (result.isConfirmed) {
+            // Add the product to the order
+            addProductToOrder(product);
+            Swal.fire({
+              title: `'${product.name}' has been added.`,
+              icon: "success"
+            });
+          }
+        });
+      } else {
+        // Add the product to the order directly if quantity is not 0
+        addProductToOrder(product);
+      }
+    });
   });
-});
 
-// Function to add the product to the order
-function addProductToOrder(product) {
-  // Check if the product is already in the order
-  const existingProduct = order.find(item => item.id === product.id);
-  if (existingProduct) {
-    existingProduct.quantity += 1; // Increment quantity if product is already in the order
-  } else {
-    order.push(product); // Add new product to the order
+  // Function to add the product to the order
+  function addProductToOrder(product) {
+    const existingProduct = order.find(item => item.id === product.id);
+    if (existingProduct) {
+      existingProduct.quantity += 1; // Increment quantity if product is already in the order
+    } else {
+      order.push(product); // Add new product to the order
+    }
+    updateOrderSummary(); // Update the order summary
   }
-  updateOrderSummary(); // Update the order summary
-}
 
   // handle discount
   document.getElementById('discount').addEventListener('change', (event) => {
@@ -352,8 +351,8 @@ function addProductToOrder(product) {
   }
 }
 
-// Modify the confirm-order event listener to include quantity check
-document.getElementById('confirm-order').addEventListener('click', async () => {
+  // Modify the confirm-order event listener to include quantity check
+  document.getElementById('confirm-order').addEventListener('click', async () => {
     if (order.length === 0) {
       alert("Please select at least one product before confirming the order.");
       return;

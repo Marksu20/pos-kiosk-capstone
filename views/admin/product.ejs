@@ -61,19 +61,20 @@
                   <span class="input-group-text">.00</span>
                 </div>
 
-                <div class="form-check form-switch mb-3">
+                <div class="input-group mb-3">
+                  <input name="image" id="image" type="file" class="form-control">
+                </div>
+
+                <div class="form-check form-switch">
                   <input type="checkbox" class="form-check-input" id="trackQuantity" name="trackQuantity" value="on">
                   <label for="trackQuantity" class="form-check-label">Track Quantity</label>
                 </div>
 
                 <div class="mb-3" id="quantityField" style="display: none;">
-                  <label for="quantity" class="form-label">Quantity</label>
-                  <input name="quantity" id="quantity" type="number" class="form-control" min="1" step="1">
+                  <!-- <label for="quantity" class="form-label">Quantity</label> -->
+                  <input name="quantity" id="quantity" type="number" class="form-control" min="1" step="1" placeholder="Input quantity">
                 </div>
-        
-                <div class="input-group mb-3">
-                  <input name="image" id="image" type="file" class="form-control" required>
-                </div>
+
               </div>
 
               <!-- footer -->
