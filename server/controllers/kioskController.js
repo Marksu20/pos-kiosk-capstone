@@ -139,12 +139,12 @@ exports.orders = async (req, res) => {
       if (!product) {
         return res.status(404).json({ 
           success: false, 
-          message: `Product ${item.id} not found or not authorized.` 
+          message: `Product ${item.id} not found or not authorized.`
         });
       }
 
       // Check if quantity would go negative
-      if (product.quantity - item.quantity < 0) {
+      if (product.quantity - item.quantity < 0 && product.quantity !== null) {
         return res.status(400).json({ 
           success: false, 
           message: `Not enough stock for ${product.name}! \nAvailable: ${product.quantity} \nRequested: ${item.quantity}` 
@@ -191,6 +191,36 @@ exports.orders = async (req, res) => {
   } catch (error) {
     console.error('Error saving order:', error);
     res.status(500).json({ success: false, message: 'Failed to save order.' });
+  }
+};
+
+exports.validateOrderQuantities = async (req, res) => {
+  const { accountId, orderItems } = req.body;
+
+  try {
+    for (let item of orderItems) {
+      let productQuery = { _id: item.id, user: accountId };
+      const product = await Product.findOne(productQuery);
+
+      if (!product) {
+        return res.status(404).json({
+          success: false,
+          message: `Product ${item.id} not found or not authorized.`,
+        });
+      }
+
+      if (product.quantity - item.quantity < 0 && product.quantity !== null) {
+        return res.status(400).json({
+          success: false,
+          message: `Not enough stock for ${product.name}! \nAvailable: ${product.quantity} \nRequested: ${item.quantity}`,
+        });
+      }
+    }
+
+    res.json({ success: true, message: 'All quantities are valid.' });
+  } catch (error) {
+    console.error('Error validating quantities:', error);
+    res.status(500).json({ success: false, message: 'Server error during validation.' });
   }
 };
 
