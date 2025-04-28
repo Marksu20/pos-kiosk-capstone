@@ -57,23 +57,27 @@ body{
       z-index: 999;
   }
 }
-
-.right-sidebar {
+body.modal-open .right-sidebar {
+  position: static; /* Disable sticky behavior */
+  overflow-y: visible; /* Allow normal scrolling */
+}
+/* .modal {
+  z-index: 1050 !important;
+} */
+/* .right-sidebar {
   position: sticky;
-  top: 80px; /* Adjust this to match your navbar's height */
-  height: calc(100vh - 80px); /* Also subtract navbar height */
+  top: 80px; 
+  height: calc(100vh - 80px);
   overflow-y: auto;
-  z-index: 1;
+  z-index: 0;
 }
 .sticky-search-nav {
   position: sticky;
-  top: 80px; /* Adjust to match navbar height */
+  top: 80px; 
   z-index: 10;
   padding-top: 1rem;
   padding-bottom: 0.5rem;
-}
-
-
+} */
 .sidebar .nav-link {
   color: #333;
 }
@@ -107,7 +111,7 @@ body{
 .product-container{
   box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;
 }
-.modal-dialog {
+/* .modal-dialog {
   background-color: #f8f9fa;
   display: flex;
   justify-content: center;
@@ -118,7 +122,7 @@ body{
   flex-direction: column;
   align-items: center;
   text-align: center;
-}
+} */
 .receipt {
   width: 350px;
   background: white;
