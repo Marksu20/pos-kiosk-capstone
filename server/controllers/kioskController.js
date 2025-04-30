@@ -369,8 +369,23 @@ exports.capturePaypalOrder = async (req, res) => {
 
     for (let item of orderItems) {
       const product = await Product.findOne({ _id: item.id, user: accountId });
-      product.sold += item.quantity;
-      product.quantity -= item.quantity;
+
+      if (!product) {
+        return res.status(404).json({
+          success: false,
+          message: `Product ${item.id} not found or not authorized.`,
+        });
+      }
+
+      // If product quantity is null, skip deduction
+      if (product.quantity === null) {
+        product.sold += item.quantity; // Update sold count
+      } else {
+        // Deduct quantity if it is not null and sufficient stock is available
+        product.sold += item.quantity;
+        product.quantity -= item.quantity;
+      }
+
       await product.save();
     }
 
