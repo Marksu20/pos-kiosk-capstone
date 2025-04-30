@@ -143,11 +143,15 @@ exports.orders = async (req, res) => {
         });
       }
 
+      if (product.quantity === null) {
+        continue;
+      }
+
       // Check if quantity would go negative
-      if (product.quantity - item.quantity < 0 && product.quantity !== null) {
-        return res.status(400).json({ 
-          success: false, 
-          message: `Not enough stock for ${product.name}! \nAvailable: ${product.quantity} \nRequested: ${item.quantity}` 
+      if (product.quantity === 0 || product.quantity - item.quantity < 0) {
+        return res.status(400).json({
+          success: false,
+          message: `Not enough stock for ${product.name}! \nAvailable: ${product.quantity} \nRequested: ${item.quantity}`,
         });
       }
     }
@@ -171,9 +175,12 @@ exports.orders = async (req, res) => {
       const product = await Product.findOne(productQuery);
 
       // We already checked product exists and has sufficient quantity
-      product.sold += item.quantity;
-      product.quantity -= item.quantity;
-      
+      // Only deduct quantity if it is not null
+      if (product.quantity !== null) {
+        product.sold += item.quantity;
+        product.quantity -= item.quantity;
+      }
+
       await product.save();
     }
 
@@ -187,7 +194,6 @@ exports.orders = async (req, res) => {
       message: 'Order saved successfully.',
       count: count // Return the number of in-process orders
     });
-
   } catch (error) {
     console.error('Error saving order:', error);
     res.status(500).json({ success: false, message: 'Failed to save order.' });
@@ -209,10 +215,14 @@ exports.validateOrderQuantities = async (req, res) => {
         });
       }
 
-      if (product.quantity - item.quantity < 0 && product.quantity !== null) {
+      if (product.quantity === null) {
+        continue; // Skip if quantity is null (unlimited stock)
+      }
+
+      if (product.quantity === 0 || product.quantity - item.quantity < 0) {
         return res.status(400).json({
           success: false,
-          message: `Not enough stock for ${product.name}! \nAvailable: ${product.quantity} \nRequested: ${item.quantity}`,
+          message: `Available: ${product.quantity} \nRequested: ${item.quantity}`,
         });
       }
     }

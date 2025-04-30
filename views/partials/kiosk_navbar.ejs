@@ -456,16 +456,22 @@
       const data = await response.json();
 
       if (!data.success) {
-        alert(data.message);
-        return;
-      }
+      Swal.fire({
+        icon: 'error',
+        title: 'Insufficient Stock',
+        text: data.message,
+        confirmButtonColor: "#d33",
+        confirmButtonText: "OK",
+      });
+      return;
+    }
+
     } catch (error) {
       console.error('Error validating quantities:', error);
       alert('An error occurred while validating quantities.');
       return;
     }
 
-    // Proceed with generating order number and showing payment options
     let orderNumber;
     try {
       const response = await fetch(`/${accountId}/kiosk/orders/generate-order-number`, {
@@ -528,85 +534,84 @@
   
   // cashpay
   document.querySelector('.btn-cashpay').addEventListener('click', function() {
-  const orderNumber = document.getElementById('orderNumber').textContent;
-  const customerName = document.getElementById('customerName').textContent;
-  const orderType = document.getElementById('orderType').textContent;
-  const totalAmount = parseFloat(document.getElementById('receiptTotalAmount').textContent);
+    const orderNumber = document.getElementById('orderNumber').textContent;
+    const customerName = document.getElementById('customerName').textContent;
+    const orderType = document.getElementById('orderType').textContent;
+    const totalAmount = parseFloat(document.getElementById('receiptTotalAmount').textContent);
 
-  const orderData = {
-    orderNumber: orderNumber,
-    customerName: customerName,
-    orderItems: orderItems,
-    orderType: orderType,
-    totalAmount: totalAmount,
-    paymentMethod: 'Cash',
-    status: 'Waiting'
-  };
+    const orderData = {
+      orderNumber: orderNumber,
+      customerName: customerName,
+      orderItems: orderItems,
+      orderType: orderType,
+      totalAmount: totalAmount,
+      paymentMethod: 'Cash',
+      status: 'Waiting'
+    };
 
-  async function submitOrder() {
-    try {
-      const accountId = document.getElementById('accountId').value;
-      const response = await fetch(`/kiosk/orders/${accountId}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(orderData)
-      });
+    async function submitOrder() {
+      try {
+        const accountId = document.getElementById('accountId').value;
+        const response = await fetch(`/kiosk/orders/${accountId}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(orderData)
+        });
 
-      const data = await response.json();
+        const data = await response.json();
 
-      if (response.ok) {
-        if (data.success) {
-          Swal.fire({
-            title: `Order ${orderNumber} Added!`,
-            icon: 'success',
-            confirmButtonText: 'OK'
-          }).then((result) => {
-            if (result.isConfirmed) {
-              clearOrderSummary();
-              displayReceipt(orderData);
+        if (response.ok) {
+          if (data.success) {
+            Swal.fire({
+              title: `Order ${orderNumber} Added!`,
+              icon: 'success',
+              confirmButtonText: 'OK'
+            }).then((result) => {
+              if (result.isConfirmed) {
+                clearOrderSummary();
+                displayReceipt(orderData);
 
-              const receiptModal = document.getElementById('receiptModal'); // Example ID, adjust if different
-              if (receiptModal) {
-                receiptModal.addEventListener('hidden.bs.modal', function() {
-                  location.reload();
-                }, { once: true }); // "once" means the event listener auto removes after firing
-              } else {
-                // If no modal, fallback reload after short delay
-                setTimeout(() => location.reload(), 10000);
+                const receiptModal = document.getElementById('receiptModal'); // Example ID, adjust if different
+                if (receiptModal) {
+                  receiptModal.addEventListener('hidden.bs.modal', function() {
+                    location.reload();
+                  }, { once: true }); // "once" means the event listener auto removes after firing
+                } else {
+                  // If no modal, fallback reload after short delay
+                  setTimeout(() => location.reload(), 10000);
+                }
               }
-            }
-          });
+            });
+          } else {
+            alert(data.message || 'Failed to save the order. Please try again.');
+          }
         } else {
-          alert(data.message || 'Failed to save the order. Please try again.');
+          alert(data.message || 'Error: Unable to process the order.');
         }
-      } else {
-        alert(data.message || 'Error: Unable to process the order.');
+      } catch (error) {
+        console.error('Error submitting order:', error);
+        alert('An unexpected error occurred. Please try again.');
       }
-    } catch (error) {
-      console.error('Error submitting order:', error);
-      alert('An unexpected error occurred. Please try again.');
     }
-  }
 
-  submitOrder();
+    submitOrder();
 
-  function clearOrderSummary() {
-    orderItems = [];
-    localStorage.removeItem('orderItems');
-    const orderSummaryContainer = document.querySelector('.order-summary');
-    orderSummaryContainer.innerHTML = '';
-    document.querySelector('input.customer-name').value = '';
-    document.querySelector('.form-select').selectedIndex = 0;
-    document.querySelector('.total-amount').textContent = '₱0.00';
-    updateOrderSummary();
-    updateCartBadge();
-    document.getElementById('orderNumber').textContent = '';
-    document.getElementById('customerName').textContent = '';
-    document.getElementById('orderType').textContent = '';
-    document.getElementById('receiptTotalAmount').textContent = '0.00';
-  }
-});
-
+    function clearOrderSummary() {
+      orderItems = [];
+      localStorage.removeItem('orderItems');
+      const orderSummaryContainer = document.querySelector('.order-summary');
+      orderSummaryContainer.innerHTML = '';
+      document.querySelector('input.customer-name').value = '';
+      document.querySelector('.form-select').selectedIndex = 0;
+      document.querySelector('.total-amount').textContent = '₱0.00';
+      updateOrderSummary();
+      updateCartBadge();
+      document.getElementById('orderNumber').textContent = '';
+      document.getElementById('customerName').textContent = '';
+      document.getElementById('orderType').textContent = '';
+      document.getElementById('receiptTotalAmount').textContent = '0.00';
+    }
+  });
   
   function displayReceipt(orderData) {
     const receiptContainer = document.querySelector('.receipt'); // Target the receipt container
