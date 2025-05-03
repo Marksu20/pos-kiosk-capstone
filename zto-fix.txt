@@ -1,9 +1,33 @@
-restriction of access to each routes on each roles - 12/28 ✔
-put the name of the user who proccess the order in the receipt - 12/28 ✔
-show all the users in the account 1/19 ✔
-add a search function to users 1/19 ✔
-add a edit and delete user function 1/28 ✔
-make the edit delete functionable 2/4 ✔
-notification function to kiosk when adding a order ✔ 2/21
-fix kiosk
-limiting add to order based on quantity
+ADMIN 
+    Dashboard
+    Products {
+        add 
+        edit
+        delete 
+        search(name, price)
+        track quantity(optional)
+    }
+    Categories {
+        add
+        edit
+        delete
+        search(name)
+    }
+    Receipts {
+        view
+        print
+        delete
+        search(order no, customer)
+    }
+    Discounts {
+        add
+        edit
+        delete
+        search(name, value)
+    }
+    Account{
+        filter users(cashier, sub-admin)
+        create another user(cashier, sub-admin)
+    }
+
+fix admin create user validations

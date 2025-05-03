@@ -190,9 +190,7 @@
       let inputField = document.getElementById(inputId);
       let iconElement = document.getElementById(iconId);
     
-      // Check if the elements exist before proceeding
       if (inputField && iconElement) {
-        // Attach event listener to the <a> or <span>, not <i>
         iconElement.addEventListener("click", () => {
           let icon = iconElement.querySelector('i');
           if (inputField.type === "password") {
@@ -208,7 +206,6 @@
       }
     }
   
-    // Corrected ID for input field
     togglePasswordVisibility('password', 'passEye');
   });
 </script>

@@ -1,6 +1,5 @@
 <div class="container-fluid w-75">
   <div class="row">
-
     <%- include('../partials/admin_sidebar.ejs') %>
 
     <main class="col-md-9 ml-sm-5 col-lg-10 px-md-4 py-4">
@@ -23,12 +22,22 @@
 
               <div class="input-group mb-3">
                 <span class="input-group-text">Password</span>
-                <input id="password" name="password" type="text" class="form-control" required>
+                <input id="password" name="password" type="password" class="form-control" required>
+                <span class="input-group-text" id="passEye">
+                  <a class="pe-auto link-success" href="javascript:void(0);">
+                    <i class="bi bi-eye-slash-fill"></i>
+                  </a>
+                </span>
               </div>
 
               <div class="input-group mb-3">
                 <span class="input-group-text">Confirm Password</span>
-                <input id="confirm-password" name="confirmPassword" type="text" class="form-control" required>
+                <input id="confirm-password" name="confirmPassword" type="password" class="form-control" required>
+                <span class="input-group-text" id="confirmPassEye">
+                  <a class="pe-auto link-success" href="javascript:void(0);">
+                    <i class="bi bi-eye-slash-fill"></i>
+                  </a>
+                </span>
               </div>
   
               <div class="input-group mb-3">
@@ -52,4 +61,31 @@
     </main>
   </div>
 </div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    function togglePasswordVisibility(inputId, iconId) {
+      let inputField = document.getElementById(inputId);
+      let iconElement = document.getElementById(iconId);
+    
+      if (inputField && iconElement) {
+        iconElement.addEventListener("click", () => {
+          let icon = iconElement.querySelector('i');
+          if (inputField.type === "password") {
+            inputField.type = "text";
+            icon.classList.remove("bi-eye-slash-fill");
+            icon.classList.add("bi-eye-fill");
+          } else {
+            inputField.type = "password";
+            icon.classList.remove("bi-eye-fill");
+            icon.classList.add("bi-eye-slash-fill");
+          }
+        });
+      }
+    }
+  
+    togglePasswordVisibility('password', 'passEye');
+    togglePasswordVisibility('confirm-password', 'confirmPassEye');
+  });
+</script>
 
