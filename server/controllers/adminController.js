@@ -829,26 +829,39 @@ exports.newDiscount = async (req, res) => {
 exports.createUser = async (req, res) => {
   const { emailAddress, displayName, password, confirmPassword, role } = req.body;
 
+  // Validation: Check for missing fields
   if (!emailAddress || !displayName || !password || !confirmPassword || !role) {
-    return res.status(400).send('All fields are required.');
+    return res.status(400).json({
+      success: false,
+      message: 'All fields are required.',
+    });
   }
 
+  // Validation: Check if passwords match
   if (password !== confirmPassword) {
-    return res.status(400).send('Passwords do not match.');
+    return res.status(400).json({
+      success: false,
+      message: 'Passwords do not match.',
+    });
   }
 
   try {
+    // Check if the email or username already exists
     const existingUser = await User.findOne({
       $or: [
         { emailAddress: { $regex: `^${emailAddress}$`, $options: 'i' } },
-        { displayName: { $regex: `^${displayName}$`, $options: 'i' } }
-      ]
+        { displayName: { $regex: `^${displayName}$`, $options: 'i' } },
+      ],
     });
 
     if (existingUser) {
-      return res.status(400).send('Email or username already in use');
+      return res.status(400).json({
+        success: false,
+        message: 'Email or username already in use.',
+      });
     }
 
+    // Hash the password and create the new user
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const newUser = new User({
@@ -857,14 +870,21 @@ exports.createUser = async (req, res) => {
       password: hashedPassword,
       role,
       companyName: req.user.companyName,
-      adminId: req.user._id
+      adminId: req.user._id,
     });
 
     await newUser.save();
 
-    res.redirect('/pos/admin/account');
+    // Return success response
+    return res.status(200).json({
+      success: true,
+      message: 'User created successfully!',
+    });
   } catch (error) {
-    console.error('error creating user:', error);
-    res.status(500).send('an errror occured while creating the user.');
+    console.error('Error creating user:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'An error occurred while creating the user.',
+    });
   }
 };
