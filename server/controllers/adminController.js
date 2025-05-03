@@ -43,66 +43,59 @@ exports.dashboard = async (req, res) => {
     title: "Dashboard",
     description: "koka POS web application"
   }
-  
-  const { startDate, endDate } = req.query;
 
-  async function calculateDashboardMetrics() { 
+  const { startDate, endDate, today } = req.query;
+
+  async function calculateDashboardMetrics(filter) {
     try {
-      const filter = {};
-
-      if(startDate && endDate) {
-        filter.createdAt = {
-          $gte: new Date(startDate),
-          $lte: new Date(endDate)
-        };
-      }
-
       const totalCustomers = await Receipt.distinct('customerName', filter).countDocuments();
       const totalSales = await Receipt.countDocuments(filter);
-  
+
       const totalRevenue = await Receipt.aggregate([
         { $match: filter },
-        {
-          $group: {
-            _id: null,
-            total: {$sum : "$totalAmount"}
-          }
-        }
+        { $group: { _id: null, total: { $sum: "$totalAmount" } } }
       ]);
-  
+
       const totalExpenses = await Stock.aggregate([
         { $match: filter },
+        { $group: { _id: null, total: { $sum: "$cost" } } }
+      ]);
+
+      const totalQuantitySold = await Receipt.aggregate([
+        { $match: filter }, // filter includes today's date range
+        { $unwind: "$orderItems" },
         {
           $group: {
             _id: null,
-            total: { $sum: "$cost" }
+            total: { $sum: "$orderItems.quantity" }
           }
         }
-      ]);
+      ]);      
 
-      const totalQuantitySold = await Product.aggregate([
-        { $match: filter },
+      const topSellingProducts = await Receipt.aggregate([
+        { $match: filter }, // filter has today's date range
+        { $unwind: "$orderItems" },
         {
           $group: {
-            _id: null,
-            total: { $sum: "$sold" }
-          }
-        }
-      ]);
-
-      const topSellingProducts = await Product.aggregate([
-        { $match: filter },
-        {
-          $project : {
-            name: 1,
-            sold: 1,
-            totalRevenue: { $multiply: ["$sold", "$price"]}
+            _id: "$orderItems.name",
+            totalSold: { $sum: "$orderItems.quantity" },
+            totalRevenue: {
+              $sum: { $multiply: ["$orderItems.quantity", "$orderItems.price"] }
+            }
           }
         },
-        { $sort: { sold: -1 } },
+        {
+          $project: {
+            name: "$_id",
+            totalSold: 1,
+            totalRevenue: 1,
+            _id: 0
+          }
+        },
+        { $sort: { totalSold: -1 } },
         { $limit: 10 }
-      ]);
-      
+      ]);      
+
       return {
         totalCustomers: totalCustomers || 0,
         totalSales: totalSales || 0,
@@ -111,7 +104,7 @@ exports.dashboard = async (req, res) => {
         totalQuantitySold: totalQuantitySold.length > 0 ? totalQuantitySold[0].total : 0,
         topSellingProducts
       };
-  
+
     } catch (error) {
       console.error('Error calculating dashboard metrics:', error);
       return {
@@ -126,14 +119,34 @@ exports.dashboard = async (req, res) => {
   }
 
   try {
-    const recentOrders = await Receipt.find({
-      $or: [
-        { user: req.user._id },
-        { user: req.user.adminId }
-      ]
-     }).sort({ createdAt: -1}).limit(10);
-    const metrics = await calculateDashboardMetrics();
+    const filter = {};
 
+    if (today === 'true') {
+      const start = new Date();
+      start.setHours(0, 0, 0, 0);
+      const end = new Date();
+      end.setHours(23, 59, 59, 999);
+      filter.createdAt = { $gte: start, $lte: end };
+    } else if (startDate && endDate) {
+      filter.createdAt = {
+        $gte: new Date(startDate),
+        $lte: new Date(endDate)
+      };
+    }
+
+    const recentOrders = await Receipt.find({
+      $and: [
+        {
+          $or: [
+            { user: req.user._id },
+            { user: req.user.adminId }
+          ]
+        },
+        filter.createdAt ? { createdAt: filter.createdAt } : {}
+      ]
+    }).sort({ createdAt: -1 }).limit(10);
+
+    const metrics = await calculateDashboardMetrics(filter);
 
     res.render('admin/dashboard', {
       username: req.user.firstName,

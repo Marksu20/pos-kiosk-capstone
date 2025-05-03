@@ -1,10 +1,7 @@
-<!-- main content -->
 <div class="container-fluid">
   <div class="row">
-    <!-- sidebar -->
     <%- include('../partials/admin_sidebar.ejs') %>
     
-    <!-- main -->
     <main class="col-md-9 ml-sm-auto col-lg-10 px-md-4 py-4">
       <nav aria-label="breadcrumb">
           <ol class="breadcrumb">
@@ -13,29 +10,12 @@
           </ol>
       </nav>
       <h1 class="h2">Dashboard</h1>
-      <!-- <div class="row my-1">
-        <div class="col-12 col-md-6 col-lg-3 mb-4 mb-lg-4">
-          <form method="GET" action="/pos/admin/dashboard">
-            <div class="form-group">
-              <label for="startDate">Start Date</label>
-              <input type="date" id="startDate" name="startDate" class="form-control" required>
-            </div>
-            <div class="form-group">
-              <label for="endDate">End Date</label>
-              <input type="date" id="endDate" name="endDate" class="form-control" required>
-            </div>
-            <button type="submit" class="btn btn-primary">Filter</button>
-          </form>          
-        </div>
-      </div> -->
       <div class="row my-4">
         <div class="col-12 col-md-6 col-lg-3 mb-4 mb-lg-4">
           <div class="card">
             <h5 class="card-header">Total Procuct Sold</h5>
             <div class="card-body">
               <h5 class="card-title"><%= totalQuantitySold %></h5>
-              <!-- <p class="card-text">This month</p> -->
-              <!-- <p class="card-text text-success">4.6% increase since last month</p> -->
             </div>
           </div>
         </div>
@@ -44,8 +24,6 @@
             <h5 class="card-header">Total Customer</h5>
             <div class="card-body">
               <h5 class="card-title"><%= totalCustomers %></h5>
-              <!-- <p class="card-text">This Month</p> -->
-              <!-- <p class="card-text text-success">18.2% increase since last month</p> -->
             </div>
           </div>
         </div>
@@ -54,21 +32,9 @@
             <h5 class="card-header">Total Revenue</h5>
             <div class="card-body">
               <h5 class="card-title">₱ <%= totalRevenue %></h5>
-              <!-- <p class="card-text">This month</p> -->
-              <!-- <p class="card-text text-danger">2.6% decrease since last month</p> -->
             </div>
           </div>
         </div>
-        <!-- <div class="col-12 col-md-6 col-lg-3 mb-4 mb-lg-4">
-          <div class="card">
-            <h5 class="card-header">Total Expenses</h5>
-            <div class="card-body">
-              <h5 class="card-title">₱ <%= totalExpenses %></h5>
-              <!-- <p class="card-text">This month</p> -->
-              <!-- <p class="card-text text-danger">2.6% decrease since last month</p> -->
-            <!-- </div>
-          </div>
-        </div> -->
       </div>
 
       <div class="row">
@@ -82,6 +48,7 @@
           </div>
         </div>
 
+        <!-- FILTER DATE -->
         <div class="col-12 col-md-12 col-lg-3 mb-4 mb-lg-4">
           <form method="GET" action="/pos/admin/dashboard">
             <div class="form-group">
@@ -93,6 +60,7 @@
               <input type="date" id="endDate" name="endDate" class="form-control mb-2" required>
             </div>
             <button type="submit" class="btn btn-primary">Filter</button>
+            <a href="/pos/admin/dashboard?today=true" class="btn btn-primary">Today</a>
           </form>          
         </div>
 
@@ -145,8 +113,6 @@
 </div>
 <script>
   document.addEventListener('DOMContentLoaded', function () {
-    console.log("Chart script loaded");
-    
   const ctx = document.getElementById('bestSellersChart').getContext('2d');
   const chartData = {
     labels: <%- JSON.stringify(topSellingProducts.map(p => p.name)) %>,
@@ -172,6 +138,8 @@
   });
 });
 </script>
+
+
 
 
 
