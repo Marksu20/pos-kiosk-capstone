@@ -27,7 +27,12 @@ ADMIN
     }
     Account{
         filter users(cashier, sub-admin)
-        create another user(cashier, sub-admin)
+        create another user(cashier, sub-admin) {
+             add
+             edit
+             delete
+        }
+        link/ qr code of kiosk
+        account email and Company Name
     }
-
-fix admin create user validations
+fix Dashboard filter
