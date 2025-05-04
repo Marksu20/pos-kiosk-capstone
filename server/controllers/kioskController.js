@@ -322,6 +322,12 @@ exports.createPaypalOrder = async (req, res) => {
 
     res.json({ id: order.data.id });
 
+    console.log('1BASE_URL:', process.env.BASE_URL);
+    console.log('1accountId:', accountId);
+    console.log('1return_url:', `${process.env.BASE_URL}/kiosk/thank-you`);
+    console.log('1cancel_url:', `${process.env.BASE_URL}/${accountId}/kiosk`);
+
+
   } catch (err) {
     console.error('PayPal create error:', err.response?.data || err.message);
     res.status(500).json({ error: 'Failed to create PayPal order', details: err.response?.data || err.message });
