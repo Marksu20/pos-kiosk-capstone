@@ -272,6 +272,11 @@ exports.generateOrderNumber = async (req, res) => {
 exports.createPaypalOrder = async (req, res) => {
   const { orderID, customerName, totalAmount, orderType, orderItems, accountId } = req.body;
 
+  console.log('BASE_URL:', process.env.BASE_URL);
+  console.log('accountId:', accountId);
+  console.log('return_url:', `${process.env.BASE_URL}/kiosk/thank-you`);
+  console.log('cancel_url:', `${process.env.BASE_URL}/${accountId}/kiosk`);
+
   try {
     const auth = await axios({
       method: 'post',
@@ -317,8 +322,6 @@ exports.createPaypalOrder = async (req, res) => {
     );
 
     res.json({ id: order.data.id });
-    console.log("Return URL:", `${process.env.BASE_URL}/kiosk/thank-you`);
-    console.log("Cancel URL:", `${process.env.BASE_URL}/${accountId}/kiosk`);
 
   } catch (err) {
     console.error('PayPal create error:', err.response?.data || err.message);
