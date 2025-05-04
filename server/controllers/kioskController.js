@@ -328,7 +328,7 @@ exports.capturePaypalOrder = async (req, res) => {
     // Get access token
     const auth = await axios({
       method: 'post',
-      url: 'https://api-m.sandbox.paypal.com/v1/oauth2/token',
+      url: `${process.env.PAYPAL_API}/v1/oauth2/token`,
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
       },
@@ -343,7 +343,7 @@ exports.capturePaypalOrder = async (req, res) => {
 
     // Capture order
     const capture = await axios.post(
-      `https://api-m.sandbox.paypal.com/v2/checkout/orders/${orderID}/capture`,
+      `${process.env.PAYPAL_API}/v2/checkout/orders/${orderID}/capture`,
       {},
       {
         headers: {
@@ -397,8 +397,6 @@ exports.capturePaypalOrder = async (req, res) => {
     res.status(500).json({ success: false, message: 'Payment capture failed' });
   }
 };
-
-
 
 
 
