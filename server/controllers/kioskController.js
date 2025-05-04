@@ -317,12 +317,12 @@ exports.createPaypalOrder = async (req, res) => {
     res.json({ id: order.data.id });
   } catch (err) {
     console.error('PayPal create error:', err.response?.data || err.message);
-    res.status(500).json({ error: 'Failed to create PayPal order' });
+    res.status(500).json({ error: 'Failed to create PayPal order', details: err.response?.data || err.message });
   }
 };
 
 exports.capturePaypalOrder = async (req, res) => {
-  const { orderID, customerName, totalAmount, orderType, orderItems, accountId, orderNumber } = req.body;
+  const { orderID, customerName, totalAmount, orderType, orderItems, accountId } = req.body;
 
   try {
     // Get access token

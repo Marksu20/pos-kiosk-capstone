@@ -148,6 +148,8 @@
   </div>
 </div>
 
+<script src="https://www.paypal.com/sdk/js?client-id=ASvM6Dyqhf_dTRmkCYNko5JYUBEGdF6NkjlAilgQmjW1QdolwFn2OkWsEabmpE42SpiY2YaW4KtsNRj9&currency=PHP&debug=true"></script>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>  
   let orderItems = JSON.parse(localStorage.getItem('orderItems')) || [];
@@ -183,7 +185,6 @@
       createOrder: async function (data, actions) {
         const rawAmount = document.querySelector('.total-amount').innerText;
         const cleanAmount = rawAmount.replace(/[^\d.]/g, '');
-
         const accountId = document.getElementById('accountId').value;
 
         let orderNumber = '';
@@ -221,6 +222,10 @@
         })
 
         const orderData = await response.json();
+        if (!orderData.id) {
+          console.error('PayPal order creation failed:', orderData);
+          throw new Error('Invalid PayPal order response');
+        }
         return orderData.id;
       },
 
@@ -270,8 +275,9 @@
           Swal.fire({
             icon: 'error',
             title: 'Payment Failed',
-            text: 'Something went wrong with the payment.',
+            text: result.message || 'Something went wrong with the payment.',
           });
+          console.error("Capture error response:", result);
         }
     },
 
