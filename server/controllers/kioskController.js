@@ -1,3 +1,4 @@
+require('dotenv').config();
 const User = require('../models/User');
 const Product = require('../models/Product');
 const Category = require('../models/Category');
@@ -6,6 +7,7 @@ const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
 const { account } = require('./adminController');
 const axios = require('axios');
+const { config } = require('dotenv');
 
 const generateUniqueOrderNumber = async (accountId) => {
   // Find the most recent order
@@ -315,6 +317,9 @@ exports.createPaypalOrder = async (req, res) => {
     );
 
     res.json({ id: order.data.id });
+    console.log("Return URL:", `${process.env.BASE_URL}/kiosk/thank-you`);
+    console.log("Cancel URL:", `${process.env.BASE_URL}/${accountId}/kiosk`);
+
   } catch (err) {
     console.error('PayPal create error:', err.response?.data || err.message);
     res.status(500).json({ error: 'Failed to create PayPal order', details: err.response?.data || err.message });
