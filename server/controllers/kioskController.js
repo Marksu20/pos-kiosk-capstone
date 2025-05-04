@@ -300,8 +300,8 @@ exports.createPaypalOrder = async (req, res) => {
         ],
         application_context: {
           brand_name: 'Koka Kiosk',
-          return_url: 'http://localhost:5000/kiosk/thank-you', // ✅ Update to your landing page
-          cancel_url: `http://localhost:5000/${accountId}/kiosk`, // ✅ Or whatever page you want
+          return_url: `${process.env.BASE_URL}/kiosk/thank-you`, // ✅ Update to your landing page
+          cancel_url: `${process.env.BASE_URL}/${accountId}/kiosk`, // ✅ Or whatever page you want
           user_action: 'PAY_NOW',
           shipping_preference: 'NO_SHIPPING',
         }
