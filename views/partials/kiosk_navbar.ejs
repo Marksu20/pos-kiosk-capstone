@@ -217,13 +217,18 @@
           },
           body: JSON.stringify({
             amount: cleanAmount,
-            accountId: "<%= accountId %>"
+            accountId: accountId
           }),
         })
 
         const orderData = await response.json();
+        if (!order.data || !order.data.id) {
+          return res.status(500).json({ error: 'No order ID returned from PayPal' });
+        }
+
         if (!orderData.id) {
           console.error('PayPal order creation failed:', orderData);
+          console.log('PayPal create order response:', orderData);
           throw new Error('Invalid PayPal order response');
         }
         return orderData.id;
