@@ -271,15 +271,10 @@ exports.generateOrderNumber = async (req, res) => {
 exports.createPaypalOrder = async (req, res) => {
   const { orderID, customerName, totalAmount, orderType, orderItems, accountId } = req.body;
 
-  console.log('BASE_URL:', process.env.BASE_URL);
-  console.log('accountId:', accountId);
-  console.log('return_url:', `${process.env.BASE_URL}/kiosk/thank-you`);
-  console.log('cancel_url:', `${process.env.BASE_URL}/${accountId}/kiosk`);
-
   try {
     const auth = await axios({
       method: 'post',
-      url: `https://api-m.paypal.com/v1/oauth2/token`,
+      url: `${process.env.PAYPAL_API}/v1/oauth2/token`,
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
       },
@@ -293,7 +288,7 @@ exports.createPaypalOrder = async (req, res) => {
     const accessToken = auth.data.access_token;
 
     const order = await axios.post(
-      `https://api-m.paypal.com/v2/checkout/orders`,
+      `${process.env.PAYPAL_API}/v2/checkout/orders`,
       {
         intent: 'CAPTURE',
         purchase_units: [
@@ -306,8 +301,8 @@ exports.createPaypalOrder = async (req, res) => {
         ],
         application_context: {
           brand_name: 'Koka Kiosk',
-          return_url: `https://koka-pos.onrender.com/kiosk/thank-you`, // ✅ Update to your landing page
-          cancel_url: `https://koka-pos.onrender.com/${accountId}/kiosk`, // ✅ Or whatever page you want
+          return_url: `${process.env.BASE_URL}/kiosk/thank-you`, // ✅ Update to your landing page
+          cancel_url: `${process.env.BASE_URL}/${accountId}/kiosk`, // ✅ Or whatever page you want
           user_action: 'PAY_NOW',
           shipping_preference: 'NO_SHIPPING',
         }
@@ -322,12 +317,6 @@ exports.createPaypalOrder = async (req, res) => {
 
     res.json({ id: order.data.id });
 
-    console.log('1BASE_URL:', process.env.BASE_URL);
-    console.log('1accountId:', accountId);
-    console.log('1return_url:', `${process.env.BASE_URL}/kiosk/thank-you`);
-    console.log('1cancel_url:', `${process.env.BASE_URL}/${accountId}/kiosk`);
-
-
   } catch (err) {
     console.error('PayPal create error:', err.response?.data || err.message);
     res.status(500).json({ error: 'Failed to create PayPal order', details: err.response?.data || err.message });
@@ -341,7 +330,7 @@ exports.capturePaypalOrder = async (req, res) => {
     // Get access token
     const auth = await axios({
       method: 'post',
-      url: `ttps://api-m.paypal.com/v1/oauth2/token`,
+      url: `${process.env.PAYPAL_API}/v1/oauth2/token`,
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
       },
@@ -356,7 +345,7 @@ exports.capturePaypalOrder = async (req, res) => {
 
     // Capture order
     const capture = await axios.post(
-      `ttps://api-m.paypal.com/v2/checkout/orders/${orderID}/capture`,
+      `${process.env.PAYPAL_API}/v2/checkout/orders/${orderID}/capture`,
       {},
       {
         headers: {
