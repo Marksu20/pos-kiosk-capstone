@@ -1,4 +1,3 @@
-require('dotenv').config();
 const User = require('../models/User');
 const Product = require('../models/Product');
 const Category = require('../models/Category');
@@ -280,7 +279,7 @@ exports.createPaypalOrder = async (req, res) => {
   try {
     const auth = await axios({
       method: 'post',
-      url: `${process.env.PAYPAL_API}/v1/oauth2/token`,
+      url: `https://api-m.paypal.com/v1/oauth2/token`,
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
       },
@@ -294,7 +293,7 @@ exports.createPaypalOrder = async (req, res) => {
     const accessToken = auth.data.access_token;
 
     const order = await axios.post(
-      `${process.env.PAYPAL_API}/v2/checkout/orders`,
+      `https://api-m.paypal.com/v2/checkout/orders`,
       {
         intent: 'CAPTURE',
         purchase_units: [
@@ -307,8 +306,8 @@ exports.createPaypalOrder = async (req, res) => {
         ],
         application_context: {
           brand_name: 'Koka Kiosk',
-          return_url: `${process.env.BASE_URL}/kiosk/thank-you`, // ✅ Update to your landing page
-          cancel_url: `${process.env.BASE_URL}/${accountId}/kiosk`, // ✅ Or whatever page you want
+          return_url: `https://koka-pos.onrender.com/kiosk/thank-you`, // ✅ Update to your landing page
+          cancel_url: `https://koka-pos.onrender.com/${accountId}/kiosk`, // ✅ Or whatever page you want
           user_action: 'PAY_NOW',
           shipping_preference: 'NO_SHIPPING',
         }
@@ -336,7 +335,7 @@ exports.capturePaypalOrder = async (req, res) => {
     // Get access token
     const auth = await axios({
       method: 'post',
-      url: `${process.env.PAYPAL_API}/v1/oauth2/token`,
+      url: `ttps://api-m.paypal.com/v1/oauth2/token`,
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
       },
@@ -351,7 +350,7 @@ exports.capturePaypalOrder = async (req, res) => {
 
     // Capture order
     const capture = await axios.post(
-      `${process.env.PAYPAL_API}/v2/checkout/orders/${orderID}/capture`,
+      `ttps://api-m.paypal.com/v2/checkout/orders/${orderID}/capture`,
       {},
       {
         headers: {
