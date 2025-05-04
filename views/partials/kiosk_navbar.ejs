@@ -222,8 +222,8 @@
         })
 
         const orderData = await response.json();
-        if (!order.data || !order.data.id) {
-          return res.status(500).json({ error: 'No order ID returned from PayPal' });
+        if (!orderData || !orderData.id) {
+          throw new Error('No order ID returned from PayPal');
         }
 
         if (!orderData.id) {
