@@ -256,7 +256,7 @@ router.post('/forgot-password', async (req, res) => {
 
     //https://kokapos.onrender.com
     // Send email with reset link
-    const resetUrl = `http://localhost:5000/reset-password/${resetToken}`;
+    const resetUrl = `${process.env.BASE_URL}/reset-password/${resetToken}`;
     const transporter = nodemailer.createTransport({
         service: 'gmail',
         auth: {
@@ -324,7 +324,7 @@ router.post('/staff-forgot-password', async (req, res) => {
 
     //https://kokapos.onrender.com
     // Send email with reset link
-    const resetUrl = `http://localhost:5000/reset-password/${resetToken}`;
+    const resetUrl = `${process.env.BASE_URL}/reset-password/${resetToken}`;
     const transporter = nodemailer.createTransport({
         service: 'gmail',
         auth: {
