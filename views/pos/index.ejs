@@ -396,7 +396,7 @@
       changeEl.value = `₱ ${change.toFixed(2)}`;
     }
 
-    document.getElementById('confirm-payment').addEventListener('click', async (event) => {
+  document.getElementById('confirm-payment').addEventListener('click', async (event) => {
       event.preventDefault();
 
       document.getElementById('order-items').value = JSON.stringify(order);
@@ -420,7 +420,6 @@
       order.length = 0;
       updateOrderSummary();
     });
-
 
   // Handle payment cancellation (going back to the order enlistment)
   document.querySelector('#paymentModal .btn-secondary').addEventListener('click', () => {

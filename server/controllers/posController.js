@@ -292,73 +292,80 @@ exports.receipt = async (req, res) => {
 exports.confirmPayment = async (req, res) => {
   try {
     const { customerName, orderItems, TotalAmount, orderType, discount, Subtotal } = req.body;
-
-    // Parse the orderItems JSON string to an array
     const orderItemsArray = JSON.parse(orderItems);
 
-    // Get the last receipt to find the last order number
-    const lastReceipt = await Receipt.findOne({}, {}, { sort: { 'createdAt': -1 } });
+    // Retry logic for saving receipt with unique orderNumber
+    let maxRetries = 5;
+    let attempt = 0;
+    let saved = false;
 
-    // Generate the next order number
-    let newOrderNumber = '0001';
-    if (lastReceipt) {
-      var lastOrderNumber = parseInt(lastReceipt.orderNumber.replace('#', ''), 10); // Get the numeric part
-      
-      // Check if the parsed number is valid
-      if (!isNaN(lastOrderNumber)) {
-        newOrderNumber = `${String(lastOrderNumber + 1).padStart(4, '0')}`; // Increment and format
-      }
-      // newOrderNumber = `#${String(lastOrderNumber + 1).padStart(4, '0')}`; // Increment and format
-  
-    }
+    while (!saved && attempt < maxRetries) {
+      attempt++;
 
-    const newReceipt = new Receipt({
-      user: req.user._id,
-      cashier: req.user.displayName || req.user.companyName,
-      orderNumber: newOrderNumber, // Set the order number 
-      customerName: customerName || `Guest ${String(lastOrderNumber + 1).padStart(4, '0')}`,
-      orderItems: orderItemsArray,
-      orderType,
-      totalAmount: TotalAmount,
-      discount,
-      subTotal: Subtotal,
-      companyName: req.user.companyName,
-    });
+      // Get the last receipt to find the last order number
+      const lastReceipt = await Receipt.findOne({}, {}, { sort: { 'createdAt': -1 } });
 
-    // Iterate over orderItems and update product's sold count and quantity in stock
-    for (let item of orderItemsArray) {
-      const product = await Product.findById(item.id);
-
-      if (!product) {
-        continue; // Skip if product is not found
-      }
-
-      // Increment the sold count by the ordered quantity
-      product.sold += item.quantity;
-
-      // Ensure quantity doesn't go below 0
-      if (product.quantity > 0) {
-        product.quantity -= item.quantity;
-        // Ensure the quantity doesn't become negative
-        if (product.quantity < 0) {
-          product.quantity = 0;
-          product.sold = 0;
+      let lastOrderNumber = 0;
+      if (lastReceipt) {
+        const match = lastReceipt.orderNumber.match(/\d+/);
+        if (match) {
+          lastOrderNumber = parseInt(match[0], 10);
         }
       }
 
-      // Save the updated product
-      await product.save();
+      const newOrderNumber = `${String(lastOrderNumber + 1).padStart(4, '0')}`;
+
+      const newReceipt = new Receipt({
+        user: req.user._id,
+        cashier: req.user.displayName || req.user.companyName,
+        orderNumber: newOrderNumber,
+        customerName: customerName || `Guest ${newOrderNumber}`,
+        orderItems: orderItemsArray,
+        orderType,
+        totalAmount: TotalAmount,
+        discount,
+        subTotal: Subtotal,
+        companyName: req.user.companyName,
+      });
+
+      // Update products
+      for (let item of orderItemsArray) {
+        const product = await Product.findById(item.id);
+        if (!product) continue;
+
+        product.sold += item.quantity;
+        product.quantity = Math.max(0, product.quantity - item.quantity);
+        if (product.quantity === 0 && product.sold > item.quantity) {
+          product.sold = 0; // Reset sold if over-decremented (safety check)
+        }
+        await product.save();
+      }
+
+      try {
+        await newReceipt.save();
+        saved = true; // success
+      } catch (error) {
+        if (error.code === 11000 && error.keyPattern?.orderNumber) {
+          // Duplicate order number — try again
+          continue;
+        } else {
+          throw error; // Other errors
+        }
+      }
     }
 
-    // Save the order to the database
-    await newReceipt.save();
+    if (saved) {
+      res.redirect('/pos');
+    } else {
+      res.status(500).send('Could not generate unique order number after multiple attempts.');
+    }
 
-    res.redirect('/pos');
   } catch (error) {
     console.error('Error saving order:', error);
     res.status(500).send('Server Error');
   }
-}
+};
+
 
 exports.updateOrder = async (req, res) => {
   try {
