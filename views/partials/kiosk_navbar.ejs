@@ -217,7 +217,8 @@
           },
           body: JSON.stringify({
             amount: cleanAmount,
-            accountId: accountId
+            accountId: accountId,
+            orderItems: JSON.parse(localStorage.getItem("orderItems")),
           }),
         })
 
