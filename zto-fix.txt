@@ -35,4 +35,4 @@ ADMIN
         link/ qr code of kiosk
         account email and Company Name
     }
-show items in paypal invoice
+Dashboard data should have ownership
