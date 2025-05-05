@@ -9,7 +9,6 @@ const receiptSchema = new Schema({
   orderNumber: { 
     type: String,
     required: true,
-    unique: false 
   },
   customerName: { 
     type: String, 
