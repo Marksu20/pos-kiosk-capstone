@@ -245,18 +245,14 @@ exports.generateOrderNumber = async (req, res) => {
 
     let newOrderNumber;
     if (lastOrder) {
-      // E xtract the numeric part of the order number
       const lastOrderNumber = lastOrder.orderNumber;
       const numericPart = parseInt(lastOrderNumber.replace(/\D/g, ''), 10); // Remove any non-digit characters
 
-      // Increment the numeric part
-      newOrderNumber = 'KOKA-' + (numericPart + 1).toString().padStart(4, '0'); // e.g., ORD1001
+      newOrderNumber = (numericPart + 1).toString().padStart(4, '0'); // e.g., ORD1001
     } else {
-      // If no order exists, start from 'ORD1001'
-      newOrderNumber = 'KOKA-0001';
+      newOrderNumber = '0001';
     }
 
-    // Send the new order number as the response
     res.json({ success: true, orderNumber: newOrderNumber });
   } catch (error) {
     console.error('Error generating order number:', error);
