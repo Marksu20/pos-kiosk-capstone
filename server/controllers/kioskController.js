@@ -295,8 +295,22 @@ exports.createPaypalOrder = async (req, res) => {
           {
             amount: {
               currency_code: 'PHP',
-              value: req.body.amount,
+              value: (req.body.amount).toFixed(2),
+              breakdown: {
+                item_total: {
+                  currency_code: 'PHP',
+                  value: (req.body.amount).toFixed(2),
+                },
+              },
             },
+            items: orderItems.map(item => ({
+              name: item.name,
+              unit_amount: {
+                currency_code: 'PHP',
+                value: (item.price).toFixed(2),
+              },
+              quantity: item.quantity.toString(),
+            })),
           },
         ],
         application_context: {

@@ -35,4 +35,4 @@ ADMIN
         link/ qr code of kiosk
         account email and Company Name
     }
-fix Dashboard filter
+show items in paypal invoice
