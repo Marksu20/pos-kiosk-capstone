@@ -334,10 +334,15 @@ exports.confirmPayment = async (req, res) => {
         if (!product) continue;
 
         product.sold += item.quantity;
-        product.quantity = Math.max(0, product.quantity - item.quantity);
-        if (product.quantity === 0 && product.sold > item.quantity) {
-          product.sold = 0; // Reset sold if over-decremented (safety check)
+
+        if (product.quantity !== null) {
+          product.quantity = Math.max(0, product.quantity - item.quantity);
+
+          if (product.quantity === 0 && product.sold > item.quantity) {
+            product.sold = 0;
+          }
         }
+
         await product.save();
       }
 
@@ -365,7 +370,6 @@ exports.confirmPayment = async (req, res) => {
     res.status(500).send('Server Error');
   }
 };
-
 
 exports.updateOrder = async (req, res) => {
   try {
