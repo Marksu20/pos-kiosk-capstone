@@ -295,11 +295,11 @@ exports.createPaypalOrder = async (req, res) => {
           {
             amount: {
               currency_code: 'PHP',
-              value: totalAmount.toFixed(2),
+              value: req.body.amount,
               breakdown: {
                 item_total: {
                   currency_code: 'PHP',
-                  value: totalAmount.toFixed(2),
+                  value: req.body.amount,
                 },
               },
             },
