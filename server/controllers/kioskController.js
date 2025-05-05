@@ -9,27 +9,22 @@ const axios = require('axios');
 const { config } = require('dotenv');
 
 const generateUniqueOrderNumber = async (accountId) => {
-  // Only look for kiosk-generated orders (KOKA-prefixed)
-  const lastKioskOrder = await Order.findOne({
-    user: accountId,
-    orderNumber: { $regex: /^KOKA-/ }
-  })
+  const lastOrder = await Order.findOne({ user: accountId })
     .sort({ createdAt: -1 })
     .exec();
 
   let newOrderNumber;
 
-  if (lastKioskOrder) {
-    const lastOrderNumber = lastKioskOrder.orderNumber;
-    const numericPart = parseInt(lastOrderNumber.replace(/\D/g, ''), 10);
-
-    newOrderNumber = 'KOKA-' + (numericPart + 1).toString().padStart(4, '0');
+  if (lastOrder) {
+    const numericPart = parseInt(lastOrder.orderNumber.replace(/\D/g, ''), 10);
+    newOrderNumber = String(numericPart + 1).padStart(4, '0');
   } else {
-    newOrderNumber = 'KOKA-0001';
+    newOrderNumber = '0001';
   }
 
   return newOrderNumber;
 };
+
 
 
 // GET: kiosk
