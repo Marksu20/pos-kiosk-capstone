@@ -44,6 +44,13 @@ exports.dashboard = async (req, res) => {
     description: "koka POS web application"
   }
 
+  const userFilter = {
+    $or: [
+      { user: req.user._id },
+      { user: req.user.adminId }
+    ]
+  };
+
   const { startDate, endDate, today } = req.query;
 
   async function calculateDashboardMetrics(filter) {
@@ -119,7 +126,9 @@ exports.dashboard = async (req, res) => {
   }
 
   try {
-    const filter = {};
+    const filter = {
+      ...userFilter
+    };
 
     if (today === 'true') {
       const start = new Date();
@@ -134,17 +143,9 @@ exports.dashboard = async (req, res) => {
       };
     }
 
-    const recentOrders = await Receipt.find({
-      $and: [
-        {
-          $or: [
-            { user: req.user._id },
-            { user: req.user.adminId }
-          ]
-        },
-        filter.createdAt ? { createdAt: filter.createdAt } : {}
-      ]
-    }).sort({ createdAt: -1 }).limit(10);
+    const recentOrders = await Receipt.find(filter)
+      .sort({ createdAt: -1 })
+      .limit(10);
 
     const metrics = await calculateDashboardMetrics(filter);
 
