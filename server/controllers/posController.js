@@ -303,7 +303,11 @@ exports.confirmPayment = async (req, res) => {
       attempt++;
 
       // Get the last receipt to find the last order number
-      const lastReceipt = await Receipt.findOne({}, {}, { sort: { 'createdAt': -1 } });
+      const lastReceipt = await Receipt.findOne(
+        { companyName: req.user.companyName }, 
+        {}, 
+        { sort: { 'createdAt': -1 } }
+      );
 
       let lastOrderNumber = 0;
       if (lastReceipt) {
@@ -313,7 +317,8 @@ exports.confirmPayment = async (req, res) => {
         }
       }
 
-      const newOrderNumber = `${String(lastOrderNumber + 1).padStart(4, '0')}`;
+      const prefix = req.user.companyName || 'KOKA';
+      const newOrderNumber = `${prefix}-${String(lastOrderNumber + 1).padStart(4, '0')}`;
 
       const newReceipt = new Receipt({
         user: req.user._id,
