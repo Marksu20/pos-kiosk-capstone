@@ -317,8 +317,7 @@ exports.confirmPayment = async (req, res) => {
         }
       }
 
-      const prefix = req.user.companyName || 'KOKA';
-      const newOrderNumber = `${prefix}-${String(lastOrderNumber + 1).padStart(4, '0')}`;
+      const newOrderNumber = String(lastOrderNumber + 1).padStart(4, '0');
 
       const newReceipt = new Receipt({
         user: req.user._id,
