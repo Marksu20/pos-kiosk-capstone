@@ -3,9 +3,9 @@ const router = express.Router();
 const { isLoggedIn } = require('../middleware/checkAuth');
 const { checkRole } = require('../middleware/checkRole');
 const adminController = require('../controllers/adminController');
-const multer = require('multer');
-const path = require('path');
-const uploads = multer({ dest: 'public/uploads/' });
+// const multer = require('multer');
+// const path = require('path');
+const upload = require('../middleware/multer');
 
 // admin routes
 // GET
@@ -30,16 +30,19 @@ router.get('/pos/admin/account/:id', isLoggedIn, checkRole(['admin']), adminCont
 router.get('/add-user-details', isLoggedIn, checkRole(['admin']), adminController.addUserDetails);
 
 // POST
-var storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, 'public/uploads/');
-  },
-  filename: function (req, file, cb) {
-    cb(null, Date.now() + path.extname(file.originalname));
-  }
-});
-var upload = multer({ storage: storage });
+// var storage = multer.diskStorage({
+//   destination: function (req, file, cb) {
+//     cb(null, 'public/uploads/');
+//   },
+//   filename: function (req, file, cb) {
+//     cb(null, Date.now() + path.extname(file.originalname));
+//   }
+// });
+// var upload = multer({ storage: storage });
+
 router.post('/pos/admin/newProduct', upload.single('image'), isLoggedIn, adminController.newProduct);
+
+// router.post('/pos/admin/newProduct', upload.single('image'), isLoggedIn, adminController.newProduct);
 
 router.post('/pos/admin/newCategory', isLoggedIn, adminController.newCategory);
 
@@ -50,7 +53,7 @@ router.post('/pos/admin/newDiscount', isLoggedIn, adminController.newDiscount);
 router.post('/create-user', isLoggedIn, adminController.createUser);
 
 // PUT
-router.put('/pos/admin/product/:id', uploads.single('image'), isLoggedIn, adminController.updateProduct);
+router.put('/pos/admin/product/:id', upload.single('image'), isLoggedIn, adminController.updateProduct);
 
 router.put('/pos/admin/category/:id', isLoggedIn, adminController.updateCategory);
 

@@ -737,7 +737,7 @@ exports.newProduct = async (req, res) => {
   const { name, category, price, quantity, newCategory, categoryDescription, trackQuantity } = req.body;
 
   const defaultImage = '/img/default-image.jpg';
-  const image = req.file ? `/uploads/${req.file.filename}` : defaultImage;
+  const image = req.file ? req.file.path : defaultImage;
 
   try {
     let categoryID = category;
