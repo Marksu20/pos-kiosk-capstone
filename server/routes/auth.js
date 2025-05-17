@@ -142,17 +142,10 @@ router.post('/signup', async (req, res) => {
     });
   }
 
-  if (password.length < 4) {
+  if (password.length < 4 || password.length > 64) {
     return res.render('signup', { 
       companyName, email: normalizedEmail, 
-      error_msg: 'Password must be at least 4 characters long!' 
-    });
-  }
-
-  if (password.length > 64) {
-    return res.render('signup', { 
-      companyName, email: normalizedEmail, 
-      error_msg: 'Password must be in 64 characters or fewer!'
+      error_msg: 'Password must be atleast 4-64 characters long!' 
     });
   }
 
@@ -160,7 +153,11 @@ router.post('/signup', async (req, res) => {
     // Check if user already exists
     const existingUser = await User.findOne({ emailAddress: normalizedEmail });
     if (existingUser) {
-      return res.render('signup', { companyName, email: normalizedEmail, error_msg: 'User already exists!' });
+      return res.render('signup', { 
+        companyName, 
+        email: normalizedEmail, 
+        error_msg: 'User already exists!' 
+      });
     }
 
     // Hash the password and create a new user
@@ -418,20 +415,22 @@ router.post('/reset-password/:token', async (req, res) => {
       resetPasswordExpires: { $gt: Date.now() } 
     });
 
-    // check if user token valid or expired
     if (!user) {
-      // return res.render('reset-password', {token, error_msg: 'Password reset token is invalid or has expired.' });
       return res.send('Password reset token is invalid or has expired.') 
     }
 
-    // check if passwords match
     if (newPassword !== confirmPassword) {
-      return res.render('reset-password', {token, error_msg: 'Passwords do not match!' });
+      return res.render('reset-password', { 
+        token, 
+        error_msg: 'Passwords do not match!' 
+      });
     }
 
-    // Password length validation 
-    if (newPassword.length < 4) {
-      return res.render('reset-password', {token, error_msg: 'Password must be at least 4 characters long!' });
+    if (newPassword.length < 4 || newPassword.length > 64) {
+      return res.render('reset-password', { 
+        token, 
+        error_msg: 'Password must be 4-64 characters long!' 
+      });
     }
 
     // Hash the new password
@@ -448,7 +447,7 @@ router.post('/reset-password/:token', async (req, res) => {
     setTimeout(async () => {
       user.resetPasswordExpires = undefined;
       await user.save();
-    }, 5000); // 60 seconds timer
+    }, 5000); 
 
     return res.render('reset-password', {
       token, 
