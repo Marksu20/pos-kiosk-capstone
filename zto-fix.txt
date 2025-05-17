@@ -1,5 +1,36 @@
+SIGN IN
+    email
+    password
+    forgot password
+
+SIGN UP
+    company name
+    email
+    password
+    confirm password
+
+POS
+    Home {
+        search
+        categories(list)
+        process order
+    }
+    Orders(from kiosk) {
+        waiting(update, delete order)
+        in process(update)
+        to serve(done)
+    }
+    receipts(view)
+
 ADMIN 
-    Dashboard
+    Dashboard {
+        filter
+        total product should
+        total customer
+        total revenue
+        best sellers data(bar graph)
+        recent transactions
+    }
     Products {
         add 
         edit
@@ -35,4 +66,9 @@ ADMIN
         link/ qr code of kiosk
         account email and Company Name
     }
-Dashboard data should have ownership
+
+KIOSK
+    best seller(landing page)
+    categories
+    select orders
+    payment(cash/ paypal)

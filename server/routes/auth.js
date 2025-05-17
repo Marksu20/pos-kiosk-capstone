@@ -98,27 +98,62 @@ passport.deserializeUser(async (id, done) => {
 router.post('/signup', async (req, res) => {
   const { companyName, email, password, confirmPassword } = req.body;
 
-  // Normalize email to lowercase
   const normalizedEmail = email.toLowerCase();
 
-  // Email validation 
   function isValidEmail(email) {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
   }
 
-  // Validate fields and show errors
-  if (!isValidEmail(normalizedEmail)) {
-    return res.render('signup', { companyName, email: normalizedEmail, error_msg: 'Invalid email format!' });
+  if (!/^[a-zA-Z0-9 ]+$/.test(companyName)) {
+    return res.render('signup', {
+      companyName,
+      email: normalizedEmail,
+      error_msg: 'Company Name must only contain letters, numbers, and spaces!'
+    });
   }
+
+  if (companyName.length > 20) {
+    return res.render('signup', {
+      companyName,
+      email: normalizedEmail,
+      error_msg: 'Company Name must be in 20 characters or fewer!'
+    });
+  }
+
   if (!companyName) {
-    return res.render('signup', { companyName, email: normalizedEmail, error_msg: 'Company Name is required!' });
+    return res.render('signup', { 
+      companyName, email: normalizedEmail, 
+      error_msg: 'Company Name is required!' 
+    });
   }
+
+  if (!isValidEmail(normalizedEmail)) {
+    return res.render('signup', { 
+      companyName, email: normalizedEmail, 
+      error_msg: 'Invalid email format!' 
+    });
+  }
+
   if (password !== confirmPassword) {
-    return res.render('signup', { companyName, email: normalizedEmail, error_msg: 'Passwords do not match!' });
+    return res.render('signup', { 
+      companyName, email: normalizedEmail, 
+      error_msg: 'Passwords do not match!' 
+    });
   }
+
   if (password.length < 4) {
-    return res.render('signup', { companyName, email: normalizedEmail, error_msg: 'Password must be at least 4 characters long!' });
+    return res.render('signup', { 
+      companyName, email: normalizedEmail, 
+      error_msg: 'Password must be at least 4 characters long!' 
+    });
+  }
+
+  if (password.length > 64) {
+    return res.render('signup', { 
+      companyName, email: normalizedEmail, 
+      error_msg: 'Password must be in 64 characters or fewer!'
+    });
   }
 
   try {
