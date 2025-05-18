@@ -30,17 +30,8 @@ router.get('/pos/admin/account/:id', isLoggedIn, checkRole(['admin']), adminCont
 router.get('/add-user-details', isLoggedIn, checkRole(['admin']), adminController.addUserDetails);
 
 // POST
-// var storage = multer.diskStorage({
-//   destination: function (req, file, cb) {
-//     cb(null, 'public/uploads/');
-//   },
-//   filename: function (req, file, cb) {
-//     cb(null, Date.now() + path.extname(file.originalname));
-//   }
-// });
-// var upload = multer({ storage: storage });
-
 router.post('/pos/admin/newProduct', upload.single('image'), isLoggedIn, adminController.newProduct);
+router.post('/product/check-duplicate', isLoggedIn, adminController.checkProductDuplicate);
 
 // router.post('/pos/admin/newProduct', upload.single('image'), isLoggedIn, adminController.newProduct);
 

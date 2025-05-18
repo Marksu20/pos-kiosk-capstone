@@ -740,6 +740,22 @@ exports.newProduct = async (req, res) => {
   const image = req.file ? req.file.path : defaultImage;
 
   try {
+
+    const existingProduct = await Product.findOne({
+      user: req.user._id,
+      name: { $regex: `^${name}$`, $options: 'i' }
+    });
+
+    if (existingProduct) {
+      // If AJAX, send JSON; else, set flash and redirect
+      if (req.xhr || req.headers.accept.indexOf('json') > -1) {
+        return res.status(400).json({ duplicate: true, message: 'Product name already exists.' });
+      } else {
+        req.flash('error_msg', 'Product name already exists.');
+        return res.redirect('/pos/admin/product');
+      }
+    }
+
     let categoryID = category;
     let sold = 0;
 
@@ -764,16 +780,25 @@ exports.newProduct = async (req, res) => {
     });
     await newProduct.save();
     
-    // Set success flash message
     req.flash('success_msg', `"${name}" successfully added!`);
     res.redirect('/pos/admin/product');
 
   } catch (err) {
     console.error(err);
-    // Set error flash message
     req.flash('error_msg', 'An error occurred while creating the product.');
     res.redirect('/pos/admin/product');
   }
+}
+exports.checkProductDuplicate = async (req, res) => {
+  const { name } = req.body;
+  const existingProduct = await Product.findOne({
+    user: req.user._id,
+    name: { $regex: `^${name}$`, $options: 'i' }
+  });
+  if (existingProduct) {
+    return res.json({ duplicate: true });
+  }
+  return res.json({ duplicate: false });
 }
 
 exports.newCategory = async (req, res) => {
