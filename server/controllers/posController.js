@@ -294,7 +294,6 @@ exports.confirmPayment = async (req, res) => {
     const { customerName, orderItems, TotalAmount, orderType, discount, Subtotal } = req.body;
     const orderItemsArray = JSON.parse(orderItems);
 
-    // Retry logic for saving receipt with unique orderNumber
     let maxRetries = 5;
     let attempt = 0;
     let saved = false;

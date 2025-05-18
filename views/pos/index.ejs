@@ -199,11 +199,9 @@
     const discountEl = document.getElementById('discount-value');
     const totalAmountEl = document.getElementById('total-amount');
 
-    orderSummary.innerHTML = ''; // Clear the order summary
-
+    orderSummary.innerHTML = '';
     let subTotal = 0; 
 
-    // Loop through the order array and create table rows for each product
     order.forEach((item) => {
       const row = document.createElement('tr');
       row.innerHTML = `
@@ -220,22 +218,35 @@
         </td>
       `;
       orderSummary.appendChild(row);
-      subTotal += item.price * item.quantity; // Calculate subtotal
+      subTotal += item.price * item.quantity; 
     });
 
-    const discountAmount = (subTotal * discountValue) / 100; // Calculate discount
-    const totalAmount = subTotal - discountAmount; // Calculate total after discount
+    const discountAmount = (subTotal * discountValue) / 100; 
+    const totalAmount = subTotal - discountAmount; 
 
     subTotalEl.textContent = `₱ ${subTotal.toFixed(2)}`;
     discountEl.textContent = `₱ ${discountAmount.toFixed(2)}`;
-    totalAmountEl.textContent = `₱ ${totalAmount.toFixed(2)}`; // Update total with discount applied
+    totalAmountEl.textContent = `₱ ${totalAmount.toFixed(2)}`; 
   
-    // Save updated order and discount to localStorage
     localStorage.setItem('order', JSON.stringify(order));
     localStorage.setItem('discountValue', discountValue.toString());
   }
 
-   // HANDLE ADD TO ORDER
+  function addProductToOrder(product) { //new
+    const existingProduct = order.find(item => item.id === product.id);
+    if (existingProduct) {
+      if (existingProduct.quantity >= 99) {
+        Swal.fire("Maximum quantity per product is 99.");
+        return;
+      }
+      existingProduct.quantity += 1;
+    } else {
+      order.push(product);
+    }
+    updateOrderSummary();
+  }
+
+  // HANDLE ADD TO ORDER
   document.querySelectorAll('.add-to-order').forEach((button) => {
     button.addEventListener('click', () => {
       const product = {
@@ -272,51 +283,74 @@
     });
   });
 
-  // Function to add the product to the order
-  function addProductToOrder(product) {
-    const existingProduct = order.find(item => item.id === product.id);
-    if (existingProduct) {
-      existingProduct.quantity += 1; // Increment quantity if product is already in the order
-    } else {
-      order.push(product); // Add new product to the order
-    }
-    updateOrderSummary(); // Update the order summary
-  }
+  // function addProductToOrder(product) {
+  //   const existingProduct = order.find(item => item.id === product.id);
+  //   if (existingProduct) {
+  //     existingProduct.quantity += 1; 
+  //   } else {
+  //     order.push(product);
+  //   }
+  //   updateOrderSummary();
+  // }
 
   // handle discount
   document.getElementById('discount').addEventListener('change', (event) => {
-      discountValue = parseFloat(event.target.value); // Get selected discount value
-      updateOrderSummary(); // Recalculate totals with the new discount
-    });
+    discountValue = parseFloat(event.target.value); 
+    updateOrderSummary(); 
+  });
 
-  // handle increment and decrement of order
+  // Increment/decrement with quantity limit
   document.getElementById('order-summary').addEventListener('click', (event) => {
     if (event.target.classList.contains('increase-quantity')) {
       const productId = event.target.getAttribute('data-id');
       const product = order.find(item => item.id === productId);
-      product.quantity += 1; // Increase product quantity
-      updateOrderSummary(); // Update the order summary
+      if (product.quantity >= 99) {
+        Swal.fire("Maximum quantity per product is 99.");
+        return;
+      }
+      product.quantity += 1;
+      updateOrderSummary();
     }
 
     if (event.target.classList.contains('decrease-quantity')) {
       const productId = event.target.getAttribute('data-id');
       const product = order.find(item => item.id === productId);
       if (product.quantity > 1) {
-        product.quantity -= 1; // Decrease product quantity
+        product.quantity -= 1;
       } else {
-        order.splice(order.indexOf(product), 1); // Remove product if quantity is 1 and the user wants to decrease
+        order.splice(order.indexOf(product), 1);
       }
-      updateOrderSummary(); // Update the order summary
+      updateOrderSummary();
     }
-   });
+  });
+  
+  // document.getElementById('order-summary').addEventListener('click', (event) => {
+  //   if (event.target.classList.contains('increase-quantity')) {
+  //     const productId = event.target.getAttribute('data-id');
+  //     const product = order.find(item => item.id === productId);
+  //     product.quantity += 1;
+  //     updateOrderSummary();
+  //   }
+
+  //   if (event.target.classList.contains('decrease-quantity')) {
+  //     const productId = event.target.getAttribute('data-id');
+  //     const product = order.find(item => item.id === productId);
+  //     if (product.quantity > 1) {
+  //       product.quantity -= 1;
+  //     } else {
+  //       order.splice(order.indexOf(product), 1);
+  //     }
+  //     updateOrderSummary();
+  //   }
+  //  });
 
   // if order void, clear order summary
   document.getElementById('cancel-order').addEventListener('click', () => {
-      order.length = 0; // Clear the order array
-      updateOrderSummary(); // Update the order summary to reflect the cleared order
-    });
+    order.length = 0; // Clear the order array
+    updateOrderSummary(); // Update the order summary to reflect the cleared order
+  });
   
-    async function checkProductQuantities() {
+  async function checkProductQuantities() {
       try {
         // Get all product IDs from the current order
         const productIds = order.map(item => item.id);
@@ -366,6 +400,13 @@
       return;
     }
 
+    for (const item of order) {
+      if (item.quantity > 99) {
+        Swal.fire(`Maximum quantity per product is 99. (${item.name})`);
+        return;
+      }
+    }
+
     // Check quantities before proceeding
     const quantitiesValid = await checkProductQuantities();
     if (!quantitiesValid) {
@@ -385,50 +426,82 @@
 
   // Function to handle cash received input
   function handleCashReceivedInput() {
-      const cashReceivedEl = document.getElementById('cash-received');
-      const totalAmountEl = document.getElementById('total-amount');
-      const changeEl = document.getElementById('change');
+    const cashReceivedEl = document.getElementById('cash-received');
+    const totalAmountEl = document.getElementById('total-amount');
+    const changeEl = document.getElementById('change');
 
-      const cashReceived = parseFloat(cashReceivedEl.value);
-      const totalAmount = parseFloat(totalAmountEl.textContent.replace('₱', '').trim());
-      
-      const change = cashReceived - totalAmount;
-      changeEl.value = `₱ ${change.toFixed(2)}`;
-    }
+    const cashReceived = parseFloat(cashReceivedEl.value);
+    const totalAmount = parseFloat(totalAmountEl.textContent.replace('₱', '').trim());
+    
+    const change = cashReceived - totalAmount;
+    changeEl.value = `₱ ${change.toFixed(2)}`;
+  }
 
   document.getElementById('confirm-payment').addEventListener('click', async (event) => {
-      event.preventDefault();
+    event.preventDefault();
 
-      document.getElementById('order-items').value = JSON.stringify(order);
-      document.getElementById('hidden-total-amount').value = parseFloat(document.getElementById('total-amount').textContent.replace('₱', '').trim());
-      document.getElementById('hidden-discount').value = discountValue;
-      document.getElementById('hidden-subtotal').value = parseFloat(document.getElementById('sub-total').textContent.replace('₱', '').trim());
+    // Customer name validation
+    const customerNameInput = document.getElementById('customer-name');
+    const rawName = customerNameInput.value;
+    const sanitized = sanitizeCustomerName(rawName);
+    if (rawName && sanitized.length < 2) {
+      Swal.fire("Customer name must be at least 2 characters (letters/numbers only).");
+      return;
+    }
+    if (sanitized.length > 50) {
+      Swal.fire("Customer name must be 50 characters or less.");
+      return;
+    }
+    if (rawName && sanitized !== rawName.replace(/\s+/g, ' ').trim()) {
+      Swal.fire("Customer name cannot contain special characters.");
+      return;
+    }
+    document.getElementById('hidden-customer-name').value = sanitized;
 
-      Swal.fire({
-        title: 'Payment Successful!',
-        text: 'The order has been confirmed.',
-        icon: 'success',
-        confirmButtonText: 'OK'
-      }).then((result) => {
-        if (result.isConfirmed) {
-          document.querySelector('form').submit();
-        }
-      });
+    // Cash received validation
+    const cashReceivedEl = document.getElementById('cash-received');
+    const totalAmountEl = document.getElementById('total-amount');
+    const cashReceived = parseFloat(cashReceivedEl.value);
+    const totalAmount = parseFloat(totalAmountEl.textContent.replace('₱', '').trim());
+    if (isNaN(cashReceived) || cashReceived < totalAmount) {
+      Swal.fire("Cash received must be at least equal to the total amount due.");
+      return;
+    }
+    const change = cashReceived - totalAmount;
+    if (change < 0) {
+      Swal.fire("Change cannot be negative. Cash received is less than total.");
+      return;
+    }
 
-      const changeEl = document.getElementById('change');
-      changeEl.value = 0;
-      order.length = 0;
-      updateOrderSummary();
+    document.getElementById('order-items').value = JSON.stringify(order);
+    document.getElementById('hidden-total-amount').value = totalAmount;
+    document.getElementById('hidden-discount').value = discountValue;
+    document.getElementById('hidden-subtotal').value = parseFloat(document.getElementById('sub-total').textContent.replace('₱', '').trim());
+
+    Swal.fire({
+      title: 'Payment Successful!',
+      text: 'The order has been confirmed.',
+      icon: 'success',
+      confirmButtonText: 'OK'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        document.querySelector('form').submit();
+      }
     });
+
+    const changeEl = document.getElementById('change');
+    changeEl.value = 0;
+    order.length = 0;
+    updateOrderSummary();
+  });
 
   // Handle payment cancellation (going back to the order enlistment)
   document.querySelector('#paymentModal .btn-secondary').addEventListener('click', () => {
-      const changeEl = document.getElementById('change');
-      // Hide the modal (this is automatically handled by Bootstrap)
-      const paymentModal = bootstrap.Modal.getInstance(document.getElementById('paymentModal'));
-      changeEl.value = 0;
-      paymentModal.hide();
-    })
+    const changeEl = document.getElementById('change');
+    const paymentModal = bootstrap.Modal.getInstance(document.getElementById('paymentModal'));
+    changeEl.value = 0;
+    paymentModal.hide();
+  })
 
   // Ensure data is reloaded on page refresh
   document.addEventListener('DOMContentLoaded', () => {
