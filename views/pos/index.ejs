@@ -89,7 +89,7 @@
           <form action="/pos/confirm-payment"  method="POST">
             <div class="card-body">
               <div class="p-3 bg-light mb-3">
-                <input name="customerName" id="customer-name" class="w-50"  type="text" style="border:none; outline: none; border-bottom: 0.5px solid #adb5bd; background-color: #f8f9fa;" placeholder="Customer Name">
+                <input name="customerName" id="customer-name" class="w-50"  type="text" pattern="^[a-zA-Z0-9 ]{1,20}$" maxlength="10" style="border:none; outline: none; border-bottom: 0.5px solid #adb5bd; background-color: #f8f9fa;" placeholder="Customer Name">
                 <input type="hidden" name="hiddenCustomerName" id="hidden-customer-name">
               </div>
               <input type="hidden" name="orderItems" id="order-items" value="[]">
