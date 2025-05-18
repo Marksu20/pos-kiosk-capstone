@@ -171,6 +171,37 @@
   </div>
 </div>
 
+<script>
+  document.getElementById('new-product-form').addEventListener('submit', async function (e) {
+    const nameInput = document.getElementById('name');
+    const name = nameInput.value.trim();
+
+    // AJAX call to check for duplication
+    const response = await fetch('/pos/admin/product/check-duplicate', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify({ name })
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      if (data.duplicate) {
+        e.preventDefault();
+        Swal.fire({
+          icon: 'error',
+          title: 'Duplicate Product',
+          text: 'Product name already exists. Please use a different name.'
+        });
+        return false;
+      }
+    }
+    // else allow form to submit
+  });
+</script>
+
 <!-- search function -->
 <script>
   document.getElementById('product-search').addEventListener('input', function () {
