@@ -692,13 +692,15 @@ exports.deleteReceipt = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Receipt not found' });
     }
 
-    // Loop through the products in the receipt and update them
     for (const item of receipt.orderItems) {
       const product = await Product.findById(item.id);
 
       if (product) {
         product.sold = product.sold - item.quantity >= 0 ? product.sold - item.quantity : 0; // Prevent negative sold count
-        product.quantity += item.quantity;
+
+        if (product.quantity !== null) {
+          product.quantity += item.quantity;
+        }
 
         await product.save(); // Save the product changes
       }
