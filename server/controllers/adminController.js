@@ -387,7 +387,12 @@ exports.viewProduct = async (req, res) => {
   const products = await Product.find({})
     .populate('category')
     .exec();
-  const categories = await Category.find({ })
+  const categories = await Category.find({
+    $or: [
+      { user: req.user._id },
+      { user: req.user.adminId }
+    ]
+   })
     .sort({ createdAt: -1 })
     .lean();
 
