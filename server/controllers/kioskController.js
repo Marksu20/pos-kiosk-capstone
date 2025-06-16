@@ -25,8 +25,6 @@ const generateUniqueOrderNumber = async (accountId) => {
   return newOrderNumber;
 };
 
-
-
 // GET: kiosk
 exports.kiosk = async (req, res) => {
   const locals = {

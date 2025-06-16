@@ -791,6 +791,7 @@ exports.newProduct = async (req, res) => {
     res.redirect('/pos/admin/product');
   }
 }
+
 exports.checkProductDuplicate = async (req, res) => {
   const { name } = req.body;
   const existingProduct = await Product.findOne({
