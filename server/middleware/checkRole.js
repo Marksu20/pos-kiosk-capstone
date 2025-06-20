@@ -2,7 +2,7 @@ exports.checkRole = (allowedRoles) => {
     return (req, res, next) => {
         try {
             if(!allowedRoles.includes(req.user.role)) {
-                return res.status(401).render('errors/authDenied');
+                return res.status(401).render('errors/roleDenied');
             }
 
             next();
