@@ -2,6 +2,6 @@ exports.isLoggedIn = function (req, res, next) {
   if(req.user) {
     next();
   } else {
-    return res.status(401).render('404');
+    return res.status(401).render('errors/authDenied');
   }
 }
