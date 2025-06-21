@@ -558,7 +558,7 @@ exports.updateProduct = async (req, res) => {
       updatedImage = `/uploads/${req.file.filename}`;
       
       // Optionally, delete the old image file from the server
-      if (product.image && product.image !== '/img/cafe-latter.jpg') {
+      if (product.image && product.image !== '/img/cafe-latter.jpg' && product.image !== '/img/default-image.jpg') {
         const oldImagePath = path.join(__dirname, '..', 'public', product.image);
         if (fs.existsSync(oldImagePath)) {
           fs.unlinkSync(oldImagePath);
