@@ -555,7 +555,7 @@ exports.updateProduct = async (req, res) => {
     let updatedImage = product.image; // default to the existing image
 
     if (req.file) {
-      updatedImage = `/uploads/${req.file.filename}`;
+      updatedImage = req.file.filename;
       
       // Optionally, delete the old image file from the server
       if (product.image && product.image !== '/img/cafe-latter.jpg' && product.image !== '/img/default-image.jpg') {
