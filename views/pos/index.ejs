@@ -502,6 +502,15 @@
 
         if (products.length > 0) {
           products.forEach(product => {
+            const quantityHtml =
+              product.quantity == null
+                ? '<p>&nbsp;</p>'
+                : product.quantity == 0
+                  ? `<p>x<strong class="text-danger">${product.quantity}</strong> <span class="badge bg-danger rounded-pill">no stock</span></p>`
+                  : product.quantity <= 5
+                    ? `<p>x<strong class="text-warning">${product.quantity}</strong> <span class="badge rounded-pill bg-warning">low stock</span></p>`
+                    : `<p>x<strong>${product.quantity}</strong></p>`;
+
             const productHtml = `
               <div class="col-12 col-md-6 col-lg-4 col-xl-3 mb-4 mb-lg-3 h-100">
                 <div 
@@ -516,7 +525,7 @@
                   </div>
                   <div class="card-body">
                     <h6 class="card-title">${product.name} - ₱ ${product.price}</h6>
-                    <p>x ${product.quantity}</p>
+                    ${quantityHtml}
                   </div>
                 </div>
               </div>
