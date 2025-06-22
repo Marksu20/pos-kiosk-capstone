@@ -381,6 +381,10 @@
 
   // Modify the confirm-order event listener to include quantity check
   document.getElementById('confirm-order').addEventListener('click', async () => {
+    const customerNameInput = document.getElementById('customer-name');
+    const rawName = customerNameInput.value;
+    const sanitized = sanitizeCustomerName(rawName);
+
     if (order.length === 0) {
       Swal.fire("Please select an item first");
       return;
@@ -398,6 +402,23 @@
       return;
     }
 
+    if (rawName && sanitized.length < 2) {
+      Swal.fire("Customer name must be at least 2 characters (letters/numbers only).");
+      return;
+    }
+
+    if (sanitized.length > 10) {
+      Swal.fire("Customer name must be 10 characters or less.");
+      return;
+    }
+
+    if (rawName && sanitized !== rawName.replace(/\s+/g, ' ').trim()) {
+      Swal.fire("Customer name cannot contain special characters.");
+      return;
+    }
+
+    document.getElementById('hidden-customer-name').value = sanitized;
+
     const totalAmountEl = document.getElementById('total-amount');
     const cashReceivedEl = document.getElementById('cash-received');
     cashReceivedEl.value = parseFloat(totalAmountEl.textContent.replace('₱', '').trim());
@@ -408,26 +429,9 @@
     cashReceivedEl.addEventListener('input', handleCashReceivedInput);
   });
 
+  // confirm payment
   document.getElementById('confirm-payment').addEventListener('click', async (event) => {
     event.preventDefault();
-
-    // Customer name validation
-    const customerNameInput = document.getElementById('customer-name');
-    const rawName = customerNameInput.value;
-    const sanitized = sanitizeCustomerName(rawName);
-    if (rawName && sanitized.length < 2) {
-      Swal.fire("Customer name must be at least 2 characters (letters/numbers only).");
-      return;
-    }
-    if (sanitized.length > 10) {
-      Swal.fire("Customer name must be 10 characters or less.");
-      return;
-    }
-    if (rawName && sanitized !== rawName.replace(/\s+/g, ' ').trim()) {
-      Swal.fire("Customer name cannot contain special characters.");
-      return;
-    }
-    document.getElementById('hidden-customer-name').value = sanitized;
 
     // Cash received validation
     const cashReceivedEl = document.getElementById('cash-received');
