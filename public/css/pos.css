@@ -58,19 +58,6 @@ body{
   }
 }
 
-body.modal-open nav.right-sidebar {
-  position: static !important; /* Disable sticky behavior */
-  overflow-y: visible !important; /* Allow normal scrolling */
-  z-index: auto !important; /* Reset z-index */
-}
-
-.modal-backdrop {
-  z-index: 1100 !important;
-}
-.modal {
-  z-index: 1110 !important;
-}
-
 .sidebar .nav-link {
   color: #333;
 }
@@ -102,15 +89,6 @@ body.modal-open nav.right-sidebar {
   color: #fff;
 }
 
-.row.my-4 > .col-12,
-.row.my-4 > .col-md-6,
-.row.my-4 > .col-lg-4,
-.row.my-4 > .col-xl-3 {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-}
-
 .product-container{
   box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;
   min-height: 300px; /* Adjust as needed */
@@ -126,15 +104,6 @@ body.modal-open nav.right-sidebar {
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-}
-
-.right-sidebar {
-  position: sticky;
-  top: 80px; /* Adjust this value to match your navbar height */
-  height: calc(100vh - 90px);
-  overflow-y: auto;
-  z-index: 1020;
-  background: #fff;
 }
 
 .receipt {
@@ -174,14 +143,6 @@ body.modal-open nav.right-sidebar {
   font-weight: bold;
 }
 
-/* Responsive: Remove sticky on small screens */
-@media (max-width: 991.98px) {
-  .right-sidebar {
-    position: static;
-    height: auto;
-    overflow-y: visible;
-  }
-}
 
 /* Print-specific styles */
 @media print {
