@@ -58,21 +58,27 @@ exports.dashboard = async (req, res) => {
 
   const { startDate, endDate, today } = req.query;
   let receiptFilter = { ...userFilter };
+
   if (today === 'true') {
     const start = new Date();
     start.setHours(0, 0, 0, 0);
     const end = new Date();
     end.setHours(23, 59, 59, 999);
     receiptFilter.createdAt = { $gte: start, $lte: end };
-  } else if (startDate && endDate) {
+  } else if (startDate && !endDate) {
+    // Only startDate provided: filter for that day
     const start = new Date(startDate);
-      start.setHours(0, 0, 0, 0);
-      const end = new Date(endDate);
-      end.setHours(23, 59, 59, 999);
-      receiptFilter.createdAt = {
-        $gte: start,
-        $lte: end
-    };
+    start.setHours(0, 0, 0, 0);
+    const end = new Date(startDate);
+    end.setHours(23, 59, 59, 999);
+    receiptFilter.createdAt = { $gte: start, $lte: end };
+  } else if (startDate && endDate) {
+    // Range: include both days fully
+    const start = new Date(startDate);
+    start.setHours(0, 0, 0, 0);
+    const end = new Date(endDate);
+    end.setHours(23, 59, 59, 999);
+    receiptFilter.createdAt = { $gte: start, $lte: end };
   }
 
   async function calculateDashboardMetrics(receiptFilter) {
