@@ -379,13 +379,15 @@
     changeEl.value = `₱ ${change.toFixed(2)}`;
   }
 
-  const paymentModal = document.getElementById('paymentModal');
-    paymentModal.addEventListener('show.bs.modal', () => {
-      document.querySelector('.right-sidebar').style.position = 'static';
-      document.querySelector('.right-sidebar').style.overflow = 'visible';
+  const paymentModalEl = document.getElementById('paymentModal');
+  const paymentModalInstance = new bootstrap.Modal(paymentModalEl);
+
+  paymentModalEl.addEventListener('show.bs.modal', () => {
+    document.querySelector('.right-sidebar').style.position = 'static';
+    document.querySelector('.right-sidebar').style.overflow = 'visible';
   });
 
-  paymentModal.addEventListener('hidden.bs.modal', () => {
+  paymentModalEl.addEventListener('hidden.bs.modal', () => {
     document.querySelector('.right-sidebar').style.position = 'sticky';
     document.querySelector('.right-sidebar').style.overflowY = 'auto';
   });
@@ -419,7 +421,6 @@
     cashReceivedEl.addEventListener('input', handleCashReceivedInput);
   });
 
-  //validation
   document.getElementById('confirm-payment').addEventListener('click', async (event) => {
     event.preventDefault();
 
@@ -450,6 +451,7 @@
       Swal.fire("Cash received must be at least equal to the total amount due.");
       return;
     }
+
     const change = cashReceived - totalAmount;
     if (change < 0) {
       Swal.fire("Change cannot be negative. Cash received is less than total.");
@@ -468,14 +470,11 @@
       confirmButtonText: 'OK'
     }).then((result) => {
       if (result.isConfirmed) {
-        if (paymentModalInstance) paymentModalInstance.hide();
-
-        // Wait for modal to be fully hidden before submitting the form
-        const paymentModalEl = document.getElementById('paymentModal');
         paymentModalEl.addEventListener('hidden.bs.modal', function submitFormOnce() {
           document.querySelector('form').submit();
           paymentModalEl.removeEventListener('hidden.bs.modal', submitFormOnce);
         });
+        paymentModalInstance.hide(); // Hide modal here
       }
     });
 
