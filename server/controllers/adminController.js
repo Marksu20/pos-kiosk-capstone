@@ -47,17 +47,16 @@ exports.dashboard = async (req, res) => {
   const locals = {
     title: "Dashboard",
     description: "koka POS web application"
-  }
+  };
 
-  const userFilter = {
+  const { startDate, endDate, today } = req.query;
+
+  const receiptFilter = {
     $or: [
       { user: req.user._id },
       { user: req.user.adminId }
     ]
   };
-
-  const { startDate, endDate, today } = req.query;
-  let receiptFilter = { ...userFilter };
 
   if (today === 'true') {
     const start = new Date();
@@ -65,40 +64,35 @@ exports.dashboard = async (req, res) => {
     const end = new Date();
     end.setHours(23, 59, 59, 999);
     receiptFilter.createdAt = { $gte: start, $lte: end };
-  } else if (startDate && !endDate) {
-    // Only startDate provided: filter for that day
+  } else if (startDate) {
     const start = new Date(startDate);
     start.setHours(0, 0, 0, 0);
-    const end = new Date(startDate);
+
+    let end;
+    if (endDate) {
+      end = new Date(endDate);
+    } else {
+      end = new Date(startDate); // single day
+    }
     end.setHours(23, 59, 59, 999);
-    receiptFilter.createdAt = { $gte: start, $lte: end };
-  } else if (startDate && endDate) {
-    // Range: include both days fully
-    const start = new Date(startDate);
-    start.setHours(0, 0, 0, 0);
-    const end = new Date(endDate);
-    end.setHours(23, 59, 59, 999);
+
     receiptFilter.createdAt = { $gte: start, $lte: end };
   }
 
-  async function calculateDashboardMetrics(receiptFilter) {
+  async function calculateDashboardMetrics(filter) {
     try {
-      const totalCustomersArr = await Receipt.distinct('customerName', receiptFilter);
+      const totalCustomersArr = await Receipt.distinct('customerName', filter);
       const totalCustomers = totalCustomersArr.length;
-      const totalSales = await Receipt.countDocuments(receiptFilter);
+
+      const totalSales = await Receipt.countDocuments(filter);
 
       const totalRevenue = await Receipt.aggregate([
-        { $match: receiptFilter },
+        { $match: filter },
         { $group: { _id: null, total: { $sum: "$totalAmount" } } }
       ]);
 
-      // const totalExpenses = await Stock.aggregate([
-      //   { $match: filter },
-      //   { $group: { _id: null, total: { $sum: "$cost" } } }
-      // ]);
-
       const totalQuantitySold = await Receipt.aggregate([
-        { $match: receiptFilter }, // filter includes today's date range
+        { $match: filter }, // filter includes today's date range
         { $unwind: "$orderItems" },
         {
           $group: {
@@ -109,7 +103,7 @@ exports.dashboard = async (req, res) => {
       ]);      
 
       const topSellingProducts = await Receipt.aggregate([
-        { $match: receiptFilter }, // filter has today's date range
+        { $match: filter }, // filter has today's date range
         { $unwind: "$orderItems" },
         {
           $group: {
@@ -136,7 +130,6 @@ exports.dashboard = async (req, res) => {
         totalCustomers: totalCustomers || 0,
         totalSales: totalSales || 0,
         totalRevenue: totalRevenue.length > 0 ? totalRevenue[0].total : 0,
-        // totalExpenses: totalExpenses.length > 0 ? totalExpenses[0].total : 0,
         totalQuantitySold: totalQuantitySold.length > 0 ? totalQuantitySold[0].total : 0,
         topSellingProducts
       };
