@@ -379,19 +379,6 @@
     changeEl.value = `₱ ${change.toFixed(2)}`;
   }
 
-  const paymentModalEl = document.getElementById('paymentModal');
-  const paymentModalInstance = new bootstrap.Modal(paymentModalEl);
-
-  paymentModalEl.addEventListener('show.bs.modal', () => {
-    document.querySelector('.right-sidebar').style.position = 'static';
-    document.querySelector('.right-sidebar').style.overflow = 'visible';
-  });
-
-  paymentModalEl.addEventListener('hidden.bs.modal', () => {
-    document.querySelector('.right-sidebar').style.position = 'sticky';
-    document.querySelector('.right-sidebar').style.overflowY = 'auto';
-  });
-
   // Modify the confirm-order event listener to include quantity check
   document.getElementById('confirm-order').addEventListener('click', async () => {
     if (order.length === 0) {
@@ -470,11 +457,7 @@
       confirmButtonText: 'OK'
     }).then((result) => {
       if (result.isConfirmed) {
-        paymentModalEl.addEventListener('hidden.bs.modal', function submitFormOnce() {
-          document.querySelector('form').submit();
-          paymentModalEl.removeEventListener('hidden.bs.modal', submitFormOnce);
-        });
-        paymentModalInstance.hide(); // Hide modal here
+        document.querySelector('form').submit();
       }
     });
 
