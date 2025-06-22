@@ -457,6 +457,8 @@
       confirmButtonText: 'OK'
     }).then((result) => {
       if (result.isConfirmed) {
+        const paymentModalInstance = bootstrap.Modal.getInstance(document.getElementById('paymentModal'));
+        if (paymentModalInstance) paymentModalInstance.hide();
         document.querySelector('form').submit();
       }
     });
@@ -477,7 +479,7 @@
     document.querySelector('.right-sidebar').style.position = 'sticky';
     document.querySelector('.right-sidebar').style.overflowY = 'auto';
   });
-  
+
   // Handle payment cancellation (going back to the order enlistment)
   document.querySelector('#paymentModal .btn-secondary').addEventListener('click', () => {
     const changeEl = document.getElementById('change');
@@ -550,8 +552,6 @@
       });
     });
   });
-
-  
 </script>
 
 <!-- handle order notification -->
