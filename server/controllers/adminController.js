@@ -22,6 +22,11 @@ const transporter = nodemailer.createTransport({
   }
 });
 
+function formatToLocal(date) {
+  if (!date) return '';
+  return new Date(date).toLocaleString('en-PH', { timeZone: 'Asia/Manila' }); // Change to your timezone
+}
+
 // GET: amdin
 exports.admin = async (req, res) => {
   try {
@@ -187,6 +192,7 @@ exports.product = async (req, res) => {
     }).sort({ createdAt: -1 })
       .populate('category')
       .exec();
+    products.forEach(p => p.createdAtLocal = formatToLocal(p.createdAt));
       
     const categories = await Category.find({ 
       $or: [

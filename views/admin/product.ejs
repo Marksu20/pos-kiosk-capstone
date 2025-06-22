@@ -144,7 +144,7 @@
                             <% } %>
                           </td>
                           <td><%= product.sold %></td>
-                          <td><%= new Date( product.createdAt ).toLocaleString() %></td>
+                          <td><%= new Date( product.createdAtLocal ).toLocaleString() %></td>
                           <td>  
                             <a href="/pos/admin/product/<%= product.id %>" class="btn btn-sm btn-secondary px-3">
                               Edit
