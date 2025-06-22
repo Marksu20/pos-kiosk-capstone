@@ -56,18 +56,16 @@
                       <img class="rounded" src="<%= product.image %>" alt="<%= product.name %>">
                     </div>
                     <div class="card-body">
-                      <h6 class="card-title"><%= product.name %> <br> ₱ <%= product.price %></h6>
-                      <% if(product.quantity != null){ %>
-                        <% if(product.quantity == 0){ %>
-                          <p>x<strong class="text-danger"><%= product.quantity %></strong> <span class="badge bg-danger rounded-pill">no stock</span></p>
-                        <% } else if (product.quantity >= 0 && product.quantity <= 5) { %>
-                          <p>x<strong class="text-warning"><%= product.quantity %></strong> <span class="badge rounded-pill bg-warning">low stock</span></p>
-                        <% } else { %>
-                          <p>x<strong><%= product.quantity %></strong></p>
-                        <% } %>
-                      <% } else { %>
-                            <p>&nbsp;</p>
-                      <% } %>
+                      <h6 class="card-title">${product.name} - ₱ ${product.price}</h6>
+                      ${
+                        product.quantity == null
+                          ? '<p>&nbsp;</p>'
+                          : product.quantity == 0
+                            ? `<p>x<strong class="text-danger">${product.quantity}</strong> <span class="badge bg-danger rounded-pill">no stock</span></p>`
+                            : product.quantity <= 4
+                              ? `<p>x<strong class="text-warning">${product.quantity}</strong> <span class="badge rounded-pill bg-warning">low stock</span></p>`
+                              : `<p>x<strong>${product.quantity}</strong></p>`
+                      }
                     </div>
                   </div>
                 </div>
