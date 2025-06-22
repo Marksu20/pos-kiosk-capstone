@@ -408,6 +408,7 @@
     cashReceivedEl.addEventListener('input', handleCashReceivedInput);
   });
 
+  //validation
   document.getElementById('confirm-payment').addEventListener('click', async (event) => {
     event.preventDefault();
 
@@ -466,6 +467,17 @@
     updateOrderSummary();
   });
 
+  const paymentModal = document.getElementById('paymentModal');
+    paymentModal.addEventListener('show.bs.modal', () => {
+      document.querySelector('.right-sidebar').style.position = 'static';
+      document.querySelector('.right-sidebar').style.overflow = 'visible';
+  });
+
+  paymentModal.addEventListener('hidden.bs.modal', () => {
+    document.querySelector('.right-sidebar').style.position = 'sticky';
+    document.querySelector('.right-sidebar').style.overflowY = 'auto';
+  });
+  
   // Handle payment cancellation (going back to the order enlistment)
   document.querySelector('#paymentModal .btn-secondary').addEventListener('click', () => {
     const changeEl = document.getElementById('change');
@@ -539,18 +551,7 @@
     });
   });
 
-  const paymentModal = document.getElementById('paymentModal');
-    paymentModal.addEventListener('show.bs.modal', () => {
-      document.querySelector('.right-sidebar').style.position = 'static';
-      document.querySelector('.right-sidebar').style.overflow = 'visible';
-  });
-
-  paymentModal.addEventListener('hidden.bs.modal', () => {
-    document.querySelector('.right-sidebar').style.position = 'sticky';
-    document.querySelector('.right-sidebar').style.overflowY = 'auto';
-  });
-
-
+  
 </script>
 
 <!-- handle order notification -->
