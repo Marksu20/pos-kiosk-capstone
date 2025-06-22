@@ -57,9 +57,18 @@ body{
       z-index: 999;
   }
 }
-body.modal-open .right-sidebar {
-  position: static; /* Disable sticky behavior */
-  overflow-y: visible; /* Allow normal scrolling */
+
+body.modal-open nav.right-sidebar {
+  position: static !important; /* Disable sticky behavior */
+  overflow-y: visible !important; /* Allow normal scrolling */
+  z-index: auto !important; /* Reset z-index */
+}
+
+.modal-backdrop {
+  z-index: 1100 !important;
+}
+.modal {
+  z-index: 1110 !important;
 }
 
 .sidebar .nav-link {
