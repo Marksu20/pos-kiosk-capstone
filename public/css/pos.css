@@ -96,6 +96,15 @@ body.modal-open .right-sidebar {
   box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;
 }
 
+.right-sidebar {
+  position: sticky;
+  top: 90px; /* Adjust this value to match your navbar height */
+  height: calc(100vh - 90px);
+  overflow-y: auto;
+  z-index: 1020;
+  background: #fff;
+}
+
 .receipt {
   width: 350px;
   background: white;
@@ -131,6 +140,15 @@ body.modal-open .right-sidebar {
   margin-top: 15px;
   font-size: 12px;
   font-weight: bold;
+}
+
+/* Responsive: Remove sticky on small screens */
+@media (max-width: 991.98px) {
+  .right-sidebar {
+    position: static;
+    height: auto;
+    overflow-y: visible;
+  }
 }
 
 /* Print-specific styles */
