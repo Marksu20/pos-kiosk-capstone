@@ -57,14 +57,28 @@ exports.dashboard = async (req, res) => {
   };
 
   const { startDate, endDate, today } = req.query;
+  let receiptFilter = { ...userFilter };
+  if (today === 'true') {
+    const start = new Date();
+    start.setHours(0, 0, 0, 0);
+    const end = new Date();
+    end.setHours(23, 59, 59, 999);
+    receiptFilter.createdAt = { $gte: start, $lte: end };
+  } else if (startDate && endDate) {
+    receiptFilter.createdAt = {
+      $gte: new Date(startDate),
+      $lte: new Date(endDate)
+    };
+  }
 
-  async function calculateDashboardMetrics(filter) {
+  async function calculateDashboardMetrics(receiptFilter) {
     try {
-      const totalCustomers = await Receipt.distinct('customerName', filter).countDocuments();
-      const totalSales = await Receipt.countDocuments(filter);
+      const totalCustomersArr = await Receipt.distinct('customerName', receiptFilter);
+      const totalCustomers = totalCustomersArr.length;
+      const totalSales = await Receipt.countDocuments(receiptFilter);
 
       const totalRevenue = await Receipt.aggregate([
-        { $match: filter },
+        { $match: receiptFilter },
         { $group: { _id: null, total: { $sum: "$totalAmount" } } }
       ]);
 
@@ -74,7 +88,7 @@ exports.dashboard = async (req, res) => {
       ]);
 
       const totalQuantitySold = await Receipt.aggregate([
-        { $match: filter }, // filter includes today's date range
+        { $match: receiptFilter }, // filter includes today's date range
         { $unwind: "$orderItems" },
         {
           $group: {
@@ -85,7 +99,7 @@ exports.dashboard = async (req, res) => {
       ]);      
 
       const topSellingProducts = await Receipt.aggregate([
-        { $match: filter }, // filter has today's date range
+        { $match: receiptFilter }, // filter has today's date range
         { $unwind: "$orderItems" },
         {
           $group: {
@@ -131,29 +145,12 @@ exports.dashboard = async (req, res) => {
   }
 
   try {
-    const filter = {
-      ...userFilter
-    };
-
-    if (today === 'true') {
-      const start = new Date();
-      start.setHours(0, 0, 0, 0);
-      const end = new Date();
-      end.setHours(23, 59, 59, 999);
-      filter.createdAt = { $gte: start, $lte: end };
-    } else if (startDate && endDate) {
-      filter.createdAt = {
-        $gte: new Date(startDate),
-        $lte: new Date(endDate)
-      };
-    }
-
-    const recentOrders = await Receipt.find(filter)
+    const recentOrders = await Receipt.find(receiptFilter)
       .sort({ createdAt: -1 })
       .limit(10);
     recentOrders.forEach(order => order.createdAtLocal = formatToLocal(order.createdAt));
 
-    const metrics = await calculateDashboardMetrics(filter);
+    const metrics = await calculateDashboardMetrics(receiptFilter);
 
     res.render('admin/dashboard', {
       username: req.user.firstName,
