@@ -411,7 +411,6 @@
   // confirm payment
   document.getElementById('confirm-payment').addEventListener('click', async (event) => {
     event.preventDefault();
-
     const customerNameInput = document.getElementById('customer-name');
     const rawName = customerNameInput.value;
     const sanitized = sanitizeCustomerName(rawName);
