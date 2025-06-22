@@ -389,7 +389,7 @@
     document.querySelector('.right-sidebar').style.position = 'sticky';
     document.querySelector('.right-sidebar').style.overflowY = 'auto';
   });
-  
+
   // Modify the confirm-order event listener to include quantity check
   document.getElementById('confirm-order').addEventListener('click', async () => {
     if (order.length === 0) {
@@ -468,11 +468,10 @@
       confirmButtonText: 'OK'
     }).then((result) => {
       if (result.isConfirmed) {
-        const paymentModalEl = document.getElementById('paymentModal');
-        const paymentModalInstance = bootstrap.Modal.getInstance(paymentModalEl);
         if (paymentModalInstance) paymentModalInstance.hide();
 
         // Wait for modal to be fully hidden before submitting the form
+        const paymentModalEl = document.getElementById('paymentModal');
         paymentModalEl.addEventListener('hidden.bs.modal', function submitFormOnce() {
           document.querySelector('form').submit();
           paymentModalEl.removeEventListener('hidden.bs.modal', submitFormOnce);
