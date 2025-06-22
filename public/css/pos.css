@@ -98,7 +98,7 @@ body.modal-open .right-sidebar {
 
 .right-sidebar {
   position: sticky;
-  top: 90px; /* Adjust this value to match your navbar height */
+  top: 80px; /* Adjust this value to match your navbar height */
   height: calc(100vh - 90px);
   overflow-y: auto;
   z-index: 1020;
