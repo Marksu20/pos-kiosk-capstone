@@ -82,10 +82,10 @@ exports.dashboard = async (req, res) => {
         { $group: { _id: null, total: { $sum: "$totalAmount" } } }
       ]);
 
-      const totalExpenses = await Stock.aggregate([
-        { $match: filter },
-        { $group: { _id: null, total: { $sum: "$cost" } } }
-      ]);
+      // const totalExpenses = await Stock.aggregate([
+      //   { $match: filter },
+      //   { $group: { _id: null, total: { $sum: "$cost" } } }
+      // ]);
 
       const totalQuantitySold = await Receipt.aggregate([
         { $match: receiptFilter }, // filter includes today's date range
@@ -126,7 +126,7 @@ exports.dashboard = async (req, res) => {
         totalCustomers: totalCustomers || 0,
         totalSales: totalSales || 0,
         totalRevenue: totalRevenue.length > 0 ? totalRevenue[0].total : 0,
-        totalExpenses: totalExpenses.length > 0 ? totalExpenses[0].total : 0,
+        // totalExpenses: totalExpenses.length > 0 ? totalExpenses[0].total : 0,
         totalQuantitySold: totalQuantitySold.length > 0 ? totalQuantitySold[0].total : 0,
         topSellingProducts
       };
@@ -144,13 +144,17 @@ exports.dashboard = async (req, res) => {
     }
   }
 
+  console.log('receiptFilter:', receiptFilter);
   try {
     const recentOrders = await Receipt.find(receiptFilter)
       .sort({ createdAt: -1 })
       .limit(10);
     recentOrders.forEach(order => order.createdAtLocal = formatToLocal(order.createdAt));
 
+    console.log('recentOrders count:', recentOrders.length);
+
     const metrics = await calculateDashboardMetrics(receiptFilter);
+    console.log('metrics:', metrics);
 
     res.render('admin/dashboard', {
       username: req.user.firstName,
@@ -158,7 +162,7 @@ exports.dashboard = async (req, res) => {
       totalCustomers: metrics.totalCustomers,
       totalSales: metrics.totalSales,
       totalRevenue: metrics.totalRevenue,
-      totalExpenses: metrics.totalExpenses,
+      // totalExpenses: metrics.totalExpenses,
       totalQuantitySold: metrics.totalQuantitySold,
       topSellingProducts: metrics.topSellingProducts,
       recentOrders,
