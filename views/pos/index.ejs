@@ -457,9 +457,15 @@
       confirmButtonText: 'OK'
     }).then((result) => {
       if (result.isConfirmed) {
-        const paymentModalInstance = bootstrap.Modal.getInstance(document.getElementById('paymentModal'));
+        const paymentModalEl = document.getElementById('paymentModal');
+        const paymentModalInstance = bootstrap.Modal.getInstance(paymentModalEl);
         if (paymentModalInstance) paymentModalInstance.hide();
-        document.querySelector('form').submit();
+
+        // Wait for modal to be fully hidden before submitting the form
+        paymentModalEl.addEventListener('hidden.bs.modal', function submitFormOnce() {
+          document.querySelector('form').submit();
+          paymentModalEl.removeEventListener('hidden.bs.modal', submitFormOnce);
+        });
       }
     });
 
