@@ -79,7 +79,7 @@
                         <tr class="category-row">
                           <td scope="row"><%= category.name %></td>
                           <td><%= category.description %></td>
-                          <td><%= new Date( category.createdAt ).toLocaleString() %></td>
+                          <td><%= new Date( category.createdAtLocal ).toLocaleString() %></td>
                           <td>
                             <a href="/pos/admin/category/<%= category._id %>" class="btn btn-sm btn-secondary px-3">
                               Edit

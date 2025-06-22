@@ -151,6 +151,7 @@ exports.dashboard = async (req, res) => {
     const recentOrders = await Receipt.find(filter)
       .sort({ createdAt: -1 })
       .limit(10);
+    recentOrders.forEach(order => order.createdAtLocal = formatToLocal(order.createdAt));
 
     const metrics = await calculateDashboardMetrics(filter);
 
@@ -192,7 +193,7 @@ exports.product = async (req, res) => {
     }).sort({ createdAt: -1 })
       .populate('category')
       .exec();
-    products.forEach(p => p.createdAtLocal = formatToLocal(p.createdAt)); //update
+    products.forEach(p => p.createdAtLocal = formatToLocal(p.createdAt));
     
       
     const categories = await Category.find({ 
@@ -233,6 +234,7 @@ exports.category = async (req, res) => {
         { user: req.user.adminId },
       ]
      }).sort({ createdAt: -1 });
+    categories.forEach(c => c.createdAtLocal = formatToLocal(c.createdAt));
 
     res.render('admin/category', {
       username: req.user.firstName,
@@ -297,8 +299,8 @@ exports.receipt = async (req, res) => {
      })
       .sort({ createdAt: -1 })
       .lean();
+    receipts.forEach(r => r.createdAtLocal = formatToLocal(r.createdAt));
       
-
     res.render('admin/receipt', {
       username: req.user.firstName,
       receipts,
@@ -328,6 +330,7 @@ exports.discount = async (req, res) => {
         { user: req.user.adminId }
       ]
      }).sort({ createdAt: -1 });
+    discounts.forEach(d => d.createdAtLocal = formatToLocal(d.createdAt));
 
     res.render('admin/discount', {
       username: req.user.firstName,
@@ -361,6 +364,7 @@ exports.account = async (req, res) => {
     }
   
     const users = await User.find(query).sort({ createdAt: -1 });
+    users.forEach(u => u.createdAtLocal = formatToLocal(u.createdAt));
 
     res.render('admin/account', {
       username: req.user.firstName,

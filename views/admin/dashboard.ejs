@@ -97,7 +97,7 @@
                         <td><%= recentOrder.orderType %></td>
                         <td>% <%= recentOrder.discount %></td>
                         <td>₱ <%= recentOrder.totalAmount %></td>
-                        <td><%= new Date( recentOrder.createdAt ).toLocaleString() %></td>
+                        <td><%= new Date( recentOrder.createdAtLocal ).toLocaleString() %></td>
                       </tr>
                     </tbody>
                   <% }) %>

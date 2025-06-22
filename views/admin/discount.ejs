@@ -88,7 +88,7 @@
                           <td scope="row"><%= discount.name %></td>
                           <td><%= discount.value %> %</td>
                           <td><%= discount.description %></td>
-                          <td><%= new Date( discount.createdAt ).toLocaleString() %></td>
+                          <td><%= new Date( discount.createdAtLocal ).toLocaleString() %></td>
                           <td>
                             <a href="/pos/admin/discount/<%= discount._id %>" class="btn btn-sm btn-secondary px-3">
                               Edit

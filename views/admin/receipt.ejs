@@ -46,7 +46,7 @@
                       <td><%= receipt.discount %> %</td>
                       <td>₱ <%= receipt.totalAmount %></td>
                       <td><%= receipt.cashier %></td>
-                      <td><%= new Date( receipt.createdAt ).toLocaleString() %></td>
+                      <td><%= new Date( receipt.createdAtLocal ).toLocaleString() %></td>
                       <td>
                         <button class="btn btn-sm btn-primary px-3 view-receipt" data-receipt='<%= JSON.stringify(receipt) %>'>view</button>
                         
