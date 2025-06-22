@@ -192,7 +192,8 @@ exports.product = async (req, res) => {
     }).sort({ createdAt: -1 })
       .populate('category')
       .exec();
-    products.forEach(p => p.createdAtLocal = formatToLocal(p.createdAt));
+    products.forEach(p => p.createdAtLocal = formatToLocal(p.createdAt)); //update
+    
       
     const categories = await Category.find({ 
       $or: [
