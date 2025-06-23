@@ -176,12 +176,17 @@
   });
 </script>
 
-<!-- print receipt function -->
 <script>
+  document.getElementById('print-receipt-btn').addEventListener('click', function () {
+    window.print();
+  });
+</script>
+
+<!-- print receipt function -->
+<!-- <script>
   document.getElementById('print-receipt-btn').addEventListener('click', function () {
     const receiptModalContent = document.getElementById('receipt-modal').innerHTML;
   
-    // Create a new window for printing
     const printWindow = window.open('', '', 'height=600,width=800');
     printWindow.document.write(`
       <html>
@@ -231,7 +236,6 @@
       </html>
     `);
   
-    // Copy the content from the modal to the print window
     printWindow.document.getElementById('customerName').textContent = document.getElementById('customerName').textContent;
     printWindow.document.getElementById('orderNumber').textContent = document.getElementById('orderNumber').textContent;
     printWindow.document.getElementById('receiptOrderSummary').innerHTML = document.getElementById('receiptOrderSummary').innerHTML;
@@ -241,11 +245,10 @@
     printWindow.document.getElementById('receiptTotalAmount').textContent = document.getElementById('receiptTotalAmount').textContent;
     printWindow.document.getElementById('cashier').textContent = document.getElementById('cashier').textContent;
   
-    // Trigger the print dialog
     printWindow.document.close();
     printWindow.print();
   });
-</script>
+</script> -->
 
 <!-- search function -->
 <script>
