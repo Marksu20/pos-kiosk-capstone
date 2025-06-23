@@ -9,10 +9,10 @@
 
 <section class="py-5">
   <div class="container px-4 px-lg-5 mt-5">
-    <div class="row gx-4 gx-lg-5 row-cols-2 row-cols-md-3 row-cols-xl-4 justify-content-center">
+    <div class="row gx-4 gx-lg-5 justify-content-center">
       <% if(products.length > 0){ %>
         <% products.forEach(function (product) { %>
-          <div class="col mb-5">
+          <div class="col-6 col-md-4 col-xl-3 mb-5 kiosk-product-col">
             <div class="card shadow">
               <div class="img-container">
                 <img class="card-img-top" src="<%= product.image %>" alt="<%= product.name %>"/>
@@ -20,7 +20,7 @@
               <div class="card-body p-4">
                 <div class="text-center">
                   <!-- name -->
-                  <h5 class="fw-bolder"><%= product.name %></h5>
+                  <h5 class="fw-bolder kiosk-product-title"><%= product.name %></h5>
                   <!-- price -->
                   <% if (isNaN(product.price)) { %>
                     <p>Price not available</p>
