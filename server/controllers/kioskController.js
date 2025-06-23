@@ -242,23 +242,13 @@ exports.validateOrderQuantities = async (req, res) => {
 exports.generateOrderNumber = async (req, res) => {
   try {
     const { accountId } = req.params;
-    const lastOrder = await Order.findOne({ user: accountId })
-      .sort({ createdAt: -1 })
-      .exec();
+
+    // Use the same logic as order creation
+    const newOrderNumber = await generateUniqueOrderNumber(accountId);
 
     const user = await User.findById(accountId);
     if (!user) {
       return res.status(404).send('Account not found');
-    }
-
-    let newOrderNumber;
-    if (lastOrder) {
-      const lastOrderNumber = lastOrder.orderNumber;
-      const numericPart = parseInt(lastOrderNumber.replace(/\D/g, ''), 10); // Remove any non-digit characters
-
-      newOrderNumber = (numericPart + 1).toString().padStart(4, '0'); // e.g., ORD1001
-    } else {
-      newOrderNumber = '0001';
     }
 
     res.json({ success: true, orderNumber: newOrderNumber });
