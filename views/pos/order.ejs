@@ -74,7 +74,7 @@
                       <% }) %>
                     </td>
                     <td><%= order.orderType %></td>
-                    <td>%<%= order.paymentMethod %></td>
+                    <td><%= order.paymentMethod %></td>
                     <td>₱<%= order.totalAmount %></td>
                     <td><%= new Date(order.createdAtLocal).toLocaleString() %></td>
                     <td><p class="text-primary"><%= order.status %></p></td>
@@ -134,7 +134,7 @@
                           <% }) %>
                         </th>
                         <td><%= order.orderType %></td>
-                        <td>% <%= order.paymentMethod %></td>
+                        <td><%= order.paymentMethod %></td>
                         <td>₱ <%= order.totalAmount %></td>
                         <td><%= new Date(order.createdAtLocal).toLocaleString() %></td>
                         <td><%= order.cashier || 'N/A' %></td>
@@ -193,7 +193,7 @@
                           <% }) %>
                         </th>
                         <td><%= order.orderType %></td>
-                        <td>% <%= order.paymentMethod %></td>
+                        <td><%= order.paymentMethod %></td>
                         <td>₱ <%= order.totalAmount %></td>
                         <td><%= new Date(order.createdAt).toLocaleString() %></td>
                         <td><%= order.cashier %></td>
