@@ -106,7 +106,7 @@ exports.allProducts = async (req, res) => {
       products,
       categories,
       selectedCategory: req.query.category || "All Products",
-      selectedCategoryDescription: req.query.category ? selectedCategory.description : "All products available",
+      selectedCategoryDescription: req.query.category ? selectedCategory.description : "All products",
       layout: '../views/layouts/kiosk'
     });
 

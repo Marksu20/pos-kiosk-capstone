@@ -54,7 +54,7 @@
                     <th scope="col">Order No.</th>
                     <th scope="col">Customer</th>
                     <th scope="col">Product(s)</th>
-                    <th scope="col">Order Type</th>
+                    <th scope="col">Payment</th>
                     <th scope="col">Discount</th>
                     <th scope="col">Total</th>
                     <th scope="col">Date & Time</th>
@@ -74,9 +74,9 @@
                       <% }) %>
                     </td>
                     <td><%= order.orderType %></td>
-                    <td>%<%= order.discount %></td>
+                    <td>%<%= order.paymentMethod %></td>
                     <td>₱<%= order.totalAmount %></td>
-                    <td><%= new Date(order.createdAt).toLocaleString() %></td>
+                    <td><%= new Date(order.createdAtLocal).toLocaleString() %></td>
                     <td><p class="text-primary"><%= order.status %></p></td>
                     <td class="text-center">
                       <button type="button" class="btn btn-sm btn-secondary px-3 btn-edit-order" data-order-id="<%= order._id %>">
@@ -114,7 +114,7 @@
                     <th scope="col">Customer</th>
                     <th scope="col">Product(s)</th>
                     <th scope="col">Order Type</th>
-                    <th scope="col">Discount</th>
+                    <th scope="col">Payment</th>
                     <th scope="col">Total</th>
                     <th scope="col">Created</th>
                     <th scope="col">Cashier</th>
@@ -134,9 +134,9 @@
                           <% }) %>
                         </th>
                         <td><%= order.orderType %></td>
-                        <td>% <%= order.discount %></td>
+                        <td>% <%= order.paymentMethod %></td>
                         <td>₱ <%= order.totalAmount %></td>
-                        <td><%= new Date(order.createdAt).toLocaleString() %></td>
+                        <td><%= new Date(order.createdAtLocal).toLocaleString() %></td>
                         <td><%= order.cashier || 'N/A' %></td>
                         <td><p class="text-warning"><%= order.status %></p></td>
                         <td class="text-center">
@@ -173,7 +173,7 @@
                     <th scope="col">Customer</th>
                     <th scope="col">Product(s)</th>
                     <th scope="col">Order Type</th>
-                    <th scope="col">Discount</th>
+                    <th scope="col">Payment</th>
                     <th scope="col">Total</th>
                     <th scope="col">Created</th>
                     <th scope="col">Cashier</th>
@@ -193,7 +193,7 @@
                           <% }) %>
                         </th>
                         <td><%= order.orderType %></td>
-                        <td>% <%= order.discount %></td>
+                        <td>% <%= order.paymentMethod %></td>
                         <td>₱ <%= order.totalAmount %></td>
                         <td><%= new Date(order.createdAt).toLocaleString() %></td>
                         <td><%= order.cashier %></td>

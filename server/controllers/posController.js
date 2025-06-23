@@ -174,10 +174,12 @@ exports.order = async (req, res) => {
     const order = await Order.find({ 
       user: { $in: [req.user._id, req.user.adminId] },
     }).sort({ createdAt: 1 })
+    order.forEach(o => o.createdAtLocal = formatToLocal(o.createdAt));
 
     const orders = await Order.find({ 
       user: { $in: [req.user._id, req.user.adminId] },
     }).sort({ createdAt: 1 });
+    orders.forEach(os => os.createdAtLocal = formatToLocal(os.createdAt));
 
     const discounts = await Discount.find({ 
       user: { $in: [req.user._id, req.user.adminId] },
@@ -194,6 +196,7 @@ exports.order = async (req, res) => {
       locals,
       orders,
       discounts,
+      paymentMethod,
       currentPath: req.path,
       companyname: req.user.companyName,
       username: req.user.displayName,
