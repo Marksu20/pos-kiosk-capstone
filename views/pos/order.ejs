@@ -443,7 +443,8 @@ document.getElementById('saveOrderBtn').addEventListener('click', async () => {
   const orderNumber = document.getElementById('orderNumber').value
   const discount = parseFloat(document.getElementById('discount').value) || 0;
   const totalAmount = parseFloat(document.getElementById('totalAmount').value);
-  const status = document.getElementById('status').value;
+  // const status = document.getElementById('status').value;
+  const status = "In Process";
   const cashier = document.getElementById('cashierName').value;
 
   const updatedOrder = {
