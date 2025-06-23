@@ -80,14 +80,14 @@ exports.allProducts = async (req, res) => {
       var selectedCategory = await Category.findOne({ name: req.query.category, user: accountId });
       if (selectedCategory) {
         products = await Product.find({ category: selectedCategory._id, user: accountId })
-          .sort({ createdAt: -1 })
+          .sort({ name: 1 })
           .populate('category');
       } else {
         products = [];
       }
     } else {
       products = await Product.find({ user: accountId })
-        .sort({ createdAt: -1 })
+        .sort({ name: 1 })
         .populate('category');
     }
     
