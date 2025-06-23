@@ -87,9 +87,10 @@
 /* Make product columns a bit wider and keep left-to-right flow on small screens */
 @media (max-width: 575.98px) {
   .kiosk-product-col {
-    flex: 0 0 55% !important; /* slightly wider than 50% */
-    max-width: 55% !important;
-    min-width: 180px;
+    min-width: 160px;
+  }
+  row.gx-4 {
+    --bs-gutter-x: 0.5rem; /* default is 1.5rem, reduce for more width */
   }
   .kiosk-product-title {
     white-space: nowrap;
@@ -100,13 +101,19 @@
   }
 }
 
-/* Optional: prevent card stretching due to long names on all screens */
 .kiosk-product-title {
+  font-size: clamp(0.85rem, 2.5vw, 1.25rem); /* min, preferred, max */
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   display: block;
   width: 100%;
+}
+
+@media (max-width: 575.98px) {
+  .kiosk-product-title {
+    font-size: 0.85rem;
+  }
 }
 
 /* Print-specific styles */
