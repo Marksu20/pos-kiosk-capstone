@@ -25,34 +25,6 @@
 		<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 		<script src="https://stackpath.bootstrapcdn.com/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
 		<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-		<script>
-			// Check if kiosk session is expired
-			if (localStorage.getItem('kioskExpired') === 'true') {
-				window.location.href = '/kiosk/expired';
-			}
-
-			const INACTIVITY_LIMIT = 60 * 1000;
-			let inactivityTimer;
-
-			function resetInactivityTimer() {
-				clearTimeout(inactivityTimer);
-				inactivityTimer = setTimeout(() => {
-					localStorage.setItem('kioskExpired', 'true');
-					window.location.href = '/kiosk/expired';
-				}, INACTIVITY_LIMIT);
-			}
-
-			['mousemove', 'keydown', 'mousedown', 'touchstart'].forEach(event => {
-				document.addEventListener(event, resetInactivityTimer, false);
-			});
-
-			resetInactivityTimer();
-
-			// Optional: If you want to allow reset via a special URL parameter
-			if (window.location.search.includes('reset=1')) {
-				localStorage.removeItem('kioskExpired');
-			}
-		</script>
 	</body>
 
 </html>
