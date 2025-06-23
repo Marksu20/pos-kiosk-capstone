@@ -196,7 +196,7 @@ exports.order = async (req, res) => {
       locals,
       orders,
       discounts,
-      paymentMethod,
+      paymentMethod: req.user.paymentMethod,
       currentPath: req.path,
       companyname: req.user.companyName,
       username: req.user.displayName,
