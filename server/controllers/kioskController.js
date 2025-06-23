@@ -2,6 +2,7 @@ const User = require('../models/User');
 const Product = require('../models/Product');
 const Category = require('../models/Category');
 const Order = require('../models/Order');
+const Receipt = require('../models/Receipt');
 const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
 const { account } = require('./adminController');
@@ -13,15 +14,24 @@ const generateUniqueOrderNumber = async (accountId) => {
     .sort({ createdAt: -1 })
     .exec();
 
-  let newOrderNumber;
+  const lastReceipt = await Receipt.findOne({ user: accountId })
+    .sort({ createdAt: -1 })
+    .exec();
 
-  if (lastOrder) {
-    const numericPart = parseInt(lastOrder.orderNumber.replace(/\D/g, ''), 10);
-    newOrderNumber = String(numericPart + 1).padStart(4, '0');
-  } else {
-    newOrderNumber = '0001';
+  let lastOrderNumber = 0;
+
+  if (lastOrder && lastOrder.orderNumber) {
+    const num = parseInt(lastOrder.orderNumber.replace(/\D/g, ''), 10);
+    if (!isNaN(num)) lastOrderNumber = num;
   }
 
+  if (lastReceipt && lastReceipt.orderNumber) {
+    const num = parseInt(lastReceipt.orderNumber.replace(/\D/g, ''), 10);
+    if (!isNaN(num) && num > lastOrderNumber) lastOrderNumber = num;
+  }
+
+  // Increment by 1
+  const newOrderNumber = String(lastOrderNumber + 1).padStart(4, '0');
   return newOrderNumber;
 };
 
@@ -230,32 +240,33 @@ exports.validateOrderQuantities = async (req, res) => {
 };
 
 exports.generateOrderNumber = async (req, res) => {
+  try {
     const { accountId } = req.params;
     const lastOrder = await Order.findOne({ user: accountId })
-    .sort({ createdAt: -1 })
-    .exec();
+      .sort({ createdAt: -1 })
+      .exec();
 
-  // Get latest order from Receipts
-  const lastReceipt = await Receipt.findOne({ user: accountId })
-    .sort({ createdAt: -1 })
-    .exec();
+    const user = await User.findById(accountId);
+    if (!user) {
+      return res.status(404).send('Account not found');
+    }
 
-  let lastOrderNumber = 0;
+    let newOrderNumber;
+    if (lastOrder) {
+      const lastOrderNumber = lastOrder.orderNumber;
+      const numericPart = parseInt(lastOrderNumber.replace(/\D/g, ''), 10); // Remove any non-digit characters
 
-  if (lastOrder && lastOrder.orderNumber) {
-    const num = parseInt(lastOrder.orderNumber.replace(/\D/g, ''), 10);
-    if (!isNaN(num)) lastOrderNumber = num;
+      newOrderNumber = (numericPart + 1).toString().padStart(4, '0'); // e.g., ORD1001
+    } else {
+      newOrderNumber = '0001';
+    }
+
+    res.json({ success: true, orderNumber: newOrderNumber });
+  } catch (error) {
+    console.error('Error generating order number:', error);
+    res.status(500).json({ success: false, message: 'Failed to generate order number.' });
   }
-
-  if (lastReceipt && lastReceipt.orderNumber) {
-    const num = parseInt(lastReceipt.orderNumber.replace(/\D/g, ''), 10);
-    if (!isNaN(num) && num > lastOrderNumber) lastOrderNumber = num;
-  }
-
-  // Increment by 1
-  const newOrderNumber = String(lastOrderNumber + 1).padStart(4, '0');
-  return newOrderNumber;
-}
+};
 
 exports.createPaypalOrder = async (req, res) => {
   const { orderID, customerName, totalAmount, orderType, orderItems, accountId } = req.body;
