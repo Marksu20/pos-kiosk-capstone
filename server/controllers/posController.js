@@ -7,6 +7,11 @@ const Order = require('../models/Order');
 const mongoose = require('mongoose');
 const { query } = require('express');
 
+function formatToLocal(date) {
+  if (!date) return '';
+  return new Date(date).toLocaleString('en-PH', { timeZone: 'Asia/Manila' }); // Change to your timezone
+}
+
 // GET: POS
 exports.pos = async (req, res) => {
   const locals = {
@@ -271,6 +276,7 @@ exports.receipt = async (req, res) => {
      })
       .sort({ createdAt: -1})
       .lean();
+    receipts.forEach(r => r.createdAtLocal = formatToLocal(r.createdAt));
 
     const user = await User.findOne();
 
@@ -325,6 +331,7 @@ exports.confirmPayment = async (req, res) => {
         customerName: customerName || `Guest ${newOrderNumber}`,
         orderItems: orderItemsArray,
         orderType,
+        paymentMethod: 'Cash',
         totalAmount: TotalAmount,
         discount,
         subTotal: Subtotal,

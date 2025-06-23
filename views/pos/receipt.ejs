@@ -19,7 +19,7 @@
                     <th scope="col">Order No.</th>
                     <th scope="col">Customer</th>
                     <th scope="col">Product(s)</th>
-                    <th scope="col">Order Type</th>
+                    <th scope="col">Payment</th>
                     <th scope="col">Discount</th>
                     <th scope="col">Total</th>
                     <th scope="col">Cashier</th>
@@ -40,11 +40,11 @@
                             ( x <%= item.quantity %> ), <br> 
                           <% }) %>
                         </td>
-                        <td><%= receipt.orderType %></td>
+                        <td><%= receipt.paymentMethod %></td>
                         <td>% <%= receipt.discount %></td>
                         <td>₱ <%= receipt.totalAmount %></td>
                         <td><%= receipt.cashier %></td>
-                        <td><%= new Date( receipt.createdAt ).toLocaleString() %></td>
+                        <td><%= new Date( receipt.createdAtLocal ).toLocaleString() %></td>
                         <td>
                           <button class="btn btn-sm btn-primary px-3 view-receipt" data-receipt='<%= JSON.stringify(receipt) %>'>view</button>
                           <!-- <button class="btn btn-sm btn-outline-secondary px-3">print</button> -->
@@ -81,6 +81,9 @@
           <div class="d-flex justify-content-between mb-2">
             <p>Customer: <strong id="customerName"></strong></p>
             <p>Cashier: <strong id="cashier"></strong></p>
+          </div>
+          <div class="d-flex justify-content-between mb-2">
+            <p>Payment: <strong id="paymentMethod"></strong></p>
           </div>
           <div class="d-flex justify-content-between mb-2">
             <p>Date: <strong id="createdAt"></strong></p>
@@ -135,6 +138,7 @@
       document.getElementById('receiptTotalAmount').textContent = receipt.totalAmount;
       document.getElementById('cashier').textContent = receipt.cashier;
       document.getElementById('companyName').textContent = receipt.companyName;
+      document.getElementById('paymentMethod').textContent = receipt.paymentMethod;
   
       // Handle Discount Display
       const discountContainer = document.getElementById('discountContainer');
