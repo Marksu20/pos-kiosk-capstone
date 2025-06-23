@@ -23,7 +23,7 @@ exports.pos = async (req, res) => {
         { user: req.user._id },
         { user: req.user.adminId }, 
       ]
-    });
+    }).sort({ name: 1 });
 
     const discounts = await Discount.find({ 
       $or: [
@@ -49,17 +49,17 @@ exports.pos = async (req, res) => {
           { user: req.user._id },
           { user: req.user.adminId },
         ]  
-      });
+      }).sort({ name: 1 });
       if (selectedCategory) {
         products = await Product.find({ 
           ...query, 
           category: selectedCategory._id 
-        }).populate('category');
+        }).populate('category').sort({ name: 1 });
       } else {
         products = [];
       }
     } else {
-      products = await Product.find(query).populate('category');
+      products = await Product.find(query).populate('category').sort({ name: 1 });
     }
 
     // Set a default value if price is missing
@@ -76,7 +76,7 @@ exports.pos = async (req, res) => {
           { user: req.user._id },
           { user: req.user.adminId },
         ] 
-      });
+      }).sort({ name: 1 });
       if (selectedCategory) {
         query.category = selectedCategory._id;
       }
@@ -87,7 +87,7 @@ exports.pos = async (req, res) => {
       query.name = { $regex: searchTerm, $options: 'i' }; // Case-insensitive search
     }
 
-    products = await Product.find(query).populate('category');
+    products = await Product.find(query).populate('category').sort({ name: 1 });
 
     if(req.xhr) {
       return res.json(products); //Respond with JSON if it's an AJAX request
