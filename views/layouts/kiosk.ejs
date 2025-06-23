@@ -25,6 +25,24 @@
 		<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 		<script src="https://stackpath.bootstrapcdn.com/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
 		<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+		<script>
+			const INACTIVITY_LIMIT = 10 * 60 * 1000;
+
+			let inactivityTimer;
+
+			function resetInactivityTimer() {
+				clearTimeout(inactivityTimer);
+				inactivityTimer = setTimeout(() => {
+					window.location.href = '/kiosk/expired';
+				}, INACTIVITY_LIMIT);
+			}
+
+			['mousemove', 'keydown', 'mousedown', 'touchstart'].forEach(event => {
+				document.addEventListener(event, resetInactivityTimer, false);
+			});
+
+			resetInactivityTimer();
+			</script>
 	</body>
 
 </html>
