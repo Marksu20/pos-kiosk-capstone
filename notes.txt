@@ -45,7 +45,13 @@ show only items accustomed each account
 
 allow a username or email login✔
 
-update the access denied display
+update the access denied display✔
+
+make kiosk link expires within a set limit of time
+
+payment method in receipts
+
+try email verification
 
 mongodb:
 kC4W2GSwwiuGmtFx
