@@ -47,9 +47,9 @@ allow a username or email login✔
 
 update the access denied display✔
 
-make kiosk link expires within a set limit of time
+payment method in receipts✔
 
-payment method in receipts
+make kiosk link expires within a set limit of time
 
 try email verification
 
