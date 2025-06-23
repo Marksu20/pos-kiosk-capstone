@@ -82,6 +82,33 @@
   font-weight: bold;
 }
 
+/* ...existing code... */
+
+/* Make product columns a bit wider and keep left-to-right flow on small screens */
+@media (max-width: 575.98px) {
+  .kiosk-product-col {
+    flex: 0 0 55% !important; /* slightly wider than 50% */
+    max-width: 55% !important;
+    min-width: 180px;
+  }
+  .kiosk-product-title {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
+    width: 100%;
+  }
+}
+
+/* Optional: prevent card stretching due to long names on all screens */
+.kiosk-product-title {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+  width: 100%;
+}
+
 /* Print-specific styles */
 @media print {
   /* Hide everything except the receipt modal */

@@ -12,7 +12,7 @@
       <% if( productsSold && productsSold.length > 0 ) { %>
         <% productsSold.forEach(function(productSold){ %>
           <% if(productSold.sold > 0) { %>
-            <div class="col mb-5">
+            <div class="col mb-5 kiosk-product-col">
               <div class="card shadow">
                 <div class="img-container shadow-sm rounded">
                   <img class="card-img-top" src="<%= productSold.image %>" alt="<%= productSold.name %>" />
