@@ -424,6 +424,7 @@ exports.updateOrder = async (req, res) => {
           customerName: order.customerName,
           orderItems: order.orderItems,
           orderType: order.orderType,
+          paymentMethod: order.paymentMethod,
           totalAmount: order.totalAmount,
           discount: order.discount,
           subTotal: subTotal, // ✅ Make sure the field name matches
