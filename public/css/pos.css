@@ -143,6 +143,20 @@ body{
   font-weight: bold;
 }
 
+/* ...existing code... */
+@media (min-width: 576px) {
+  .btn-category {
+    font-size: 1rem;
+    padding: 0.5rem 1.5rem;
+  }
+}
+@media (max-width: 575.98px) {
+  .btn-category {
+    font-size: 0.85rem;
+    padding: 0.25rem 0.75rem;
+  }
+}
+/* ...existing code... */
 
 /* Print-specific styles */
 @media print {
