@@ -51,6 +51,8 @@ payment method in receipts✔
 
 make kiosk link expires within a set limit of time
 
+put a sold out text option in kiosk
+
 try email verification
 
 mongodb:

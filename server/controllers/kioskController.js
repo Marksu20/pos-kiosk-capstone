@@ -53,7 +53,14 @@ exports.kiosk = async (req, res) => {
     const products = await Product.find({ user: accountId });
     const productsSold = await Product.find({ user: accountId })
       .sort({ sold: -1, createdAt: -1 })
-      .limit(9);
+      .limit(8);
+
+    //fallback if no products sold
+    if (!productsSold || productsSold.length === 0) {
+      productsSold = await Product.find({ user: accountId })
+        .sort({ name: 1 })
+        .limit(8);
+    }
     
     res.render('kiosk/index', {
       locals,
