@@ -349,6 +349,14 @@
           img.style.width = '256px';
           qrContainer.appendChild(img);
 
+          const debugLink = document.createElement('a');
+          debugLink.href = data.paypalUrl || data.paymentUrl || '#';
+          debugLink.target = '_blank';
+          debugLink.textContent = 'Open PayPal Payment Link';
+          debugLink.style.display = 'block';
+          debugLink.style.marginTop = '16px';
+          qrContainer.appendChild(debugLink);
+
           sessionStorage.setItem('paypalOrderId', data.paypalOrderId);
         } else {
           alert('Failed to generate PayPal QR Code');
