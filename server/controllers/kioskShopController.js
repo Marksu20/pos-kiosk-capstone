@@ -519,6 +519,46 @@ exports.confirmPaypalOrder = async (req, res) => {
   }
 };
 
+exports.successPayment = async (req, res) => {
+  const orderID = req.query.token;
+  if (!orderID) {
+    return res.render('kiosk-shop/success-payment', { success: false, message: 'Missing order ID.' });
+  }
+
+  try {
+    // Get PayPal access token
+    const auth = await axios({
+      method: 'post',
+      url: `${process.env.PAYPAL_API}/v1/oauth2/token`,
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      auth: {
+        username: process.env.PAYPAL_CLIENT_ID,
+        password: process.env.PAYPAL_CLIENT_SECRET,
+      },
+      data: 'grant_type=client_credentials',
+    });
+    const accessToken = auth.data.access_token;
+
+    // Capture the order
+    const capture = await axios.post(
+      `${process.env.PAYPAL_API}/v2/checkout/orders/${orderID}/capture`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    );
+
+    // Optionally: Save order to your DB here
+
+    res.render('kiosk-shop/success-payment', { success: true, message: 'Payment successful!' });
+  } catch (error) {
+    console.error('PayPal capture error:', error.response?.data || error.message);
+    res.render('kiosk-shop/success-payment', { success: false, message: 'Payment capture failed.' });
+  }
+}
+
 
 
 
