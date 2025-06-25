@@ -499,7 +499,7 @@ exports.confirmPaypalOrder = async (req, res) => {
 
     // Capture order
     const capture = await axios.post(
-      `${process.env.PAYPAL_API}/v2/checkout/orders/${orderId}/capture`,
+      `${process.env.PAYPAL_API}/v2/checkout/orders/${orderID}/capture`,
       {},
       {
         headers: {
