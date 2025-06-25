@@ -17,7 +17,7 @@ router.post('/create-paypal-order', kioskShopController.createPaypalOrder);
 
 router.post('/capture-paypal-order', kioskShopController.capturePaypalOrder);
 
-
+router.post('/api/kiosk/paypal/qr-order', kioskShopController.createQrPaypalOrder);
 
 // router.get('/kiosk/expired', (req, res) => {
 //     res.render('kiosk/expired', { layout: false });
