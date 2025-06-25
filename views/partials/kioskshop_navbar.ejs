@@ -1,6 +1,6 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-light sticky-top shadow-sm">
   <div class="container px-4 px-lg-5">
-    <a class="navbar-brand" href="/<%= user._id %>/kiosk">KOKA KIOSK</a>
+    <a class="navbar-brand" href="/<%= user._id %>/kiosk-shop">KOKA KIOSK</a>
     <!-- toggle button -->
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
@@ -12,12 +12,12 @@
           <input type="hidden" id="accountId" value="<%= accountId %>">
           <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="true">Select Category</a>
           <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-            <li><a class="dropdown-item" href="/<%= accountId %>/kiosk/allProducts">All Products</a></li>
+            <li><a class="dropdown-item" href="/<%= accountId %>/kiosk-shop/allProducts">All Products</a></li>
             <li><hr class="dropdown-divider" /></li>
             <% if (categories && categories.length > 0) { %>
               <% categories.forEach(function (category) { %>
                 <li>
-                  <a class="dropdown-item" href="/<%= accountId %>/kiosk/allProducts?category=<%= encodeURIComponent(category.name) %>">
+                  <a class="dropdown-item" href="/<%= accountId %>/kiosk-shop/allProducts?category=<%= encodeURIComponent(category.name) %>">
                     <%= category.name %>
                   </a>
                 </li>
@@ -106,7 +106,7 @@
       </div>
       <div class="modal-body">
 
-        <form action="/kiosk/orders" method="POST"  class="d-none">
+        <form action="/kiosk-shop/orders" method="POST"  class="d-none">
             <h4><span id="customerName"></span></h4>
             <h5>Order Number: <span id="orderNumber"></span></h5>
             <div id="receiptOrderSummary">
