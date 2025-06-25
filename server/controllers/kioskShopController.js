@@ -7,6 +7,7 @@ const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
 const { account } = require('./adminController');
 const axios = require('axios');
+const QRCode = require('qrcode');
 const { config } = require('dotenv');
 
 const generateUniqueOrderNumber = async (accountId) => {
@@ -411,6 +412,108 @@ exports.capturePaypalOrder = async (req, res) => {
     res.status(500).json({ success: false, message: 'Payment capture failed' });
   }
 };
+
+exports.createQrPaypalOrder = async (req, res) => {
+  const { orderItems, totalAmount, customerName, orderType, accountId } = req.body;
+
+  try {
+    // 1. Get PayPal Access Token
+    const auth = await axios({
+      method: 'post',
+      url: `${process.env.PAYPAL_API}/v1/oauth2/token`,
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      auth: {
+        username: process.env.PAYPAL_CLIENT_ID,
+        password: process.env.PAYPAL_CLIENT_SECRET,
+      },
+      data: 'grant_type=client_credentials',
+    });
+
+    const accessToken = auth.data.access_token;
+
+    // 2. Create PayPal Order
+    const order = await axios.post(
+      `${process.env.PAYPAL_API}/v2/checkout/orders`,
+      {
+        intent: 'CAPTURE',
+        purchase_units: [{
+          amount: {
+            currency_code: 'PHP',
+            value: totalAmount,
+          },
+        }],
+        application_context: {
+          return_url: `${process.env.BASE_URL}/paypal/confirm?orderId=PAYPAL_ORDER_ID`,
+          cancel_url: `${process.env.BASE_URL}/kiosk`,
+        }
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+
+    const paypalOrderId = order.data.id;
+    const paypalApproveUrl = order.data.links.find(link => link.rel === 'approve')?.href;
+
+    // 3. Generate QR Code from PayPal Approval URL
+    const qrImage = await QRCode.toDataURL(paypalApproveUrl);
+
+    res.json({
+      success: true,
+      qrCode: qrImage,
+      paypalOrderId: paypalOrderId,
+    });
+
+  } catch (err) {
+    console.error('PayPal QR create error:', err.response?.data || err.message);
+    res.status(500).json({ success: false, message: 'QR PayPal Order creation failed' });
+  }
+};
+
+// Route: /paypal/confirm?orderId=xxxxxx
+exports.confirmPaypalOrder = async (req, res) => {
+  const orderId = req.query.orderId;
+
+  try {
+    // Get access token
+    const auth = await axios({
+      method: 'post',
+      url: `${process.env.PAYPAL_API}/v1/oauth2/token`,
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      auth: {
+        username: process.env.PAYPAL_CLIENT_ID,
+        password: process.env.PAYPAL_CLIENT_SECRET,
+      },
+      data: 'grant_type=client_credentials',
+    });
+
+    const accessToken = auth.data.access_token;
+
+    // Capture order
+    const capture = await axios.post(
+      `${process.env.PAYPAL_API}/v2/checkout/orders/${orderId}/capture`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    );
+
+    // Save to DB here
+    console.log('CAPTURED PAYPAL ORDER', capture.data);
+
+    res.send(`<h2>Thank you, your payment was successful!</h2>`);
+  } catch (error) {
+    console.error('Capture error:', error.response?.data || error.message);
+    res.status(500).send('Payment verification failed.');
+  }
+};
+
+
 
 
 

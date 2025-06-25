@@ -315,36 +315,50 @@
     },
   }).render('#paypal-button-container');
 
-    document.querySelector('.btn-paypalqr').addEventListener('click', () => {
+    document.querySelector('.btn-paypalqr').addEventListener('click', async () => {
       const amountText = document.querySelector('.total-amount').innerText;
-      const amount = amountText.replace(/[^\d.]/g, '');
+      const totalAmount = amountText.replace(/[^\d.]/g, '');
       const customerName = document.getElementById('customer-name').value;
+      const orderItems = JSON.parse(localStorage.getItem('orderItems'));
+      const orderType = document.querySelector('.form-select').value;
+      const accountId = document.getElementById('accountId').value;
 
-      const qrModal = new bootstrap.Modal(document.getElementById('paypalQRModal'));
-      qrModal.show();
+      try {
+        const response = await fetch('/api/kiosk/paypal/qr-order', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            totalAmount,
+            customerName,
+            orderItems,
+            orderType,
+            accountId
+          })
+        });
 
-      showPaypalQRCode(customerName, amount);
+        const data = await response.json();
+
+        if (data.success) {
+          const qrModal = new bootstrap.Modal(document.getElementById('paypalQRModal'));
+          qrModal.show();
+
+          const qrContainer = document.getElementById('paypal-qr-code');
+          qrContainer.innerHTML = '';
+          const img = document.createElement('img');
+          img.src = data.qrCode;
+          img.style.width = '256px';
+          qrContainer.appendChild(img);
+
+          sessionStorage.setItem('paypalOrderId', data.paypalOrderId);
+        } else {
+          alert('Failed to generate PayPal QR Code');
+        }
+      } catch (error) {
+        console.error('QR PayPal error:', error);
+        alert('An error occurred generating PayPal QR.');
+      }
     });
 
-    function showPaypalQRCode(customerName, amount) {
-      const paypalMeUsername = 'kramsu001'; // ⚠️ Replace with your actual PayPal.Me username
-      const numericAmount = parseFloat(amount.replace(/[^\d.]/g, '')).toFixed(2);
-      const paypalUrl = `https://www.paypal.me/${paypalMeUsername}/${numericAmount}`;
-
-      const qrContainer = document.getElementById('paypal-qr-code');
-      qrContainer.innerHTML = ''; // Clear previous QR
-
-      const canvas = document.createElement('canvas');
-      qrContainer.appendChild(canvas);
-
-      QRCode.toCanvas(canvas, paypalUrl, {
-        width: 256,
-        margin: 1
-      }, function (error) {
-        if (error) console.error(error);
-        console.log('QR Code generated!');
-      });
-    }
   });
 
   function addToOrder(productId, productName, productPrice, productImage) {
