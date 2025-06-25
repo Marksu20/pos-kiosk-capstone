@@ -308,7 +308,11 @@
 
       const qrContainer = document.getElementById('paypal-qr-code');
       qrContainer.innerHTML = ''; // Clear previous QR
-      QRCode.toCanvas(qrContainer, paypalUrl, {
+
+      const canvas = document.createElement('canvas');
+      qrContainer.appendChild(canvas);
+
+      QRCode.toCanvas(canvas, paypalUrl, {
         width: 256,
         margin: 1
       }, function (error) {
