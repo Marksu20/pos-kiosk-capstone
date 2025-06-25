@@ -625,39 +625,39 @@
     }
   });
   
-  function displayReceipt(orderData) {
-    const receiptContainer = document.querySelector('.receipt');
+  // function displayReceipt(orderData) {
+  //   const receiptContainer = document.querySelector('.receipt');
 
-    receiptContainer.innerHTML = `
-      <h1 class="mb-2">#<span>${orderData.orderNumber}</span></h1>
-      <div class="d-flex justify-content-between mb-2">
-        <p>Customer: <strong>${orderData.customerName}</strong></p>
-        <p>Payment: <b>${orderData.paymentMethod}</b></p>
-      </div>
-      <div class="line"></div>
-      <div>
-        ${orderData.orderItems.map(item => `
-          <div class="order-item bg-light px-2 mb-2">
-            <span>${item.quantity}</span>
-            <span>${item.name}</span>
-            <p>₱ <span>${(item.price * item.quantity).toFixed(2)}</span></p>
-          </div>
-        `).join('')}
-      </div>
-      <div class="line"></div>
-      <div class="d-flex justify-content-between total">
-        <p>Total:</p>
-        <p>₱ <span>${orderData.totalAmount.toFixed(2)}</span></p> 
-      </div>
-      <div class="footer">
-        <p><span>${orderData.orderType}</span></p> 
-        <p>THANK YOU!</p>
-      </div>
-    `;
+  //   receiptContainer.innerHTML = `
+  //     <h1 class="mb-2">#<span>${orderData.orderNumber}</span></h1>
+  //     <div class="d-flex justify-content-between mb-2">
+  //       <p>Customer: <strong>${orderData.customerName}</strong></p>
+  //       <p>Payment: <b>${orderData.paymentMethod}</b></p>
+  //     </div>
+  //     <div class="line"></div>
+  //     <div>
+  //       ${orderData.orderItems.map(item => `
+  //         <div class="order-item bg-light px-2 mb-2">
+  //           <span>${item.quantity}</span>
+  //           <span>${item.name}</span>
+  //           <p>₱ <span>${(item.price * item.quantity).toFixed(2)}</span></p>
+  //         </div>
+  //       `).join('')}
+  //     </div>
+  //     <div class="line"></div>
+  //     <div class="d-flex justify-content-between total">
+  //       <p>Total:</p>
+  //       <p>₱ <span>${orderData.totalAmount.toFixed(2)}</span></p> 
+  //     </div>
+  //     <div class="footer">
+  //       <p><span>${orderData.orderType}</span></p> 
+  //       <p>THANK YOU!</p>
+  //     </div>
+  //   `;
 
-    const receiptModal = new bootstrap.Modal(document.getElementById('receipt-modal'));
-    receiptModal.show();
-  }
+  //   const receiptModal = new bootstrap.Modal(document.getElementById('receipt-modal'));
+  //   receiptModal.show();
+  // }
 
   function displayReceipt(orderData) {
     const receiptContainer = document.querySelector('.receipt'); // Target the receipt container
