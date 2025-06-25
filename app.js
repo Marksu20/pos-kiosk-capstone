@@ -55,6 +55,7 @@ app.use('/', require('./server/routes/index'));
 app.use('/', require('./server/routes/pos'));
 app.use('/', require('./server/routes/admin'));
 app.use('/', require('./server/routes/kiosk'));
+app.use('/', require('./server/routes/kioskShop'));
 
 // handle 404
 app.get('*', function(req, res) {
