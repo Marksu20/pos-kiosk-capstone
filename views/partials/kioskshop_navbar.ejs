@@ -325,7 +325,11 @@
     }
 
     document.querySelector('.btn-paypalqr').addEventListener('click', () => {
-      const amount = document.querySelector('.total-amount').innerText;
+      // Get the total amount from the order summary (not from any user input)
+      const amountText = document.querySelector('.total-amount').innerText;
+      // Extract numeric value (remove ₱ and commas)
+      const amount = amountText.replace(/[^\d.]/g, '');
+      // Optionally, get customer name for display (not for PayPal)
       const customerName = document.getElementById('customer-name').value;
       showPaypalQRCode(customerName, amount);
     });
