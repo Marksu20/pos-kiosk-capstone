@@ -118,7 +118,9 @@
         <p>Choose your payment method:</p>
         <button type="submit" class="btn btn-cashpay btn-outline-primary mb-2" data-bs-dismiss="modal">Cash (Pay at the counter)</button>
         <!-- <button type="button" class="btn btn-onlinepay btn-outline-primary mb-2">Online Payment</button> -->
-        <div id="paypal-button-container" data-bs-dismiss="modal"></div>
+        <!-- <div id="paypal-button-container" data-bs-dismiss="modal"></div> -->
+         <button type="button" class="btn btn-paypalqr btn-outline-success mb-2">Pay with PayPal QR</button>
+
       </div>
 
       <div class="modal-footer">
@@ -127,6 +129,12 @@
     </div>
   </div>
 </div>
+
+<div class="text-center my-3" id="paypal-qr-container" style="display: none;">
+  <p>Scan QR code to pay with PayPal:</p>
+  <div id="paypal-qr-code"></div>
+</div>
+
 
 <!-- Receipt Modal -->
 <div class="modal fade" id="receipt-modal" tabindex="-1" aria-labelledby="receiptModalLabel" aria-hidden="true">
@@ -292,6 +300,32 @@
       alert('An error occurred during the transaction. Please try again.');
     },
   }).render('#paypal-button-container');
+
+    function showPaypalQRCode(customerName, amount) {
+      const paypalMeUsername = 'kramsu001'; // ⚠️ Replace with your actual PayPal.Me username
+      const numericAmount = parseFloat(amount.replace(/[^\d.]/g, '')).toFixed(2);
+      const paypalUrl = `https://www.paypal.me/${paypalMeUsername}/${numericAmount}`;
+
+      const qrContainer = document.getElementById('paypal-qr-code');
+      qrContainer.innerHTML = ''; // Clear previous QR
+      QRCode.toCanvas(qrContainer, paypalUrl, {
+        width: 256,
+        margin: 1
+      }, function (error) {
+        if (error) console.error(error);
+        console.log('QR Code generated!');
+      });
+
+      // Show the container
+      document.getElementById('paypal-qr-container').style.display = 'block';
+    }
+
+    document.querySelector('.btn-paypalqr').addEventListener('click', () => {
+      const amount = document.querySelector('.total-amount').innerText;
+      const customerName = document.getElementById('customer-name').value;
+      showPaypalQRCode(customerName, amount);
+    });
+
   });
 
   function addToOrder(productId, productName, productPrice, productImage) {
@@ -624,40 +658,6 @@
       document.getElementById('receiptTotalAmount').textContent = '0.00';
     }
   });
-  
-  // function displayReceipt(orderData) {
-  //   const receiptContainer = document.querySelector('.receipt');
-
-  //   receiptContainer.innerHTML = `
-  //     <h1 class="mb-2">#<span>${orderData.orderNumber}</span></h1>
-  //     <div class="d-flex justify-content-between mb-2">
-  //       <p>Customer: <strong>${orderData.customerName}</strong></p>
-  //       <p>Payment: <b>${orderData.paymentMethod}</b></p>
-  //     </div>
-  //     <div class="line"></div>
-  //     <div>
-  //       ${orderData.orderItems.map(item => `
-  //         <div class="order-item bg-light px-2 mb-2">
-  //           <span>${item.quantity}</span>
-  //           <span>${item.name}</span>
-  //           <p>₱ <span>${(item.price * item.quantity).toFixed(2)}</span></p>
-  //         </div>
-  //       `).join('')}
-  //     </div>
-  //     <div class="line"></div>
-  //     <div class="d-flex justify-content-between total">
-  //       <p>Total:</p>
-  //       <p>₱ <span>${orderData.totalAmount.toFixed(2)}</span></p> 
-  //     </div>
-  //     <div class="footer">
-  //       <p><span>${orderData.orderType}</span></p> 
-  //       <p>THANK YOU!</p>
-  //     </div>
-  //   `;
-
-  //   const receiptModal = new bootstrap.Modal(document.getElementById('receipt-modal'));
-  //   receiptModal.show();
-  // }
 
   function displayReceipt(orderData) {
     const receiptContainer = document.querySelector('.receipt'); // Target the receipt container
