@@ -476,7 +476,11 @@ exports.createQrPaypalOrder = async (req, res) => {
 };
 
 exports.confirmPaypalOrder = async (req, res) => {
-  const orderId = req.query.orderId;
+  const orderID = req.query.token;
+
+  if (!orderID) {
+    return res.status(400).send('Missing order ID (token)');
+  }
 
   try {
     // Get access token
@@ -507,9 +511,9 @@ exports.confirmPaypalOrder = async (req, res) => {
     // Save to DB here
     console.log('CAPTURED PAYPAL ORDER', capture.data);
 
-    res.send(`<h2>Thank you, your payment was successful!</h2>`);
+    res.redirect(`/kiosk?payment=success&orderId=${orderID}`);
   } catch (error) {
-    console.error('Capture error:', error.response?.data || error.message);
+    console.error('❌ Capture error:', error.response?.data || error.message);
     res.status(500).send('Payment verification failed.');
   }
 };
