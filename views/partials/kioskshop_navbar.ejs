@@ -130,11 +130,10 @@
   </div>
 </div>
 
-<div class="text-center my-3" id="paypal-qr-container" style="display: none;">
+<!-- <div class="text-center my-3" id="paypal-qr-container" style="display: none;">
   <p>Scan QR code to pay with PayPal:</p>
   <div id="paypal-qr-code"></div>
-</div>
-
+</div> -->
 
 <!-- Receipt Modal -->
 <div class="modal fade" id="receipt-modal" tabindex="-1" aria-labelledby="receiptModalLabel" aria-hidden="true">
@@ -151,6 +150,21 @@
       <div class="modal-footer">  
         <button type="submit" class="btn btn-primary" id="download-pdf">Get PDF Receipt</button>
         <button type="button" class="btn btn-secondary close-btn" data-bs-dismiss="modal" id="close-receipt-modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="paypalQRModal" tabindex="-1" aria-labelledby="paypalQRModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-fullscreen">
+    <div class="modal-content bg-light">
+      <div class="modal-header">
+        <h5 class="modal-title" id="paypalQRModalLabel">Scan to Pay with PayPal</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body d-flex flex-column align-items-center justify-content-center">
+        <div id="paypal-qr-code" class="mb-3"></div>
+        <p class="fs-4">Show this QR code to the cashier after payment.</p>
       </div>
     </div>
   </div>
@@ -301,6 +315,17 @@
     },
   }).render('#paypal-button-container');
 
+    document.querySelector('.btn-paypalqr').addEventListener('click', () => {
+      const amountText = document.querySelector('.total-amount').innerText;
+      const amount = amountText.replace(/[^\d.]/g, '');
+      const customerName = document.getElementById('customer-name').value;
+
+      const qrModal = new bootstrap.Modal(document.getElementById('paypalQRModal'));
+      qrModal.show();
+
+      showPaypalQRCode(customerName, amount);
+    });
+
     function showPaypalQRCode(customerName, amount) {
       const paypalMeUsername = 'kramsu001'; // ⚠️ Replace with your actual PayPal.Me username
       const numericAmount = parseFloat(amount.replace(/[^\d.]/g, '')).toFixed(2);
@@ -319,21 +344,7 @@
         if (error) console.error(error);
         console.log('QR Code generated!');
       });
-
-      // Show the container
-      document.getElementById('paypal-qr-container').style.display = 'block';
     }
-
-    document.querySelector('.btn-paypalqr').addEventListener('click', () => {
-      // Get the total amount from the order summary (not from any user input)
-      const amountText = document.querySelector('.total-amount').innerText;
-      // Extract numeric value (remove ₱ and commas)
-      const amount = amountText.replace(/[^\d.]/g, '');
-      // Optionally, get customer name for display (not for PayPal)
-      const customerName = document.getElementById('customer-name').value;
-      showPaypalQRCode(customerName, amount);
-    });
-
   });
 
   function addToOrder(productId, productName, productPrice, productImage) {
