@@ -443,7 +443,7 @@ exports.createQrPaypalOrder = async (req, res) => {
           },
         }],
         application_context: {
-          return_url: `${process.env.BASE_URL}/paypal/confirm?orderId={{ORDER_ID}}`,
+          return_url: `${process.env.BASE_URL}/paypal/confirm`,
           cancel_url: `${process.env.BASE_URL}/kiosk`,
         }
       },
