@@ -367,6 +367,16 @@
       }
     });
 
+    // In your kiosk page script
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('payment') === 'success') {
+      Swal.fire({
+        icon: 'success',
+        title: 'Payment Complete!',
+        text: 'Your PayPal payment was successful.',
+      });
+    }
+
   });
 
   function addToOrder(productId, productName, productPrice, productImage) {

@@ -512,6 +512,7 @@ exports.confirmPaypalOrder = async (req, res) => {
     console.log('CAPTURED PAYPAL ORDER', capture.data);
 
     res.redirect(`/kiosk?payment=success&orderId=${orderID}`);
+    
   } catch (error) {
     console.error('❌ Capture error:', error.response?.data || error.message);
     res.status(500).send('Payment verification failed.');
