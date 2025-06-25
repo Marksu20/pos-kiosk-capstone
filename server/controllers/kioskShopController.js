@@ -445,7 +445,7 @@ exports.createQrPaypalOrder = async (req, res) => {
         application_context: {
           user_action: 'PAY_NOW',
           shipping_preference: 'NO_SHIPPING',
-          return_url: `${process.env.BASE_URL}/paypal/confirm`,
+          return_url: `${process.env.BASE_URL}/kiosk-shop/success-payment`,
           cancel_url: `${process.env.BASE_URL}/kiosk`,
         }
       },
@@ -511,8 +511,8 @@ exports.confirmPaypalOrder = async (req, res) => {
     // Save to DB here
     console.log('CAPTURED PAYPAL ORDER', capture.data);
 
-    res.redirect(`/kiosk?payment=success&orderId=${orderID}`);
-    
+    // res.redirect(`/kiosk-shop`);
+
   } catch (error) {
     console.error('❌ Capture error:', error.response?.data || error.message);
     res.status(500).send('Payment verification failed.');
