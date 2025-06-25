@@ -443,7 +443,7 @@ exports.createQrPaypalOrder = async (req, res) => {
           },
         }],
         application_context: {
-          return_url: `${process.env.BASE_URL}/paypal/confirm?orderId=PAYPAL_ORDER_ID`,
+          return_url: `${process.env.BASE_URL}/paypal/confirm?orderId={{ORDER_ID}}`,
           cancel_url: `${process.env.BASE_URL}/kiosk`,
         }
       },
@@ -473,7 +473,6 @@ exports.createQrPaypalOrder = async (req, res) => {
   }
 };
 
-// Route: /paypal/confirm?orderId=xxxxxx
 exports.confirmPaypalOrder = async (req, res) => {
   const orderId = req.query.orderId;
 
