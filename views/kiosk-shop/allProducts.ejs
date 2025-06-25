@@ -1,0 +1,59 @@
+<header class="bg-dark py-5">
+  <div class="container px-4 px-lg-5 my-5">
+    <div class="text-center text-white">
+      <h1 class="display-4 fw-bolder mb-3"><%= companyname %> <%= selectedCategory %></h1>
+      <p><%= selectedCategoryDescription %></p>
+    </div>
+  </div>
+</header>
+
+<section class="py-5">
+  <div class="container px-2 px-lg-5 mt-5">
+    <div class="row gx-4 gx-lg-5">
+      <% if(products.length > 0){ %>
+        <% products.forEach(function (product) { %>
+          <div class="col-6 col-md-4 col-xl-3 mb-5 kiosk-product-col">
+            <div class="card shadow">
+              <div class="img-container">
+                <img class="card-img-top" src="<%= product.image %>" alt="<%= product.name %>"/>
+              </div>
+              <div class="card-body p-4">
+                <div class="text-center">
+                  <!-- name -->
+                  <h5 class="fw-bolder kiosk-product-title"><%= product.name %></h5>
+                  <!-- price -->
+                  <% if (isNaN(product.price)) { %>
+                    <p>Price not available</p>
+                  <% } else { %>
+                    <p>₱ <%= product.price %></p>
+                  <% } %>
+                </div>
+              </div>
+              <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
+                <div class="text-center">
+                  <% if (product.quantity === 0 || product.quantity < 0) { %>
+                    <span class="text-danger btn">Sold Out</span>
+                  <% } else { %>
+                    <button class="btn btn-outline-dark mt-auto add-to-order"
+                            data-id="<%= product._id %>"
+                            data-name="<%= product.name %>"
+                            data-price="<%= product.price %>"
+                            data-image="<%= product.image %>">
+                      Add to Order
+                    </button>
+                  <% } %>
+                </div>
+              </div>
+            </div>
+          </div>
+        <% }) %>
+      <% } else { %>
+        <div class="col-12" style="height: 30vh;">
+          <strong class="text-danger">You don't have a product yet.</strong>
+        </div>
+      <% } %>
+    </div>
+  </div>
+</section>
+
+

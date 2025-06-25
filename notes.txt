@@ -55,6 +55,8 @@ put a sold out text option in kiosk
 
 try email verification
 
+kiosk access for the shop only with print order receipt function
+
 mongodb:
 kC4W2GSwwiuGmtFx
 

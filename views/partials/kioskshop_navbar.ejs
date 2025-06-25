@@ -1,0 +1,741 @@
+<nav class="navbar navbar-expand-lg navbar-light bg-light sticky-top shadow-sm">
+  <div class="container px-4 px-lg-5">
+    <a class="navbar-brand" href="/<%= user._id %>/kiosk">KOKA KIOSK</a>
+    <!-- toggle button -->
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <!-- collapse -->
+    <div class="collapse navbar-collapse show" id="navbarSupportedContent">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4">
+        <li class="nav-item dropdown">
+          <input type="hidden" id="accountId" value="<%= accountId %>">
+          <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="true">Select Category</a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+            <li><a class="dropdown-item" href="/<%= accountId %>/kiosk/allProducts">All Products</a></li>
+            <li><hr class="dropdown-divider" /></li>
+            <% if (categories && categories.length > 0) { %>
+              <% categories.forEach(function (category) { %>
+                <li>
+                  <a class="dropdown-item" href="/<%= accountId %>/kiosk/allProducts?category=<%= encodeURIComponent(category.name) %>">
+                    <%= category.name %>
+                  </a>
+                </li>
+              <% }) %>
+            <% } else { %>
+              <li><a class="dropdown-item" href="#">No Categories Available</a></li>
+            <% } %>            
+          </ul>
+        </li>
+      </ul>
+      <!-- orders -->
+      <button type="button" class="btn btn-outline-dark" data-bs-toggle="modal" data-bs-target="#orderSummary">
+        <i class="bi-cart-fill me-1"></i>
+        Order(s)
+        <span class="badge bg-dark text-white ms-1 rounded-pill">0</span>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<!-- Order Summary Modal -->
+<div class="modal fade" id="orderSummary" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+  <div class="modal-dialog modal-fullscreen" style="background-color: transparent;">
+    <div class="modal-content h-100 mb-5" style="background-color: transparent;">
+      <div class="container py-5 h-100">
+        <div class="row d-flex justify-content-center align-items-center h-100">
+          <div class="col-12">
+            <div class="card shadow" style="border-radius: 15px;">
+              <div class="modal-header">
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="card-body p-0">
+                <div class="row g-0">
+                  <div class="col-lg-8">
+                    <div class="p-5">
+                      <div class="d-flex justify-content-between align-items-center mb-5">
+                        <h1 class="fw-bold mb-0">Order Summary</h1>
+                      </div>
+                      <hr class="my-2">
+                      <div class="order-summary">
+                        <!-- Order items will be inserted here dynamically by JavaScript -->
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-lg-4 mb-5">
+                    <div class="p-5">
+                      <h3 class="fw-bold mb-5 mt-2 pt-1">Order Total</h3>
+                      <hr class="my-4">
+                      <input id="customer-name" type="text" class="customer-name form-control mb-3" placeholder="Customer Name" />
+                      <div class="mb-4 pb-2">
+                        <select class="form-select">
+                          <option selected value="Dine In">Dine In</option>
+                          <option value="Takeout">Takeout</option>
+                        </select>
+                      </div>
+                      <hr class="my-4">
+                      <div class="d-flex justify-content-between mb-5">
+                        <h5 class="text-uppercase">Total price</h5>
+                        <h5><span class="total-amount">0.00</span></h5>
+                      </div>
+                      <button type="button" class="btn btn-checkout btn-dark btn-block btn-lg" id="checkOutButton" data-bs-dismiss="modal">
+                        Checkout
+                      </button>
+                      <button type="button" class="btn btn-danger btn-block btn-lg" data-bs-dismiss="modal">
+                        Cancel Order
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Payment Options Modal -->
+<div class="modal fade" id="paymentOptionsModal" tabindex="-1" aria-labelledby="paymentOptionsModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="paymentOptionsModalLabel">Payment Options</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+
+        <form action="/kiosk/orders" method="POST"  class="d-none">
+            <h4><span id="customerName"></span></h4>
+            <h5>Order Number: <span id="orderNumber"></span></h5>
+            <div id="receiptOrderSummary">
+            </div>
+            <div id="orderType"></div>
+            <h6>Total Amount: ₱<span id="receiptTotalAmount"></span></h6>
+        </form>
+        
+        <p>Choose your payment method:</p>
+        <button type="submit" class="btn btn-cashpay btn-outline-primary mb-2" data-bs-dismiss="modal">Cash (Pay at the counter)</button>
+        <!-- <button type="button" class="btn btn-onlinepay btn-outline-primary mb-2">Online Payment</button> -->
+        <div id="paypal-button-container" data-bs-dismiss="modal"></div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" id="returnToOrderSummaryButton" aria-label="Close">Return to Order Summary</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Receipt Modal -->
+<div class="modal fade" id="receipt-modal" tabindex="-1" aria-labelledby="receiptModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Order Receipt</h5>
+      </div>
+      <div class="modal-body">
+        <div class="receipt">
+          <!-- Receipt content will be dynamically inserted here -->
+        </div>
+      </div>
+      <div class="modal-footer">  
+        <button type="submit" class="btn btn-primary" id="download-pdf">Get PDF Receipt</button>
+        <button type="button" class="btn btn-secondary close-btn" data-bs-dismiss="modal" id="close-receipt-modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://www.paypal.com/sdk/js?client-id=ASvM6Dyqhf_dTRmkCYNko5JYUBEGdF6NkjlAilgQmjW1QdolwFn2OkWsEabmpE42SpiY2YaW4KtsNRj9&currency=PHP&debug=true"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>  
+  let orderItems = JSON.parse(localStorage.getItem('orderItems')) || [];
+
+  document.addEventListener('DOMContentLoaded', () => {
+    
+    localStorage.removeItem('orderItems');
+    orderItems = []; // Reset the orderItems array
+    updateOrderSummary(); // Clear the order summary UI
+    updateCartBadge(); // Reset the cart badge
+
+    const addToOrderButtons = document.querySelectorAll('.add-to-order');
+    const closeReceiptButton = document.getElementById('close-receipt-modal');
+
+    closeReceiptButton.addEventListener('click', () => {
+      // Refresh the page when the close button is clicked
+      window.location.reload();
+    });
+
+    addToOrderButtons.forEach(button => {
+      button.addEventListener('click', (e) => {
+        const productId = button.getAttribute('data-id');
+        const productName = button.getAttribute('data-name');
+        const productPrice = parseFloat(button.getAttribute('data-price'));
+        const productImage = button.getAttribute('data-image');
+
+        addToOrder(productId, productName, productPrice, productImage);
+        console.log(`${productName} added to order!`);
+      });
+    });
+
+    paypal.Buttons({
+      createOrder: async function (data, actions) {
+        const rawAmount = document.querySelector('.total-amount').innerText;
+        const cleanAmount = rawAmount.replace(/[^\d.]/g, '');
+        const accountId = document.getElementById('accountId').value;
+
+        let orderNumber = '';
+
+        try {
+          const orderNumberRes = await fetch(`/${accountId}/kiosk/orders/generate-order-number`, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          });
+          const orderNumberData = await orderNumberRes.json();
+          if (orderNumberData.success) {
+            orderNumber = orderNumberData.orderNumber;
+
+            sessionStorage.setItem('paypalOrderNumber', orderNumber);
+          } else {
+            alert('Failed to generate order number.');
+            throw new Error('Failed to generate order number.');
+          }
+        } catch (error) {
+          console.error('Error fetching order number:', error);
+          throw error; // Rethrow the error to prevent order creation
+        }
+
+        const response = await fetch('/create-paypal-order', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            amount: cleanAmount,
+            accountId: accountId,
+            orderItems: JSON.parse(localStorage.getItem("orderItems")),
+          }),
+        })
+
+        const orderData = await response.json();
+        if (!orderData || !orderData.id) {
+          throw new Error('No order ID returned from PayPal');
+        }
+
+        if (!orderData.id) {
+          console.error('PayPal order creation failed:', orderData);
+          console.log('PayPal create order response:', orderData);
+          throw new Error('Invalid PayPal order response');
+        }
+        return orderData.id;
+      },
+
+      onApprove: async function (data, actions) {
+        const orderNumber = sessionStorage.getItem('paypalOrderNumber');
+
+        const response = await fetch('/capture-paypal-order', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            orderID: data.orderID,
+            customerName: document.getElementById('customer-name').value,
+            totalAmount: document.querySelector('.total-amount').innerText,
+            orderType: document.querySelector('.form-select').value,
+            orderItems: JSON.parse(localStorage.getItem("orderItems")),
+            accountId: "<%= accountId %>",
+            orderNumber: orderNumber,
+          }),
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          Swal.fire({
+            icon: 'success',
+            title: 'Payment Successful!',
+            text: 'Order placed successfully.',
+            confirmButtonText: 'OK!'
+          });
+
+          // Prepare the orderData object for the receipt
+          const orderData = {
+            orderNumber: result.orderNumber || orderNumber, // Ensure the server returns this
+            customerName: document.getElementById('customer-name').value,
+            orderItems: JSON.parse(localStorage.getItem('orderItems')),
+            orderType: document.querySelector('.form-select').value,
+            totalAmount: parseFloat(document.querySelector('.total-amount').innerText.replace(/[^\d.]/g, '')),
+            paymentMethod: 'PayPal',
+          };
+
+          displayReceipt(orderData);
+          localStorage.removeItem('orderItems');
+          sessionStorage.removeItem('paypalOrderNumber');
+        } else {
+          Swal.fire({
+            icon: 'error',
+            title: 'Payment Failed',
+            text: result.message || 'Something went wrong with the payment.',
+          });
+          console.error("Capture error response:", result);
+        }
+    },
+
+    onError: function (err) {
+      console.error('PayPal Checkout onError', err);
+      alert('An error occurred during the transaction. Please try again.');
+    },
+  }).render('#paypal-button-container');
+  });
+
+  function addToOrder(productId, productName, productPrice, productImage) {
+    const existingProduct = orderItems.find(item => item.id === productId);
+    
+    if (existingProduct) {
+      existingProduct.quantity += 1;
+    } else {
+      orderItems.push({
+        id: productId,
+        name: productName,
+        price: productPrice,
+        image: productImage,
+        quantity: 1
+      });
+    }
+
+    updateOrderSummary();
+    updateCartBadge();
+    saveOrderItems();  // Save to localStorage
+
+    // Show "Added to Cart" notification
+    toastr.success('added to cart!', `${productName}`, {
+      closeButton: true,
+      progressBar: true,
+      positionClass: 'toast-top-right',
+      timeOut: 3000, // Notification will disappear after 3 seconds
+    });
+  }
+
+  function incrementProductQuantity(productId) {
+    const product = orderItems.find(item => item.id === productId);
+    if (product) {
+      product.quantity += 1;
+      updateOrderSummary();
+      updateCartBadge();
+      saveOrderItems();  // Save to localStorage
+    }
+  }
+
+  function decrementProductQuantity(productId) {
+    const product = orderItems.find(item => item.id === productId);
+    if (product) {
+      if (product.quantity > 1) {
+        product.quantity -= 1;
+      } else {
+        // If quantity is 1 and the user tries to decrement, remove the item from the order
+        orderItems = orderItems.filter(item => item.id !== productId);
+      }
+      updateOrderSummary();
+      updateCartBadge();
+      saveOrderItems();  // Save to localStorage
+    }
+  }
+  
+  function updateOrderSummary() {
+    const orderSummaryContainer = document.querySelector('.order-summary');
+    orderSummaryContainer.innerHTML = ''; // Clear the current order summary
+
+    let totalAmount = 0;
+
+    orderItems.forEach(item => {
+      const itemTotal = item.price * item.quantity;
+      totalAmount += itemTotal;
+
+      const orderItemHTML = `
+        <div class="row mb-4 d-flex justify-content-between align-items-center">
+          <div class="col-md-2 col-lg-2 col-xl-2">
+            <div class="img-container-modal">
+              <img src="${item.image}" class="img-fluid rounded-3">
+            </div>
+          </div>
+
+          <div class="col-md-3 col-lg-3 col-xl-3">
+            <h6 class="mb-1">${item.name}</h6>
+          </div>
+
+          <div class="col-md-3 col-lg-3 col-xl-2 d-flex">
+            <button class="btn px-2 decrement-item" data-id="${item.id}">
+              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-minus"><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            </button>
+
+            <input min="0" value="${item.quantity}" type="number" class="form-control form-control-sm" readonly/>
+
+            <button class="btn btn-link px-2 increment-item" data-id="${item.id}">
+              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-plus"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            </button>
+          </div>
+
+          <div class="col-md-3 col-lg-2 col-xl-2 offset-lg-1">
+            <h6 class="mb-0">₱${itemTotal.toFixed(2)}</h6>
+          </div>
+        </div>
+        <hr class="my-2">
+      `;
+
+      orderSummaryContainer.insertAdjacentHTML('beforeend', orderItemHTML);
+    });
+
+    // Update the total amount
+    document.querySelector('.total-amount').textContent = `₱${totalAmount.toFixed(2)}`;
+
+    document.querySelectorAll('.increment-item').forEach(button => {
+      button.addEventListener('click', function () {
+        const productId = this.dataset.id;
+        incrementProductQuantity(productId);
+      });
+    });
+
+    document.querySelectorAll('.decrement-item').forEach(button => {
+      button.addEventListener('click', function () {
+        const productId = this.dataset.id;
+        decrementProductQuantity(productId);
+      });
+    });
+  }
+
+  function updateCartBadge() {
+    const totalItems = orderItems.reduce((acc, item) => acc + item.quantity, 0);
+    document.querySelector('.badge').textContent = totalItems;
+  }
+
+  function saveOrderItems() {
+    localStorage.setItem('orderItems', JSON.stringify(orderItems));
+  }
+
+  function loadOrderItems() {
+    const savedOrderItems = localStorage.getItem('orderItems');
+    if (savedOrderItems) {
+      orderItems = JSON.parse(savedOrderItems);
+      updateOrderSummary();
+      updateCartBadge();
+    }
+  }
+  // ------------------------------------------------------------------------
+  
+  // checkout
+  document.querySelector('.btn-checkout').addEventListener('click', async function () {
+    const customerName = document.querySelector('input.customer-name').value;
+    const orderType = document.querySelector('.form-select').selectedOptions[0].text;
+
+    if (!orderItems || orderItems.length === 0) {
+      Swal.fire({
+        title: "Your order is empty!",
+        text: "Please add items to your order before confirming.",
+        icon: "warning",
+        confirmButtonColor: "#3085d6",
+        confirmButtonText: "OK",
+      });
+      return;
+    }
+
+    if (!customerName) {
+      Swal.fire({
+        title: "Missing Customer Name!",
+        text: "Please enter the customer name before proceeding.",
+        icon: "warning",
+        confirmButtonColor: "#3085d6",
+        confirmButtonText: "OK",
+      });
+      return;
+    }
+
+    const accountId = document.getElementById('accountId').value;
+
+    // Validate quantities
+    try {
+      const response = await fetch(`/${accountId}/kiosk/orders/validate-quantities`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ accountId, orderItems }),
+      });
+
+      const data = await response.json();
+
+      if (!data.success) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Insufficient Stock',
+        text: data.message,
+        confirmButtonColor: "#d33",
+        confirmButtonText: "OK",
+      });
+      return;
+    }
+
+    } catch (error) {
+      console.error('Error validating quantities:', error);
+      alert('An error occurred while validating quantities.');
+      return;
+    }
+
+    let orderNumber;
+    try {
+      const response = await fetch(`/${accountId}/kiosk/orders/generate-order-number`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        orderNumber = data.orderNumber;
+      } else {
+        alert('Failed to generate order number.');
+        return;
+      }
+    } catch (error) {
+      console.error('Error fetching order number:', error);
+      alert('An error occurred while generating the order number.');
+      return;
+    }
+
+    document.getElementById('orderNumber').textContent = orderNumber;
+    document.getElementById('customerName').textContent = customerName;
+    document.getElementById('orderType').textContent = orderType;
+
+    let totalAmount = 0;
+    const receiptSummaryContainer = document.getElementById('receiptOrderSummary');
+    receiptSummaryContainer.innerHTML = '';
+
+    orderItems.forEach(item => {
+      const itemTotal = item.price * item.quantity;
+      totalAmount += itemTotal;
+
+      const receiptItemHTML = `
+        <div class="d-flex justify-content-between">
+          <div>${item.name} (${item.quantity} x ₱${item.price.toFixed(2)})</div>
+          <div>₱${itemTotal.toFixed(2)}</div>
+        </div>
+      `;
+
+      receiptSummaryContainer.insertAdjacentHTML('beforeend', receiptItemHTML);
+    });
+
+    document.getElementById('receiptTotalAmount').textContent = totalAmount.toFixed(2);
+
+    const paymentOptionsModal = new bootstrap.Modal(document.getElementById('paymentOptionsModal'));
+    paymentOptionsModal.show();
+  });
+
+  document.getElementById('returnToOrderSummaryButton').addEventListener('click', function() {
+    var paymentOptionsModal = bootstrap.Modal.getInstance(document.getElementById('paymentOptionsModal'));
+    if (!paymentOptionsModal) {
+      paymentOptionsModal = new bootstrap.Modal(document.getElementById('paymentOptionsModal'));
+    }
+    paymentOptionsModal.hide();
+
+    var orderSummaryModal = new bootstrap.Modal(document.getElementById('orderSummary'));
+    orderSummaryModal.show();
+  });
+  
+  // cashpay
+  document.querySelector('.btn-cashpay').addEventListener('click', function() {
+    const orderNumber = document.getElementById('orderNumber').textContent;
+    const customerName = document.getElementById('customerName').textContent;
+    const orderType = document.getElementById('orderType').textContent;
+    const totalAmount = parseFloat(document.getElementById('receiptTotalAmount').textContent);
+
+    const orderData = {
+      orderNumber: orderNumber,
+      customerName: customerName,
+      orderItems: orderItems,
+      orderType: orderType,
+      totalAmount: totalAmount,
+      paymentMethod: 'Cash',
+      status: 'Waiting'
+    };
+
+    async function submitOrder() {
+      try {
+        const accountId = document.getElementById('accountId').value;
+        const response = await fetch(`/kiosk/orders/${accountId}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(orderData)
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          if (data.success) {
+            Swal.fire({
+              title: `Order ${orderNumber} Added!`,
+              icon: 'success',
+              confirmButtonText: 'OK'
+            }).then((result) => {
+              if (result.isConfirmed) {
+                clearOrderSummary();
+                displayReceipt(orderData);
+
+                const receiptModal = document.getElementById('receiptModal'); // Example ID, adjust if different
+                if (receiptModal) {
+                  receiptModal.addEventListener('hidden.bs.modal', function() {
+                    location.reload();
+                  }, { once: true }); // "once" means the event listener auto removes after firing
+                } else {
+                  // If no modal, fallback reload after short delay
+                  setTimeout(() => location.reload(), 10000);
+                }
+              }
+            });
+          } else {
+            alert(data.message || 'Failed to save the order. Please try again.');
+          }
+        } else {
+          alert(data.message || 'Error: Unable to process the order.');
+        }
+      } catch (error) {
+        console.error('Error submitting order:', error);
+        alert('An unexpected error occurred. Please try again.');
+      }
+    }
+
+    submitOrder();
+
+    function clearOrderSummary() {
+      orderItems = [];
+      localStorage.removeItem('orderItems');
+      const orderSummaryContainer = document.querySelector('.order-summary');
+      orderSummaryContainer.innerHTML = '';
+      document.querySelector('input.customer-name').value = '';
+      document.querySelector('.form-select').selectedIndex = 0;
+      document.querySelector('.total-amount').textContent = '₱0.00';
+      updateOrderSummary();
+      updateCartBadge();
+      document.getElementById('orderNumber').textContent = '';
+      document.getElementById('customerName').textContent = '';
+      document.getElementById('orderType').textContent = '';
+      document.getElementById('receiptTotalAmount').textContent = '0.00';
+    }
+  });
+  
+  function displayReceipt(orderData) {
+    const receiptContainer = document.querySelector('.receipt'); // Target the receipt container
+
+    receiptContainer.innerHTML = `
+      <h1 class="mb-2">#<span>${orderData.orderNumber}</span></h1>
+      <div class="d-flex justify-content-between mb-2">
+        <p>Customer: <strong>${orderData.customerName}</strong></p>
+        <p>Payment: <b>${orderData.paymentMethod}</b></p>
+      </div>
+      <div class="line"></div>
+      <div>
+        ${orderData.orderItems.map(item => `
+          <div class="order-item bg-light px-2 mb-2">
+            <span>${item.quantity}</span>
+            <span>${item.name}</span>
+            <p>₱ <span>${(item.price * item.quantity).toFixed(2)}</span></p>
+          </div>
+        `).join('')}
+      </div>
+      <div class="line"></div>
+      <div class="d-flex justify-content-between total">
+        <p>Total:</p>
+        <p>₱ <span>${orderData.totalAmount.toFixed(2)}</span></p> 
+      </div>
+      <div class="footer">
+        <p><span>${orderData.orderType}</span></p> 
+        <p>THANK YOU!</p>
+      </div>
+    `;
+
+    const receiptModal = new bootstrap.Modal(document.getElementById('receipt-modal'));
+    receiptModal.show();
+  }
+
+  document.getElementById('download-pdf').addEventListener('click', function() {
+    if (window.jspdf) {
+      generatePDF();
+    } else {
+      console.error('jsPDF library is not loaded.');
+    }
+  });
+
+  function generatePDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+
+    // Get the receipt data
+    const orderNumber = document.querySelector('.receipt h1 span')?.textContent || 'N/A';
+    const customerName = document.querySelector('.receipt p strong')?.textContent || 'N/A';
+    const paymentMethod = document.querySelector('.receipt p b')?.textContent || 'N/A';
+    const orderItems = document.querySelectorAll('.receipt .order-item');
+    const totalAmount = document.querySelector('.receipt .total span')?.textContent || 'N/A';
+    const orderType = document.querySelector('.receipt .footer p span')?.textContent || 'N/A';
+
+    // Set font and size
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(12);
+
+    // Add order number
+    doc.text(`#${orderNumber}`, 10, 10);
+
+    // Add customer name and payment method
+    doc.text(`Customer: ${customerName}`, 10, 20);
+    doc.text(`Payment: ${paymentMethod}`, 10, 25);
+
+    // Add a line separator
+    doc.setLineWidth(0.5);
+    doc.line(10, 30, 200, 30);
+
+    // Add order items
+    let yPos = 40;
+    orderItems.forEach(item => {
+      const itemName = item.querySelector('span:nth-child(2)')?.textContent || 'N/A';
+      const itemQuantity = item.querySelector('span:nth-child(1)')?.textContent || 'N/A';
+      const itemPrice = item.querySelector('p span')?.textContent || 'N/A';
+
+      const itemText = `${itemQuantity}    ${itemName}    ₱${itemPrice}`;
+      doc.text(itemText, 10, yPos);
+      yPos += 10;
+    });
+
+    // Add another line separator
+    doc.line(10, yPos, 200, yPos);
+    yPos += 10;
+
+    // Add total amount
+    doc.setFontSize(14);
+    doc.text(`Total:`, 10, yPos);
+    doc.text(`₱${totalAmount}`, 50, yPos);
+
+    // Add order type
+    yPos += 10;
+    doc.setFontSize(12);
+    doc.text(`${orderType}`, 10, yPos);
+
+    // Add "THANK YOU!" message
+    yPos += 10;
+    doc.setFontSize(14);
+    doc.text(`THANK YOU!`, 10, yPos);
+
+    // Save the PDF
+    doc.save('receipt.pdf');
+  }
+
+</script>
+
+
+
+
+
+
+
+
+
