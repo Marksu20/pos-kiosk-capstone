@@ -443,6 +443,8 @@ exports.createQrPaypalOrder = async (req, res) => {
           },
         }],
         application_context: {
+          user_action: 'PAY_NOW',
+          shipping_preference: 'NO_SHIPPING',
           return_url: `${process.env.BASE_URL}/paypal/confirm`,
           cancel_url: `${process.env.BASE_URL}/kiosk`,
         }
