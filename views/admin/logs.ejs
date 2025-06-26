@@ -17,57 +17,51 @@
           <div class="table-responsive">
             <table class="table">
               <tbody id="logs-list">
-                <% if (logs && logs.length > 0) { %>
-                  <% logs.forEach(function(log) { 
-                    // Determine text color based on action
-                    let actionColor = "";
-                    if (log.action === "delete") {
-                      actionColor = "text-danger";
-                    } else if (log.action === "create") {
-                      actionColor = "text-success";
-                    } else if (log.action && log.action.startsWith("update")) {
-                      actionColor = "text-warning";
-                    }
+              <% if (logs && logs.length > 0) { %>
+                <% logs.forEach(function(log) { 
+                  let actionColor = "";
+                  if (log.action === "delete") {
+                    actionColor = "text-danger";
+                  } else if (log.action === "create") {
+                    actionColor = "text-success";
+                  } else if (log.action && log.action.startsWith("update")) {
+                    actionColor = "text-warning";
+                  }
 
-                    // Highlight product name (underlined) and user (bold green)
-                    let highlightedMsg = log.message
-                      .replace(
+                  // Highlight action and underline only the product name
+                  let highlightedMsg = log.message
+                    .replace(
                       /(delete|create|update)/i,
                       (match) => `<span class="${actionColor} text-capitalize fw-bold">${match}</span>`
                     )
-                    // Underline product name and everything after it until 'by'
+                    // Underline only the product name after "item" or "Update"
                     .replace(
-                      /(item|Update) ([^ ]+)([^b]+by)/i,
-                      (match, action, prodName, after) =>
-                        `${action} <span class="fw-bold text-decoration-underline">${prodName}${after}</span>`
-                    )
-                    // Underline for delete with category (if present)
-                    .replace(
-                      /(Delete item [^,]+, [^ ]+)/i,
-                      (match) => `<span class="fw-bold text-decoration-underline">${match}</span>`
+                      /(item|Update) ([^ ]+)/i,
+                      (match, action, prodName) =>
+                        `${action} <span class="fw-bold text-decoration-underline">${prodName}</span>`
                     )
                     // Highlight user
                     .replace(
                       /by ([^:]+):/,
                       (match, p1) => `by <span class="text-primary fw-bold">${p1}</span>:`
                     );
-                  %>
-                    <tr>
-                      <td>
-                        <div class="d-flex align-items-center mb-2">
-                          <span style="font-weight: 500;"><%- highlightedMsg %></span>
-                        </div>
-                        <div style="color: #aaa; font-size: 0.95em;">
-                          <%= log.formattedDate || (new Date(log.timestamp)).toLocaleString('en-PH', { timeZone: 'Asia/Manila' }) %>
-                        </div>
-                      </td>
-                    </tr>
-                  <% }) %>
-                <% } else { %>
+                %>
                   <tr>
-                    <td class="text-center text-muted">No logs found.</td>
+                    <td>
+                      <div class="d-flex align-items-center mb-2">
+                        <span style="font-weight: 500;"><%- highlightedMsg %></span>
+                      </div>
+                      <div style="color: #aaa; font-size: 0.95em;">
+                        <%= log.formattedDate || (new Date(log.timestamp)).toLocaleString('en-PH', { timeZone: 'Asia/Manila' }) %>
+                      </div>
+                    </td>
                   </tr>
-                <% } %>
+                <% }) %>
+              <% } else { %>
+                <tr>
+                  <td class="text-center text-muted">No logs found.</td>
+                </tr>
+              <% } %>
               </tbody>
             </table>
           </div>
