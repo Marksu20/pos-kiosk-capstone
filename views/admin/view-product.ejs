@@ -95,18 +95,16 @@
           You are about to delete a product
         </h5>
       </div>
-    <form action="/pos/admin/delete-product/<%= productID %>?_method=DELETE" method="POST"></form>
+    <form action="/pos/admin/delete-product/<%= productID %>?_method=DELETE" method="POST">
       <div class="modal-body">
         <p>
           This will delete your product <b class="fw-bold text-danger"><%= product.name %></b><br/>
           Are you sure?
         </p>
-
         <div class="mb-3">
           <textarea name="comment" id="deleteComment" class="form-control" rows="2" cols="100" placeholder="reason for deletion"></textarea>
         </div>
       </div>
-
         <div class="modal-footer">
           <button type="submit" class="btn btn-danger">Delete</button>
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>  
