@@ -17,48 +17,48 @@
           <div class="table-responsive">
             <table class="table">
               <tbody id="logs-list">
-<% if (logs && logs.length > 0) { %>
-  <% logs.forEach(function(log) { 
-    let actionColor = "";
-    if (log.action === "delete") {
-      actionColor = "text-danger";
-    } else if (log.action === "create") {
-      actionColor = "text-success";
-    } else if (log.action && log.action.startsWith("update")) {
-      actionColor = "text-warning";
-    }
+              <% if (logs && logs.length > 0) { %>
+                <% logs.forEach(function(log) { 
+                  let actionColor = "";
+                  if (log.action === "delete") {
+                    actionColor = "text-danger";
+                  } else if (log.action === "create") {
+                    actionColor = "text-success";
+                  } else if (log.action && log.action.startsWith("update")) {
+                    actionColor = "text-warning";
+                  }
 
-    // Highlight action and underline product name, new value, and deleted item name
-    let highlightedMsg = log.message
-      // Highlight action word
-      .replace(
-        /(delete|create|update)/i,
-        (match) => `<span class="${actionColor} text-capitalize fw-bold">${match}</span>`
-      )
-      // Underline product name after "item" or "Update" (with spaces)
-      .replace(
-        /(item|Update) ([^,:\n]+?)(?=,| name| category| price| quantity| image| by| into|$)/gi,
-        (match, action, prodName) =>
-          `${action} <span class="fw-bold text-decoration-underline">${prodName.trim()}</span>`
-      )
-      // Underline new value after "into" (for update actions)
-      .replace(
-        /into ([^ ]+)(?= by|:)/gi,
-        (match, newValue) =>
-          `into <span class="fw-bold text-decoration-underline">${newValue.trim()}</span>`
-      )
-      // Underline deleted category (for delete logs with category)
-      .replace(
-        /, ([^ ]+) by/i,
-        (match, catName) =>
-          `, <span class="fw-bold text-decoration-underline">${catName.trim()}</span> by`
-      )
-      // Highlight user
-      .replace(
-        /by ([^:]+):/,
-        (match, p1) => `by <span class="text-primary fw-bold">${p1}</span>:`
-      );
-  %>
+                  // Highlight action and underline product name, new value, and deleted item name
+                  let highlightedMsg = log.message
+                    // Highlight action word
+                    .replace(
+                      /(delete|create|update)/i,
+                      (match) => `<span class="${actionColor} text-capitalize fw-bold">${match}</span>`
+                    )
+                    // Underline product name after "item" or "Update" (with spaces)
+                    .replace(
+                      /(item|Update) ([^,:\n]+?)(?=,| name| category| price| quantity| image| by| into|$)/gi,
+                      (match, action, prodName) =>
+                        `${action} <span class="fw-bold text-decoration-underline">${prodName.trim()}</span>`
+                    )
+                    // Underline new value after "into" (for update actions)
+                    .replace(
+                      /into ([^ ]+)(?= by|:)/gi,
+                      (match, newValue) =>
+                        `into <span class="fw-bold text-decoration-underline">${newValue.trim()}</span>`
+                    )
+                    // Underline deleted category (for delete logs with category)
+                    .replace(
+                      /, ([^ ]+) by/i,
+                      (match, catName) =>
+                        `, <span class="fw-bold text-decoration-underline">${catName.trim()}</span> by`
+                    )
+                    // Highlight user
+                    .replace(
+                      /by ([^:]+):/,
+                      (match, p1) => `by <span class="text-primary fw-bold">${p1}</span>:`
+                    );
+                %>
     <tr>
       <td>
         <div class="d-flex align-items-center mb-2">

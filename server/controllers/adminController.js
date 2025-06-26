@@ -641,7 +641,9 @@ exports.updateProduct = async (req, res) => {
       logs.push({ action: 'updateName', productName: product.name, newValue: req.body.name });
     }
     if (req.body.category && req.body.category !== String(product.category)) {
-      logs.push({ action: 'updateCategory', productName: product.name, newValue: req.body.category });
+      const categoryDoc = await Category.findById(req.body.category);
+      newCategoryName = categoryDoc ? categoryDoc.name : req.body.category;
+      logs.push({ action: 'updateCategory', productName: product.name, newValue: newCategoryName });
     }
     if (req.body.price && req.body.price != product.price) {
       logs.push({ action: 'updatePrice', productName: product.name, newValue: req.body.price });
