@@ -29,6 +29,8 @@ router.get('/pos/admin/account', isLoggedIn, checkRole(['admin']), adminControll
 router.get('/pos/admin/account/:id', isLoggedIn, checkRole(['admin']), adminController.viewAccount);
 router.get('/add-user-details', isLoggedIn, checkRole(['admin']), adminController.addUserDetails);
 
+router.get('/pos/admin/logs', isLoggedIn, checkRole(['admin']), adminController.logs);
+
 // POST
 router.post('/pos/admin/newProduct', upload.single('image'), isLoggedIn, adminController.newProduct);
 router.post('/product/check-duplicate', isLoggedIn, adminController.checkProductDuplicate);

@@ -390,6 +390,20 @@ exports.account = async (req, res) => {
   } 
 }
 
+exports.logs = async (req, res) => {
+
+  res.render('admin/logs', {
+    username: req.user.firstName,
+    companyname: req.user.companyName,
+    username: req.user.displayName,
+    role: req.user.role,
+    currentPath: req.path,
+    locals,
+    showNavbar: true,
+    layout: '../views/layouts/admin'
+  });
+}
+
 exports.viewProduct = async (req, res) => {
   const product = await Product.findById({ _id: req.params.id })
     .where({ user: req.user.id })
