@@ -18,12 +18,42 @@
             <table class="table">
                 <tbody id="logs-list">
                 <% if (logs && logs.length > 0) { %>
-                  <% logs.forEach(function(log) { %>
+                  <% logs.forEach(function(log) { 
+                    // Determine badge color and icon based on action
+                    let badgeClass = "bg-secondary";
+                    let icon = "";
+                    if (log.action === "delete") {
+                      badgeClass = "bg-danger";
+                      icon = '<i class="bi bi-trash"></i>';
+                    } else if (log.action === "create") {
+                      badgeClass = "bg-primary";
+                      icon = '<i class="bi bi-plus-circle"></i>';
+                    } else if (log.action && log.action.startsWith("update")) {
+                      badgeClass = "bg-warning";
+                      icon = '<i class="bi bi-pencil-square"></i>';
+                    }
+                    // Highlight product name and user in the message
+                    let highlightedMsg = log.message
+                      .replace(
+                        /item ([^ ]+)/i, 
+                        (match, p1) => `item <span class="text-info fw-bold">${p1}</span>`
+                      )
+                      .replace(
+                        /Update ([^ ]+)/i, 
+                        (match, p1) => `Update <span class="text-info fw-bold">${p1}</span>`
+                      )
+                      .replace(
+                        /by ([^:]+):/, 
+                        (match, p1) => `by <span class="text-success fw-bold">${p1}</span>:`
+                      );
+                  %>
                     <tr>
                       <td>
                         <div class="d-flex align-items-center mb-2">
-                          <span class="badge bg-success me-2" style="width: 10px; height: 10px; border-radius: 50%;"></span>
-                          <span style="font-weight: 500;"><%= log.message %></span>
+                          <span class="badge <%= badgeClass %> me-2" style="width: 14px; height: 14px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                            <%- icon %>
+                          </span>
+                          <span style="font-weight: 500;"><%- highlightedMsg %></span>
                         </div>
                         <div style="color: #aaa; font-size: 0.95em;">
                           <%= log.formattedDate || (new Date(log.timestamp)).toLocaleString('en-PH', { timeZone: 'Asia/Manila' }) %>
