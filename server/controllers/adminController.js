@@ -675,7 +675,13 @@ exports.updateProduct = async (req, res) => {
 
     // Update the product with new data
     await Product.findOneAndUpdate(
-      { _id: req.params.id },
+      { 
+        _id: req.params.id,
+        $or: [
+          { user: req.user._id },
+          { user: req.user.adminId }
+        ]
+      },
       {
         name: req.body.name,
         category: req.body.category,
@@ -683,7 +689,7 @@ exports.updateProduct = async (req, res) => {
         quantity: req.body.quantity || null,
         image: updatedImage
       }
-    ).where({ user: req.user.id });
+    )
 
     for (const log of logs) {
       await saveProductLog({
@@ -769,7 +775,14 @@ exports.updateAccount = async (req, res) => {
 // DELETE
 exports.deleteProduct = async (req, res) => {
   try {
-    const product = await Product.findById(req.params.id).where({ user: req.user.id });
+    const product = await Product.findOne({
+      _id: req.params.id,
+      $or: [
+        { user: req.user._id },
+        { user: req.user.adminId }
+      ]
+    });
+    
     if (product) {
       await saveProductLog({
         action: 'delete',
@@ -779,7 +792,13 @@ exports.deleteProduct = async (req, res) => {
       });
     }
 
-    await Product.deleteOne({ _id: req.params.id }).where({ user: req.user.id });
+    await Product.deleteOne({
+      _id: req.params.id,
+      $or: [
+        { user: req.user._id },
+        { user: req.user.adminId }
+      ]
+    });
     res.redirect('/pos/admin/product');
   } catch (error) {
     console.log("error", error)
