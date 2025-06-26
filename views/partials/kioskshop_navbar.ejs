@@ -374,7 +374,7 @@
                 icon: 'success',
                 title: 'Payment Complete!',
                 text: 'Payment was received successfully.',
-                timer: 3000,
+                timer: 5000,
                 showConfirmButton: false
               });
 
@@ -392,12 +392,12 @@
               // Auto-reset kiosk for next order
               setTimeout(() => {
                 window.location.href = `/${accountId}/kiosk-shop`;
-              }, 4000);
+              }, 5000);
             }
           } catch (err) {
             console.error('Polling error:', err);
           }
-        }, 3000); // every 3 seconds
+        }, 5000); // every 3 seconds
 
         } else {
           alert('Failed to generate PayPal QR Code');
