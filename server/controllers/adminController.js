@@ -634,7 +634,13 @@ exports.addUserDetails = async (req, res) => {
 // PUT/UPDATE
 exports.updateProduct = async (req, res) => {
   try {
-    const product = await Product.findById(req.params.id).where({ user: req.user.id });
+    const product = await Product.findOne({
+      _id: req.params.id,
+      $or: [
+        { user: req.user._id },
+        { user: req.user.adminId }
+      ]
+    }); 
     if (!product) return res.status(404).send("Product not found")
 
     let updatedImage = product.image;
@@ -782,7 +788,7 @@ exports.deleteProduct = async (req, res) => {
         { user: req.user.adminId }
       ]
     });
-    
+
     if (product) {
       await saveProductLog({
         action: 'delete',
