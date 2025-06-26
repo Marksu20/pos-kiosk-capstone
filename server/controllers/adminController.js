@@ -51,7 +51,7 @@ async function saveProductLog({ action, productName, newValue, user, comment, ca
       message = `Create item ${productName} by ${user}: ${comment}`;
       break;
     case 'delete':
-      message = `Delete item ${productName}, ${category} by ${user}: ${comment}`;
+      message = `Delete item ${productName} by ${user}: ${comment}`;
       break;
     default:
       message = `Unknown action on ${productName} by ${user}: ${comment}`;
