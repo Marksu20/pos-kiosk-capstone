@@ -378,11 +378,21 @@
                 showConfirmButton: false
               });
 
-              //redeploy
+              const orderData = {
+                orderNumber: data.orderNumber || '', // If you return this from backend, otherwise leave blank
+                customerName: data.customerName || 'Walk-in Customer',
+                orderItems: JSON.parse(localStorage.getItem('orderItems')) || [],
+                orderType: data.orderType || '',
+                totalAmount: parseFloat(document.querySelector('.total-amount').innerText.replace(/[^\d.]/g, '')) || 0,
+                paymentMethod: 'PayPal',
+              };
+
+              displayReceipt(orderData);
+
               // Auto-reset kiosk for next order
               setTimeout(() => {
                 window.location.href = `/${accountId}/kiosk-shop`;
-              }, 3000);
+              }, 4000);
             }
           } catch (err) {
             console.error('Polling error:', err);
