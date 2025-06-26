@@ -764,7 +764,7 @@ exports.deleteProduct = async (req, res) => {
       await saveProductLog({
         action: 'delete',
         productName: product.name,
-        user: req.user.displayName || req.user.firstName,
+        user: req.user.displayName || req.user.firstName || req.user.companyName || 'Unknown User',
         comment: req.body.comment || '',
         category: product.category
       });
