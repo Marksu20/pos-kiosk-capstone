@@ -28,17 +28,17 @@
                     actionColor = "text-warning";
                   }
 
-                  // Highlight action and underline only the product name
+                  // Highlight action and underline the full product name (with spaces)
                   let highlightedMsg = log.message
                     .replace(
                       /(delete|create|update)/i,
                       (match) => `<span class="${actionColor} text-capitalize fw-bold">${match}</span>`
                     )
-                    // Underline only the product name after "item" or "Update"
+                    // Underline the full product name after "item" or "Update" (until ' by ' or ' category ' or ' price ' or ' quantity ' or ' image ')
                     .replace(
-                      /(item|Update) ([^ ]+)/i,
+                      /(item|Update) ([^bcpqi]+?)(?= by| category| price| quantity| image| into|$)/i,
                       (match, action, prodName) =>
-                        `${action} <span class="fw-bold text-decoration-underline">${prodName}</span>`
+                        `${action} <span class="fw-bold text-decoration-underline">${prodName.trim()}</span>`
                     )
                     // Highlight user
                     .replace(
