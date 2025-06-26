@@ -11,8 +11,7 @@ const logSchema = new Schema({
         default: Date.now
     },
     user: {
-        type: Schema.ObjectId,
-        ref: 'User',
+        type: String,
         required: false
     },
     action: {
