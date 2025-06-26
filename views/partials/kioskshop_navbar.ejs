@@ -378,9 +378,10 @@
                 showConfirmButton: false
               });
 
+              //redeploy
               // Auto-reset kiosk for next order
               setTimeout(() => {
-                window.location.href = `${accountId}/kiosk-shop`;
+                window.location.href = `/${accountId}/kiosk-shop`;
               }, 3000);
             }
           } catch (err) {
