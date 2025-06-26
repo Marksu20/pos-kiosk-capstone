@@ -4,6 +4,7 @@ const Stock = require('../models/Stock');
 const Discount = require('../models/Discount');
 const Receipt = require('../models/Receipt');
 const User = require('../models/User');
+const Log = require('../models/Log');
 const mongoose = require('mongoose');
 const multer = require('multer');
 const path = require('path');
@@ -25,6 +26,47 @@ const transporter = nodemailer.createTransport({
 function formatToLocal(date) {
   if (!date) return '';
   return new Date(date).toLocaleString('en-PH', { timeZone: 'Asia/Manila' }); // Change to your timezone
+}
+
+async function saveProductLog({ action, productName, newValue, user, comment, category }) {
+  const now = new Date();
+  let message = '';
+  switch (action) {
+    case 'updateName':
+      message = `Update ${productName} name into ${newValue} by ${user}: ${comment}`;
+      break;
+    case 'updateCategory':
+      message = `Update ${productName} category into ${newValue} by ${user}: ${comment}`;
+      break;
+    case 'updatePrice':
+      message = `Update ${productName} price into ${newValue} by ${user}: ${comment}`;
+      break;
+    case 'updateQuantity':
+      message = `Update ${productName} quantity into ${newValue} by ${user}: ${comment}`;
+      break;
+    case 'updateImage':
+      message = `Update ${productName} image into ${newValue} by ${user}: ${comment}`;
+      break;
+    case 'create':
+      message = `Create item ${productName} by ${user}: ${comment}`;
+      break;
+    case 'delete':
+      message = `Delete item ${productName}, ${category} by ${user}: ${comment}`;
+      break;
+    default:
+      message = `Unknown action on ${productName} by ${user}: ${comment}`;
+  }
+  await Log.create({
+    message,
+    timestamp: now,
+    user,
+    action,
+    productName,
+    newValue,
+    category,
+    comment,
+    formattedDate: now.toLocaleString('en-PH', { timeZone: 'Asia/Manila' })
+  });
 }
 
 // GET: amdin
@@ -585,14 +627,34 @@ exports.addUserDetails = async (req, res) => {
 exports.updateProduct = async (req, res) => {
   try {
     const product = await Product.findById(req.params.id).where({ user: req.user.id });
+    if (!product) return res.status(404).send("Product not found")
 
-    // Check if a new image is uploaded
-    let updatedImage = product.image; // default to the existing image
+    let updatedImage = product.image;
+    let logs = [];
+    const user = req.user.displayName || req.user.firstName;
+
+    // Compare and log changes
+    if (req.body.name && req.body.name !== product.name) {
+      logs.push({ action: 'updateName', productName: product.name, newValue: req.body.name });
+    }
+    if (req.body.category && req.body.category !== String(product.category)) {
+      logs.push({ action: 'updateCategory', productName: product.name, newValue: req.body.category });
+    }
+    if (req.body.price && req.body.price != product.price) {
+      logs.push({ action: 'updatePrice', productName: product.name, newValue: req.body.price });
+    }
+    if ((req.body.quantity || req.body.quantity === 0) && req.body.quantity != product.quantity) {
+      logs.push({ action: 'updateQuantity', productName: product.name, newValue: req.body.quantity });
+    }
+    if (req.file) {
+      updatedImage = req.file.path;
+      logs.push({ action: 'updateImage', productName: product.name, newValue: path.basename(updatedImage) });
+      // Optionally delete old image...
+    }
 
     if (req.file) {
       updatedImage = req.file.path;
       
-      // Optionally, delete the old image file from the server
       if (product.image && product.image !== '/img/cafe-latter.jpg' && product.image !== '/img/default-image.jpg') {
         const oldImagePath = path.join(__dirname, '..', 'public', product.image);
         if (fs.existsSync(oldImagePath)) {
@@ -612,6 +674,15 @@ exports.updateProduct = async (req, res) => {
         image: updatedImage
       }
     ).where({ user: req.user.id });
+
+    for (const log of logs) {
+      await saveProductLog({
+        ...log,
+        user,
+        comment: req.body.comment || '',
+        category: req.body.category
+      });
+    }
 
     req.flash('success_msg', `A product successfully updated!`);
     res.redirect('/pos/admin/product');
@@ -688,6 +759,17 @@ exports.updateAccount = async (req, res) => {
 // DELETE
 exports.deleteProduct = async (req, res) => {
   try {
+    const product = await Product.findById(req.params.id).where({ user: req.user.id });
+    if (product) {
+      await saveProductLog({
+        action: 'delete',
+        productName: product.name,
+        user: req.user.displayName || req.user.firstName,
+        comment: req.body.comment || '',
+        category: product.category
+      });
+    }
+    
     await Product.deleteOne({ _id: req.params.id }).where({ user: req.user.id });
     res.redirect('/pos/admin/product');
   } catch (error) {
@@ -821,6 +903,14 @@ exports.newProduct = async (req, res) => {
       sold,
     });
     await newProduct.save();
+
+    await saveProductLog({
+      action: 'create',
+      productName: name,
+      user: req.user.displayName || req.user.firstName,
+      comment: req.body.comment || '',
+      category: categoryID
+    });
     
     req.flash('success_msg', `"${name}" successfully added!`);
     res.redirect('/pos/admin/product');
