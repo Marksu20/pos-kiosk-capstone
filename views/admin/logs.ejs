@@ -32,21 +32,25 @@
                     // Highlight product name (underlined) and user (bold green)
                     let highlightedMsg = log.message
                       .replace(
-                        /(delete|create|update)/i,
-                        (match) => `<span class="${actionColor} text-capitalize fw-bold">${match}</span>`
-                      )
-                      .replace(
-                        /item ([^ ]+)/i, 
-                        (match, p1) => `item <span class="fw-bold text-decoration-underline">${p1}</span>`
-                      )
-                      .replace(
-                        /Update ([^ ]+)/i, 
-                        (match, p1) => `Update <span class="fw-bold text-decoration-underline">${p1}</span>`
-                      )
-                      .replace(
-                        /by ([^:]+):/, 
-                        (match, p1) => `by <span class="text-success fw-bold">${p1}</span>:`
-                      );
+                      /(delete|create|update)/i,
+                      (match) => `<span class="${actionColor} text-capitalize fw-bold">${match}</span>`
+                    )
+                    // Underline product name and everything after it until 'by'
+                    .replace(
+                      /(item|Update) ([^ ]+)([^b]+by)/i,
+                      (match, action, prodName, after) =>
+                        `${action} <span class="fw-bold text-decoration-underline">${prodName}${after}</span>`
+                    )
+                    // Underline for delete with category (if present)
+                    .replace(
+                      /(Delete item [^,]+, [^ ]+)/i,
+                      (match) => `<span class="fw-bold text-decoration-underline">${match}</span>`
+                    )
+                    // Highlight user
+                    .replace(
+                      /by ([^:]+):/,
+                      (match, p1) => `by <span class="text-primary fw-bold">${p1}</span>:`
+                    );
                   %>
                     <tr>
                       <td>
