@@ -766,7 +766,6 @@ exports.deleteProduct = async (req, res) => {
         productName: product.name,
         user: req.user.displayName || req.user.firstName || req.user.companyName || 'Unknown User',
         comment: req.body.comment || '',
-        category: product.category
       });
     }
 
