@@ -907,7 +907,7 @@ exports.newProduct = async (req, res) => {
     await saveProductLog({
       action: 'create',
       productName: name,
-      user: req.user.displayName || req.user.firstName,
+      user: req.user.displayName || req.user.firstName || req.user.companyName || 'Unknown User',
       comment: comment,
       category: categoryID
     });
