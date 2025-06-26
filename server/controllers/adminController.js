@@ -460,10 +460,15 @@ exports.logs = async (req, res) => {
 }
 
 exports.viewProduct = async (req, res) => {
-  const product = await Product.findById({ _id: req.params.id })
-    .where({ user: req.user.id })
-    .populate('category')
-    .lean();
+  const product = await Product.findById({ 
+    _id: req.params.id,
+    $or: [
+        { user: req.user._id },
+        { user: req.user.adminId }
+    ]
+  })
+  .populate('category')
+  .lean();
   const products = await Product.find({})
     .populate('category')
     .exec();
