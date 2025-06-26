@@ -588,7 +588,7 @@ exports.successPayment = async (req, res) => {
       orderType: tempOrder.orderType, // Default or dynamic
       totalAmount: amountPaid,
       paymentMethod: 'PayPal',
-      status: 'To Serve',
+      status: 'Waiting',
     });
 
     await newOrder.save();
