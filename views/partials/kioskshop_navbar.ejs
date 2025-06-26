@@ -364,7 +364,7 @@
           if (!paypalOrderId) return;
 
           try {
-            const res = await fetch(`/api/kiosk/payment-status/${paypalOrderId}`);
+            const res = await fetch(`/api/kiosk-shop/payment-status/${paypalOrderId}`);
             const data = await res.json();
 
             if (data.success && data.status === 'Paid') {
