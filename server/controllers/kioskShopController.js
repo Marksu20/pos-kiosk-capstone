@@ -547,6 +547,23 @@ exports.successPayment = async (req, res) => {
 
     const orderNumber = await generateUniqueOrderNumber(accountId);
 
+    for (let item of tempOrder.orderItems) {
+      const product = await Product.findOne({ _id: item.id, user: accountId });
+      if (!product) {
+        return res.render('kiosk-shop/success-payment', {
+          success: false,
+          message: `Product ${item.name} not found or not authorized.`,
+        });
+      }
+      if (product.quantity !== null) {
+        product.sold += item.quantity;
+        product.quantity -= item.quantity;
+      } else {
+        product.sold += item.quantity;
+      }
+      await product.save();
+    }
+
     const newOrder = new Order({
       user: accountId,
       orderNumber,
