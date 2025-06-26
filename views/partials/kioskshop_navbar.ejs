@@ -380,7 +380,7 @@
 
               // Auto-reset kiosk for next order
               setTimeout(() => {
-                window.location.href = '/kiosk-shop';
+                window.location.href = `${accountId}/kiosk-shop`;
               }, 3000);
             }
           } catch (err) {
