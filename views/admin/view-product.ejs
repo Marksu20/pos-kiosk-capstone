@@ -95,7 +95,7 @@
           You are about to delete a product
         </h5>
       </div>
-      
+    <form action="/pos/admin/delete-product/<%= productID %>?_method=DELETE" method="POST"></form>
       <div class="modal-body">
         <p>
           This will delete your product <b class="fw-bold text-danger"><%= product.name %></b><br/>
@@ -107,8 +107,6 @@
         </div>
       </div>
 
-      <!-- footer -->
-      <form action="/pos/admin/delete-product/<%= productID %>?_method=DELETE" method="POST">
         <div class="modal-footer">
           <button type="submit" class="btn btn-danger">Delete</button>
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>  
