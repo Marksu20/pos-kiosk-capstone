@@ -446,7 +446,7 @@ exports.createQrPaypalOrder = async (req, res) => {
         application_context: {
           user_action: 'PAY_NOW',
           shipping_preference: 'NO_SHIPPING',
-          return_url: `${process.env.BASE_URL}/kiosk-shop/success-payment`,
+          return_url: `${process.env.BASE_URL}/kiosk-shop/success-payment?accountId=${accountId}`,
           cancel_url: `${process.env.BASE_URL}/kiosk`,
         }
       },
@@ -484,6 +484,109 @@ exports.createQrPaypalOrder = async (req, res) => {
   } catch (err) {
     console.error('PayPal QR create error:', err.response?.data || err.message);
     res.status(500).json({ success: false, message: 'QR PayPal Order creation failed' });
+  }
+};
+
+exports.successPayment = async (req, res) => {
+  const orderID = req.query.token;
+  const accountId = req.query.accountId;
+
+  if (!orderID || !accountId) {
+    return res.render('kiosk-shop/success-payment', {
+      success: false,
+      message: 'Missing PayPal order ID or account ID.'
+    });
+  }
+
+  if (!orderID) {
+    return res.render('kiosk-shop/success-payment', { 
+      success: false, message: 'Missing order ID.' 
+    });
+  }
+
+  try {
+    // Get PayPal access token
+    const auth = await axios({
+      method: 'post',
+      url: `${process.env.PAYPAL_API}/v1/oauth2/token`,
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      auth: {
+        username: process.env.PAYPAL_CLIENT_ID,
+        password: process.env.PAYPAL_CLIENT_SECRET,
+      },
+      data: 'grant_type=client_credentials',
+    });
+    const accessToken = auth.data.access_token;
+
+    // Capture the order
+    const capture = await axios.post(
+      `${process.env.PAYPAL_API}/v2/checkout/orders/${orderID}/capture`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    );
+
+    const capturedOrder = capture.data;
+    const paypalData = capturedOrder.purchase_units[0];
+    const amountPaid = paypalData.amount.value;
+
+    const tempOrder = await TempOrder.findOne({ paypalOrderId: orderID });
+
+    if (!tempOrder) {
+      return res.render('kiosk-shop/success-payment', {
+        success: false,
+        message: 'Temporary order not found.',
+      });
+    }
+
+    tempOrder.status = 'Paid';
+    await tempOrder.save();
+
+    const orderNumber = await generateUniqueOrderNumber(accountId);
+
+    const newOrder = new Order({
+      user: accountId,
+      orderNumber,
+      customerName: tempOrder.customerName || 'Walk-in Customer',
+      orderItems: tempOrder.orderItems, 
+      orderType: tempOrder.orderType, // Default or dynamic
+      totalAmount: amountPaid,
+      paymentMethod: 'PayPal',
+      status: 'To Serve',
+    });
+
+    await newOrder.save();
+
+    res.render('kiosk-shop/success-payment', { 
+      success: true, 
+      message: 'Payment successful!' 
+    });
+  } catch (error) {
+    console.error('PayPal capture error:', error.response?.data || error.message);
+    res.render('kiosk-shop/success-payment', { 
+      success: false, 
+      message: 'Payment capture failed.'
+    });
+  }
+}
+
+exports.getPaypalPaymentStatus = async (req, res) => {
+  const { paypalOrderId } = req.params;
+
+  try {
+    const tempOrder = await TempOrder.findOne({ paypalOrderId });
+
+    if (!tempOrder) {
+      return res.status(404).json({ success: false, message: 'Order not found' });
+    }
+
+    return res.json({ success: true, status: tempOrder.status });
+  } catch (err) {
+    console.error('Error checking PayPal payment status:', err);
+    return res.status(500).json({ success: false, message: 'Server error' });
   }
 };
 
@@ -530,64 +633,6 @@ exports.confirmPaypalOrder = async (req, res) => {
     res.status(500).send('Payment verification failed.');
   }
 };
-
-exports.successPayment = async (req, res) => {
-  const orderID = req.query.token;
-  if (!orderID) {
-    return res.render('kiosk-shop/success-payment', { success: false, message: 'Missing order ID.' });
-  }
-
-  try {
-    // Get PayPal access token
-    const auth = await axios({
-      method: 'post',
-      url: `${process.env.PAYPAL_API}/v1/oauth2/token`,
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      auth: {
-        username: process.env.PAYPAL_CLIENT_ID,
-        password: process.env.PAYPAL_CLIENT_SECRET,
-      },
-      data: 'grant_type=client_credentials',
-    });
-    const accessToken = auth.data.access_token;
-
-    // Capture the order
-    const capture = await axios.post(
-      `${process.env.PAYPAL_API}/v2/checkout/orders/${orderID}/capture`,
-      {},
-      {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      }
-    );
-
-    // Optionally: Save order to your DB here
-
-    res.render('kiosk-shop/success-payment', { success: true, message: 'Payment successful!' });
-  } catch (error) {
-    console.error('PayPal capture error:', error.response?.data || error.message);
-    res.render('kiosk-shop/success-payment', { success: false, message: 'Payment capture failed.' });
-  }
-}
-
-exports.getPaypalPaymentStatus = async (req, res) => {
-  const { paypalOrderId } = req.params;
-
-  try {
-    const tempOrder = await TempOrder.findOne({ paypalOrderId });
-
-    if (!tempOrder) {
-      return res.status(404).json({ success: false, message: 'Order not found' });
-    }
-
-    return res.json({ success: true, status: tempOrder.status });
-  } catch (err) {
-    console.error('Error checking PayPal payment status:', err);
-    return res.status(500).json({ success: false, message: 'Server error' });
-  }
-};
-
 // redeploy controlller
 
 
