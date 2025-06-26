@@ -3,6 +3,7 @@ const Product = require('../models/Product');
 const Category = require('../models/Category');
 const Order = require('../models/Order');
 const Receipt = require('../models/Receipt');
+const TempOrder = require('../models/TempOrder');
 const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
 const { account } = require('./adminController');
@@ -469,6 +470,17 @@ exports.createQrPaypalOrder = async (req, res) => {
       paypalOrderId: paypalOrderId,
     });
 
+    await TempOrder.create({
+      paypalOrderId,
+      accountId,
+      totalAmount,
+      customerName,
+      orderType,
+      orderItems,
+      status: 'Pending',
+    });
+
+
   } catch (err) {
     console.error('PayPal QR create error:', err.response?.data || err.message);
     res.status(500).json({ success: false, message: 'QR PayPal Order creation failed' });
@@ -558,6 +570,24 @@ exports.successPayment = async (req, res) => {
     res.render('kiosk-shop/success-payment', { success: false, message: 'Payment capture failed.' });
   }
 }
+
+exports.getPaypalPaymentStatus = async (req, res) => {
+  const { paypalOrderId } = req.params;
+
+  try {
+    const tempOrder = await TempOrder.findOne({ paypalOrderId });
+
+    if (!tempOrder) {
+      return res.status(404).json({ success: false, message: 'Order not found' });
+    }
+
+    return res.json({ success: true, status: tempOrder.status });
+  } catch (err) {
+    console.error('Error checking PayPal payment status:', err);
+    return res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
 
 
 

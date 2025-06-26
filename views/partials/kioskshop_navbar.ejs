@@ -358,6 +358,36 @@
           qrContainer.appendChild(debugLink);
 
           sessionStorage.setItem('paypalOrderId', data.paypalOrderId);
+
+          const pollingInterval = setInterval(async () => {
+          const paypalOrderId = sessionStorage.getItem('paypalOrderId');
+          if (!paypalOrderId) return;
+
+          try {
+            const res = await fetch(`/api/kiosk/payment-status/${paypalOrderId}`);
+            const data = await res.json();
+
+            if (data.success && data.status === 'Paid') {
+              clearInterval(pollingInterval); // stop polling
+
+              Swal.fire({
+                icon: 'success',
+                title: 'Payment Complete!',
+                text: 'Payment was received successfully.',
+                timer: 3000,
+                showConfirmButton: false
+              });
+
+              // Auto-reset kiosk for next order
+              setTimeout(() => {
+                window.location.href = '/kiosk-shop';
+              }, 3000);
+            }
+          } catch (err) {
+            console.error('Polling error:', err);
+          }
+        }, 3000); // every 3 seconds
+
         } else {
           alert('Failed to generate PayPal QR Code');
         }

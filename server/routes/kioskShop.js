@@ -23,6 +23,8 @@ router.get('/paypal/confirm', kioskShopController.confirmPaypalOrder);
 
 router.get('/kiosk-shop/success-payment', kioskShopController.successPayment);
 
+router.get('/api/kiosk-shop/payment-status', kioskShopController.getPaymentStatus);
+
 // router.get('/kiosk/expired', (req, res) => {
 //     res.render('kiosk/expired', { layout: false });
 // });
