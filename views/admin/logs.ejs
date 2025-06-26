@@ -16,11 +16,27 @@
         <div class="card-body">
           <div class="table-responsive">
             <table class="table">
-                <tbody id="receipt-list">
-                <tr class="receipt-row">
-                    <td></td>
-                </tr>
-                </tbody>
+                <tbody id="logs-list">
+                <% if (logs && logs.length > 0) { %>
+                  <% logs.forEach(function(log) { %>
+                    <tr>
+                      <td>
+                        <div class="d-flex align-items-center mb-2">
+                          <span class="badge bg-success me-2" style="width: 10px; height: 10px; border-radius: 50%;"></span>
+                          <span style="font-weight: 500;"><%= log.message %></span>
+                        </div>
+                        <div style="color: #aaa; font-size: 0.95em;">
+                          <%= log.formattedDate || (new Date(log.timestamp)).toLocaleString('en-PH', { timeZone: 'Asia/Manila' }) %>
+                        </div>
+                      </td>
+                    </tr>
+                  <% }) %>
+                <% } else { %>
+                  <tr>
+                    <td class="text-center text-muted">No logs found.</td>
+                  </tr>
+                <% } %>
+              </tbody>
             </table>
           </div>
         </div>

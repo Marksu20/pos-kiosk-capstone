@@ -438,8 +438,11 @@ exports.logs = async (req, res) => {
       title: "Account",
       description: "koka POS web application"
     };
+
+    const logs = await Log.find({}).sort({ timestamp: -1 }).lean();
     
     res.render('admin/logs', {
+      logs,
       username: req.user.firstName,
       companyname: req.user.companyName,
       username: req.user.displayName,
