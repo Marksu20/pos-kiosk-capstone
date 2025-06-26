@@ -530,8 +530,24 @@ exports.successPayment = async (req, res) => {
     );
 
     const capturedOrder = capture.data;
-    const paypalData = capturedOrder.purchase_units[0];
-    const amountPaid = paypalData.amount.value;
+    let amountPaid = 0;
+      if (
+        capturedOrder &&
+        capturedOrder.purchase_units &&
+        capturedOrder.purchase_units[0] &&
+        capturedOrder.purchase_units[0].payments &&
+        capturedOrder.purchase_units[0].payments.captures &&
+        capturedOrder.purchase_units[0].payments.captures[0] &&
+        capturedOrder.purchase_units[0].payments.captures[0].amount
+      ) {
+        amountPaid = capturedOrder.purchase_units[0].payments.captures[0].amount.value;
+      } else {
+        console.error('Unexpected PayPal capture response:', JSON.stringify(capturedOrder, null, 2));
+        return res.render('kiosk-shop/success-payment', {
+          success: false,
+          message: 'Payment capture response invalid. Please contact support.',
+        });
+      }
 
     const tempOrder = await TempOrder.findOne({ paypalOrderId: orderID });
 
