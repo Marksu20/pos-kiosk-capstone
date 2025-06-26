@@ -391,17 +391,27 @@ exports.account = async (req, res) => {
 }
 
 exports.logs = async (req, res) => {
-
-  res.render('admin/logs', {
-    username: req.user.firstName,
-    companyname: req.user.companyName,
-    username: req.user.displayName,
-    role: req.user.role,
-    currentPath: req.path,
-    locals,
-    showNavbar: true,
-    layout: '../views/layouts/admin'
-  });
+  try {
+    const locals = {
+      title: "Account",
+      description: "koka POS web application"
+    };
+    
+    res.render('admin/logs', {
+      username: req.user.firstName,
+      companyname: req.user.companyName,
+      username: req.user.displayName,
+      role: req.user.role,
+      currentPath: req.path,
+      locals,
+      showNavbar: true,
+      layout: '../views/layouts/admin'
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('logs server error');
+  }
+  
 }
 
 exports.viewProduct = async (req, res) => {
