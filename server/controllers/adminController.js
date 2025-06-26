@@ -631,7 +631,7 @@ exports.updateProduct = async (req, res) => {
 
     let updatedImage = product.image;
     let logs = [];
-    const user = req.user.displayName || req.user.firstName;
+    const user = req.user.displayName || req.user.firstName || req.user.companyName || 'Unknown User';
 
     // Compare and log changes
     if (req.body.name && req.body.name !== product.name) {
@@ -769,7 +769,7 @@ exports.deleteProduct = async (req, res) => {
         category: product.category
       });
     }
-    
+
     await Product.deleteOne({ _id: req.params.id }).where({ user: req.user.id });
     res.redirect('/pos/admin/product');
   } catch (error) {
