@@ -460,7 +460,7 @@ exports.logs = async (req, res) => {
 }
 
 exports.viewProduct = async (req, res) => {
-  const product = await Product.findById({ 
+  const product = await Product.findOne({ 
     _id: req.params.id,
     $or: [
         { user: req.user._id },
