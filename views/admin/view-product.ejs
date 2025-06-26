@@ -65,6 +65,11 @@
               <div class="input-group mb-3">
                 <input id="image" name="image" type="file" class="form-control">
               </div>
+
+              <div class="mb-3">
+                <label for="comment" class="form-label">Comment (reason for update)</label>
+                <textarea name="comment" id="comment" class="form-control" rows="2" placeholder="Why are you updating this product?"></textarea>
+              </div>
             
           </div>
           
@@ -97,6 +102,11 @@
           This will delete your product <b class="fw-bold text-danger"><%= product.name %></b><br/>
           Are you sure?
         </p>
+
+        <div class="mb-3">
+          <label for="deleteComment" class="form-label">Comment (reason for deletion)</label>
+          <textarea name="comment" id="deleteComment" class="form-control" rows="2" placeholder="Why are you deleting this product?"></textarea>
+        </div>
       </div>
 
       <!-- footer -->

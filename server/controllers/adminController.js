@@ -858,7 +858,7 @@ exports.deleteUser = async (req, res) => {
 
 // POST / ADD
 exports.newProduct = async (req, res) => {
-  const { name, category, price, quantity, newCategory, categoryDescription, trackQuantity } = req.body;
+  const { name, category, price, quantity, newCategory, categoryDescription, trackQuantity, comment } = req.body;
 
   const defaultImage = '/img/default-image.jpg';
   const image = req.file ? req.file.path : defaultImage;
@@ -908,7 +908,7 @@ exports.newProduct = async (req, res) => {
       action: 'create',
       productName: name,
       user: req.user.displayName || req.user.firstName,
-      comment: req.body.comment || '',
+      comment: comment,
       category: categoryID
     });
     
