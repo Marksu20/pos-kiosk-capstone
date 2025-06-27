@@ -211,7 +211,7 @@ router.post('/login', async (req, res) => {
       if (err) {
         return next(err);
       }
-      return res.redirect('/pos'); // Redirect after success
+      return res.redirect('/pos/admin/dashboard'); // Redirect after success
     });
   } catch (error) {
       console.log("error",  error);
